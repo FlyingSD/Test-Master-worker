@@ -1,0 +1,26 @@
+{
+  "name": "claude-hybrid-wordpress-agent",
+  "version": "1.0.0",
+  "description": "A hybrid AI agent system for WordPress automation, combining orchestration with direct execution.",
+  "main": "scripts/run-hybrid-agent.js",
+  "scripts": {
+    "start": "node scripts/run-hybrid-agent.js",
+    "wp-mcp": "node scripts/mcp-servers/wordpress-server.js",
+    "fs-mcp": "node node_modules/@modelcontextprotocol/server-filesystem/dist/index.js"
+  },
+  "keywords": [
+    "anthropic",
+    "claude",
+    "ai-agent",
+    "wordpress",
+    "mcp"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.8",
+    "@modelcontextprotocol/sdk": "^0.0.10",
+    "@modelcontextprotocol/server-filesystem": "^0.0.9",
+    "dotenv": "^16.4.5"
+  }
+}
