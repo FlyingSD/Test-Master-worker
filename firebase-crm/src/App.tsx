@@ -3,10 +3,10 @@ import { useAuth } from '@/hooks/useAuth'
 import LoginPage from '@/pages/LoginPage'
 import Layout from '@/components/Layout'
 import DashboardPage from '@/pages/DashboardPage'
+import StudentsPage from '@/pages/StudentsPage'
+import PaymentsPage from '@/pages/PaymentsPage'
 
 // Placeholder pages (will be created later)
-const StudentsPage = () => <div className="p-6">Ученици страница - в разработка</div>
-const PaymentsPage = () => <div className="p-6">Плащания страница - в разработка</div>
 const ExpensesPage = () => <div className="p-6">Разходи страница - в разработка</div>
 const EventsPage = () => <div className="p-6">События страница - в разработка</div>
 const AttendancePage = () => <div className="p-6">Присъствия страница - в разработка</div>
