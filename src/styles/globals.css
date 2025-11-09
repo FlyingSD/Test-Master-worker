@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar for a magical feel */
+@layer base {
+  body {
+    @apply bg-forest text-white font-sans;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-forest-light;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-ocean rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ocean-light;
+  }
+}
+
+/* Firefly glow effect */
+@layer utilities {
+  .firefly-glow {
+    filter: drop-shadow(0 0 8px theme('colors.firefly.DEFAULT'))
+            drop-shadow(0 0 16px theme('colors.firefly.DEFAULT'));
+  }
+
+  .firefly-glow-strong {
+    filter: drop-shadow(0 0 12px theme('colors.firefly.DEFAULT'))
+            drop-shadow(0 0 24px theme('colors.firefly.DEFAULT'))
+            drop-shadow(0 0 36px theme('colors.firefly.light'));
+  }
+
+  .ocean-glow {
+    filter: drop-shadow(0 0 8px theme('colors.ocean.DEFAULT'))
+            drop-shadow(0 0 16px theme('colors.ocean.DEFAULT'));
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(29, 50, 52, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Card styles */
+  .card {
+    @apply glass rounded-xl p-6;
+    box-shadow: 0 8px 30px rgba(29, 50, 52, 0.1);
+  }
+
+  /* Button styles */
+  .btn-primary {
+    @apply bg-gradient-to-br from-firefly to-firefly-dark text-forest font-semibold
+           px-6 py-3 rounded-full transition-all duration-300
+           hover:scale-105 active:scale-95;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 20px rgba(250, 186, 41, 0.6);
+  }
+
+  .btn-secondary {
+    @apply bg-gradient-to-br from-ocean to-ocean-dark text-white font-semibold
+           px-6 py-3 rounded-full transition-all duration-300
+           hover:scale-105 active:scale-95;
+  }
+
+  .btn-secondary:hover {
+    box-shadow: 0 4px 20px rgba(70, 177, 157, 0.3);
+  }
+
+  .btn-ghost {
+    @apply bg-transparent border-2 border-firefly text-firefly font-semibold
+           px-6 py-3 rounded-full transition-all duration-300
+           hover:bg-firefly hover:text-forest active:scale-95;
+  }
+}
+
+/* Animations */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+@keyframes firefly-float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  50% {
+    transform: translateY(-10px) translateX(-10px);
+  }
+  75% {
+    transform: translateY(-30px) translateX(5px);
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle 3s ease-in-out infinite;
+}
+
+.animate-firefly-float {
+  animation: firefly-float 6s ease-in-out infinite;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(250, 186, 41, 0.3);
+  border-top-color: #FABA29;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

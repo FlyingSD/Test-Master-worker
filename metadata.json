@@ -1,5 +1,0 @@
-{
-  "name": "AI Agent Architecture Analyzer",
-  "description": "An application that analyzes and compares two AI development paradigms: Delegative Orchestration vs. Direct Execution, and proposes a hybrid model for robust automation.",
-  "requestFramePermissions": []
-}

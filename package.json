@@ -1,26 +1,43 @@
 {
-  "name": "claude-hybrid-wordpress-agent",
+  "name": "svetlina-mental-math",
   "version": "1.0.0",
-  "description": "A hybrid AI agent system for WordPress automation, combining orchestration with direct execution.",
-  "main": "scripts/run-hybrid-agent.js",
+  "description": "Светлина - Игра за ментална аритметика за деца 5-12 години",
+  "type": "module",
   "scripts": {
-    "start": "node scripts/run-hybrid-agent.js",
-    "wp-mcp": "node scripts/mcp-servers/wordpress-server.js",
-    "fs-mcp": "node node_modules/@modelcontextprotocol/server-filesystem/dist/index.js"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "keywords": [
-    "anthropic",
-    "claude",
-    "ai-agent",
-    "wordpress",
-    "mcp"
+    "mental-arithmetic",
+    "abacus",
+    "soroban",
+    "educational-game",
+    "kids-learning",
+    "bulgaria"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Учебен център Светлина",
+  "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.20.8",
-    "@modelcontextprotocol/sdk": "^0.0.10",
-    "@modelcontextprotocol/server-filesystem": "^0.0.9",
-    "dotenv": "^16.4.5"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "framer-motion": "^11.0.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.0"
   }
 }

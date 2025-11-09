@@ -1,20 +1,76 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🔥 Светлина - Ментална Аритметика
 
-# Run and deploy your AI Studio app
+**Образователна игра за деца 5-12 години**
 
-This contains everything you need to run your app locally.
+Учебен център Светлина -Ywhere every child shines with numbers ✨
 
-View your app in AI Studio: https://ai.studio/apps/drive/1VAHjqrh8KOOuvT0xp0LbPUUbiy741NCW
+## 🎯 За Играта
 
-## Run Locally
+Светлина е интерактивна игра за ментална аритметика, базирана на японския метод Соробан/Ан'зан. Децата (нашите светулки) учат бързо смятане чрез виртуален абакус и забавни игри.
 
-**Prerequisites:**  Node.js
+### Особености:
+- 🧮 Виртуален абакус с анимации
+- 🦊 Герои светулки за всяко число
+- ⚡ Flash Anzan състезания
+- 📊 Адаптивна трудност (AI-powered)
+- 👨‍👩‍👧 Родителски dashboard
+- 🏆 Геймификация и награди
 
+### Възрастови групи:
+- **Ниво 1**: 5-6 години (Малки светулки)
+- **Ниво 2**: 7-8 години (Големи светулки)
+- **Ниво 3**: 9-12 години (Майстори)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 🚀 Бърз старт
+
+```bash
+# Инсталация
+npm install
+
+# Разработка
+npm run dev
+
+# Build за production
+npm run build
+
+# Preview на build
+npm run preview
+```
+
+## 🎨 Цветова палитра
+
+- **Firefly Gold**: `#FABA29` - Светенето на светулките
+- **Ocean Teal**: `#46B19D` - Спокойствие и фокус
+- **Forest Dark**: `#1D3234` - Нощна гора
+- **Pure White**: `#FFFFFF` - Чистота
+
+## 📚 Технологии
+
+- **React 18** + **TypeScript**
+- **Vite** (Build tool)
+- **Framer Motion** (Анимации)
+- **Zustand** (State management)
+- **TailwindCSS** (Styling)
+
+## 🏗️ Структура
+
+```
+src/
+├── components/       # React компоненти
+│   ├── Abacus/      # Виртуален абакус
+│   ├── Fireflies/   # Герои светулки
+│   ├── Games/       # Mini игри
+│   └── UI/          # UI компоненти
+├── services/        # Game логика
+├── hooks/           # Custom React hooks
+├── utils/           # Помощни функции
+└── assets/          # Звуци, изображения
+```
+
+## 📄 Лиценз
+
+MIT © 2025 Учебен център Светлина
+
+---
+
+**Made with ❤️ in Bulgaria**
