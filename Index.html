@@ -1,0 +1,2561 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Светлинки CRM</title>
+    <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #46B19D;
+            --primary-hover: #3b9a8a;
+            --accent-color: #faba29;
+            --accent-hover: #e0a825;
+            --danger-color: #EF4444;
+            --danger-hover: #DC2626;
+            --bg-main: #f3f4f6;
+            --bg-card: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+        }
+
+        #menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            width: 250px;
+            flex-shrink: 0;
+        }
+
+        main {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(70, 177, 157, 0.3);
+        }
+        .btn i {
+            font-size: 0.875rem;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: var(--text-primary);
+        }
+        .btn-accent:hover {
+            background-color: var(--accent-hover);
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: var(--text-primary);
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: 50%;
+        }
+        .btn-icon:hover {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+        }
+        .btn-icon.edit:hover { color: var(--primary-color); }
+        .btn-icon.delete:hover { color: var(--danger-color); }
+
+        .tab-button {
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        .tab-button i {
+            width: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            text-align: center;
+        }
+        .tab-button:hover {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+        }
+        .tab-button.active {
+            background-color: #e0f2f1;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .tab-button.active i {
+            color: var(--primary-color);
+        }
+
+        .card, .form-section {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        input, select, textarea, input[list] {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            padding: 10px 12px;
+            width: 100%;
+        }
+        input:focus, select:focus, textarea:focus, input[list]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(70, 177, 157, 0.3);
+        }
+        .form-group label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+            display: block;
+        }
+
+        .status {
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 0.875rem;
+        }
+        .status-paid { background-color: #d1fae5; color: #065f46; }
+        .status-unpaid { background-color: #fee2e2; color: #991b1b; }
+        .status-partial { background-color: #fef3c7; color: #92400e; }
+        .status-inactive { background-color: #f3f4f6; color: #4b5563; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        #loading-overlay.show {
+            display: flex;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                display: block;
+            }
+            #menu-toggle {
+                display: block;
+            }
+            nav {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                transform: translateX(-100%);
+            }
+            nav.open {
+                transform: translateX(0);
+            }
+            main {
+                padding-top: 5rem;
+            }
+
+            .responsive-table {
+                width: 100%;
+                overflow-x: hidden;
+            }
+            .responsive-table table {
+                min-width: 0;
+            }
+            .responsive-table thead {
+                display: none;
+            }
+            .responsive-table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 1rem;
+                background: var(--bg-card);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            .responsive-table td {
+                display: block;
+                text-align: right;
+                border-bottom: 1px dashed var(--border-color);
+                padding: 0.75rem 0.25rem;
+                position: relative;
+            }
+            .responsive-table td:last-child {
+                border-bottom: none;
+            }
+            .responsive-table td::before {
+                content: attr(data-label);
+                float: left;
+                font-weight: 600;
+                color: var(--text-secondary);
+                text-align: left;
+                padding-right: 1rem;
+            }
+            .responsive-table td[data-label="Действия"] {
+                text-align: center;
+                padding-top: 1rem;
+            }
+            .responsive-table td[data-label="Действия"]::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+<button id="menu-toggle" class="md:hidden">
+    <i class="fas fa-bars"></i>
+</button>
+
+<nav id="sidebar" class="w-64 h-full overflow-y-auto p-4 flex-shrink-0">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Светлинки CRM</h1>
+
+    <button class="tab-button active w-full" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</button>
+    <button class="tab-button w-full" data-tab="search"><i class="fas fa-search"></i>ТЪРСЕНЕ</button>
+
+    <hr class="my-2 border-gray-200">
+
+    <button class="tab-button w-full" data-tab="events"><i class="fas fa-calendar-alt"></i>Събития</button>
+    <button class="tab-button w-full" data-tab="payments"><i class="fas fa-money-bill-wave"></i>Плащания</button>
+    <button class="tab-button w-full" data-tab="attendance"><i class="fas fa-check-circle"></i>Посещаемост</button>
+
+    <hr class="my-2 border-gray-200">
+
+    <button class="tab-button w-full" data-tab="registration"><i class="fas fa-user-plus"></i>Регистрация</button>
+    <button class="tab-button w-full" data-tab="students"><i class="fas fa-book-open"></i>Ученици</button>
+    <button class="tab-button w-full" data-tab="parents"><i class="fas fa-users"></i>Родители</button>
+    <button class="tab-button w-full" data-tab="teachers"><i class="fas fa-chalkboard-teacher"></i>Учители</button>
+
+    <hr class="my-2 border-gray-200">
+
+    <button class="tab-button w-full" data-tab="expenses"><i class="fas fa-chart-line-down"></i>Разходи</button>
+    <button class="tab-button w-full" data-tab="progress"><i class="fas fa-chart-bar"></i>Напредък</button>
+    <button class="tab-button w-full" data-tab="discounts"><i class="fas fa-tags"></i>Отстъпки</button>
+    <button class="tab-button w-full" data-tab="schedule"><i class="fas fa-calendar-week"></i>Разписание</button>
+    <button class="tab-button w-full" data-tab="reports"><i class="fas fa-file-invoice"></i>Справки</button>
+</nav>
+
+<main class="flex-1 overflow-y-auto p-4 md:p-8">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="tab-content active">
+        <h2 class="text-3xl font-bold mb-6">Dashboard</h2>
+
+        <div class="mb-6">
+            <button id="backup-button" class="btn btn-accent"><i class="fas fa-database"></i>Архивирай сега</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="card p-6">
+                <p class="card-title text-gray-500 font-medium">Общи приходи</p>
+                <p id="dash-revenue" class="text-3xl font-bold" style="color: var(--accent-color);">0 лв.</p>
+            </div>
+            <div class="card p-6">
+                <p class="card-title text-gray-500 font-medium">Общи разходи</p>
+                <p id="dash-expenses" class="text-3xl font-bold" style="color: var(--danger-color);">0 лв.</p>
+            </div>
+            <div class="card p-6">
+                <p class="card-title text-gray-500 font-medium">Печалба</p>
+                <p id="dash-profit" class="text-3xl font-bold">0 лв.</p>
+            </div>
+        </div>
+
+        <div id="dashboard-active-tasks" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="card p-6 lg:col-span-1">
+                <h3 class="text-lg font-semibold mb-4">Класове за днес</h3>
+                <div id="dash-today-classes" class="space-y-2 text-sm"></div>
+            </div>
+            <div class="card p-6 lg:col-span-1">
+                <h3 class="text-lg font-semibold mb-4 text-red-600">🟥 Просрочени такси</h3>
+                <div id="dash-overdue" class="space-y-2 text-sm"></div>
+            </div>
+            <div class="card p-6 lg:col-span-1">
+                <h3 class="text-lg font-semibold mb-4 text-yellow-600">🟧 Предстоящи такси (7 дни)</h3>
+                <div id="dash-upcoming" class="space-y-2 text-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ТЪРСЕНЕ -->
+    <div id="search" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">Търсене на досие</h2>
+        <input type="text" id="search-input" class="w-full p-3 mb-6" placeholder="Търсене на ученик, родител, телефон...">
+        <div id="search-results-container" class="space-y-6"></div>
+    </div>
+
+    <!-- СЪБИТИЯ -->
+    <div id="events" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">🗓️ Календар / Събития</h2>
+        <form id="event-form" class="form-section p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Добавяне на ново събитие</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="event-date">Дата</label>
+                    <input type="date" id="event-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="event-teacher">Преподавател</label>
+                    <select id="event-teacher" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="event-start-time">Начален час</label>
+                    <input type="time" id="event-start-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="event-end-time">Краен час</label>
+                    <input type="time" id="event-end-time" required>
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="event-student-input">Ученик (ако е индивидуално)</label>
+                    <input type="text" id="event-student-input" list="student-list" placeholder="Започнете да пишете име...">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="event-description">Кратко описание (за деца)</label>
+                    <input type="text" id="event-description" placeholder="напр. Безплатен урок" required>
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="event-full-description">Пълно описание (за бизнес събития)</label>
+                    <textarea id="event-full-description" rows="3" placeholder="Пример: Експо 2026 - важно за бизнеса"></textarea>
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="event-reminder">Напомняне по имейл</label>
+                    <select id="event-reminder">
+                        <option value="none">Без напомняне</option>
+                        <option value="now" selected>Изпрати веднага</option>
+                        <option value="1h">1 час преди събитието</option>
+                        <option value="1d">1 ден преди събитието</option>
+                        <option value="1w">1 седмица преди събитието</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-plus"></i>Добави събитие</button>
+        </form>
+        <div class="responsive-table">
+            <table id="events-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Дата</th>
+                        <th>Час</th>
+                        <th>Кратко описание</th>
+                        <th>Пълно описание</th>
+                        <th>Ученик</th>
+                        <th>Преподавател</th>
+                        <th>Имейл</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ПЛАЩАНИЯ -->
+    <div id="payments" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">💰 Плащания</h2>
+        <form id="payment-form" class="form-section p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Добавяне на плащане</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="pay-student-input">Ученик</label>
+                    <input type="text" id="pay-student-input" list="student-list" placeholder="Започнете да пишете име..." required>
+                </div>
+                <div class="form-group">
+                    <label for="pay-amount">Сума (лв.)</label>
+                    <input type="number" id="pay-amount" step="0.01" required>
+                    <small id="pay-amount-eur" class="text-gray-500 text-xs"></small>
+                </div>
+                <div class="form-group">
+                    <label for="pay-date">Дата</label>
+                    <input type="date" id="pay-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="pay-method">Метод</label>
+                    <select id="pay-method">
+                        <option>Кеш</option>
+                        <option>ПОС</option>
+                        <option>Банков път</option>
+                        <option>Фактура</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pay-article">Артикул</label>
+                    <select id="pay-article">
+                        <option value="">Няма (такса обучение)</option>
+                        <option value="Абакус">Абакус</option>
+                        <option value="Учебна тетрадка">Учебна тетрадка</option>
+                        <option value="Други">Други</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pay-description">Описание</label>
+                    <input type="text" id="pay-description" placeholder="напр. Такса Ноември">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-plus"></i>Добави плащане</button>
+        </form>
+        <div class="responsive-table">
+            <table id="payments-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ученик</th>
+                        <th>Дата</th>
+                        <th>Сума</th>
+                        <th>Артикул</th>
+                        <th>Метод</th>
+                        <th>Описание</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- РЕГИСТРАЦИЯ -->
+    <div id="registration" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">📝 Регистрация на ученик</h2>
+        <form id="registration-form" class="form-section p-6">
+            <h3 class="text-xl font-semibold mb-4">Данни за ученика</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="form-group md:col-span-2">
+                    <label for="reg-name">Име на ученик</label>
+                    <input type="text" id="reg-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-status">Статус</label>
+                    <select id="reg-status">
+                        <option value="active">Активен</option>
+                        <option value="inactive">Неактивен</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reg-group">Група</label>
+                    <input type="text" id="reg-group">
+                </div>
+                <div class="form-group">
+                    <label for="reg-fee">Месечна такса (лв.)</label>
+                    <input type="number" id="reg-fee" step="0.01" required>
+                    <small id="reg-fee-eur" class="text-gray-500 text-xs"></small>
+                </div>
+                <div class="form-group">
+                    <label for="reg-due-date">Дата на падеж</label>
+                    <input type="date" id="reg-due-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-study-type">Тип Обучение</label>
+                    <select id="reg-study-type">
+                        <option value="Групово">Групово</option>
+                        <option value="Индивидуално">Индивидуално</option>
+                    </select>
+                </div>
+                <div class="form-group md:col-span-3">
+                    <label>
+                        <input type="checkbox" id="reg-initial-payment" checked>
+                        Направено е начално плащане
+                    </label>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4">Данни за родител</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="form-group md:col-span-3">
+                    <label>Съществуващ родител?</label>
+                    <select id="reg-parent-select" class="w-full p-2">
+                        <option value="new">-- Нов родител --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reg-parent-name">Име на родител</label>
+                    <input type="text" id="reg-parent-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-parent-phone">Телефон</label>
+                    <input type="tel" id="reg-parent-phone">
+                </div>
+                <div class="form-group">
+                    <label for="reg-parent-email">Имейл</label>
+                    <input type="email" id="reg-parent-email">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-6"><i class="fas fa-user-plus"></i>Регистрирай ученик</button>
+        </form>
+    </div>
+
+    <!-- УЧЕНИЦИ -->
+    <div id="students" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">📚 Ученици</h2>
+        <div class="responsive-table">
+            <table id="students-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Име</th>
+                        <th>Група</th>
+                        <th>Такса</th>
+                        <th>Падеж</th>
+                        <th>Тип</th>
+                        <th>Статус</th>
+                        <th>Родител</th>
+                        <th>Отстъпка</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <!-- РОДИТЕЛИ -->
+    <div id="parents" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">👨‍👩‍👧 Родители</h2>
+        <div class="responsive-table">
+            <table id="parents-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Име</th>
+                        <th>Телефон</th>
+                        <th>Имейл</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- УЧИТЕЛИ -->
+    <div id="teachers" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">👨‍🏫 Учители</h2>
+        <form id="teacher-form" class="form-section p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Добавяне на учител</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="teacher-name">Име</label>
+                    <input type="text" id="teacher-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-email">Имейл (за нотификации)</label>
+                    <input type="email" id="teacher-email" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-plus"></i>Добави учител</button>
+        </form>
+        <div class="responsive-table">
+            <table id="teachers-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>Име</th>
+                        <th>Имейл</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- РАЗХОДИ -->
+    <div id="expenses" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">📉 Разходи</h2>
+        <form id="expense-form" class="form-section p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Добавяне на разход</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="exp-date">Дата</label>
+                    <input type="date" id="exp-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="exp-amount">Сума (лв.)</label>
+                    <input type="number" id="exp-amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="exp-category">Категория</label>
+                    <select id="exp-category" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="exp-method">Метод</label>
+                    <select id="exp-method">
+                        <option>Кеш</option>
+                        <option>ПОС</option>
+                        <option>Банков път</option>
+                        <option>Фактура</option>
+                    </select>
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="exp-description">Описание</label>
+                    <input type="text" id="exp-description" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-plus"></i>Добави разход</button>
+        </form>
+        <div class="responsive-table">
+            <table id="expenses-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Дата</th>
+                        <th>Описание</th>
+                        <th>Категория</th>
+                        <th>Метод</th>
+                        <th>Сума</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ПОСЕЩАЕМОСТ -->
+    <div id="attendance" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">✓ Посещаемост</h2>
+        <form id="attendance-form" class="form-section p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Отбелязване на посещение</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="form-group">
+                    <label for="att-student-input">Ученик</label>
+                    <input type="text" id="att-student-input" list="student-list" placeholder="Започнете да пишете име..." required>
+                </div>
+                <div class="form-group">
+                    <label for="att-date">Дата</label>
+                    <input type="date" id="att-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="att-status">Статус</label>
+                    <select id="att-status">
+                        <option value="present">Присъства</option>
+                        <option value="absent">Отсъства</option>
+                        <option value="excused">Извинен</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-plus"></i>Добави</button>
+        </form>
+        <div class="responsive-table">
+            <table id="attendance-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ученик</th>
+                        <th>Дата</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- НАПРЕДЪК -->
+    <div id="progress" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">📈 Напредък</h2>
+        <form id="progress-form" class="form-section p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Добавяне на бележка</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="form-group">
+                    <label for="prog-student-input">Ученик</label>
+                    <input type="text" id="prog-student-input" list="student-list" placeholder="Започнете да пишете име..." required>
+                </div>
+                <div class="form-group">
+                    <label for="prog-date">Дата</label>
+                    <input type="date" id="prog-date" required>
+                </div>
+                <div class="form-group md:col-span-3">
+                    <label for="prog-note">Бележка</label>
+                    <textarea id="prog-note" rows="4" required></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-plus"></i>Добави бележка</button>
+        </form>
+        <div class="responsive-table">
+            <table id="progress-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ученик</th>
+                        <th>Дата</th>
+                        <th>Бележка</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ОТСТЪПКИ -->
+    <div id="discounts" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">🎁 Отстъпки</h2>
+        <form id="discount-form" class="form-section p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Добавяне на отстъпка</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="disc-student-input">Ученик</label>
+                    <input type="text" id="disc-student-input" list="student-list" placeholder="Започнете да пишете име..." required>
+                </div>
+                <div class="form-group">
+                    <label for="disc-reason">Причина</label>
+                    <input type="text" id="disc-reason" required>
+                </div>
+                <div class="form-group">
+                    <label for="disc-type">Тип</label>
+                    <select id="disc-type">
+                        <option value="fixed">Твърда сума</option>
+                        <option value="percent">Процент (%)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="disc-value">Стойност</label>
+                    <input type="number" id="disc-value" step="0.01" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-plus"></i>Добави отстъпка</button>
+        </form>
+        <div class="responsive-table">
+            <table id="discounts-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ученик</th>
+                        <th>Причина</th>
+                        <th>Тип</th>
+                        <th>Стойност</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- РАЗПИСАНИЕ -->
+    <div id="schedule" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">📅 Разписание (Седмично)</h2>
+        <form id="schedule-form" class="form-section p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Добавяне на час (повторяем)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="form-group">
+                    <label for="sched-group">Група</label>
+                    <input type="text" id="sched-group" required>
+                </div>
+                <div class="form-group">
+                    <label for="sched-day">Ден от седмицата</label>
+                    <select id="sched-day" required>
+                        <option>Понеделник</option>
+                        <option>Вторник</option>
+                        <option>Сряда</option>
+                        <option>Четвъртък</option>
+                        <option>Петък</option>
+                        <option>Събота</option>
+                        <option>Неделя</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sched-teacher">Преподавател</label>
+                    <input type="text" id="sched-teacher">
+                </div>
+                <div class="form-group">
+                    <label for="sched-start-time">Начален час</label>
+                    <input type="time" id="sched-start-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="sched-end-time">Краен час</label>
+                    <input type="time" id="sched-end-time" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-plus"></i>Добави час</button>
+        </form>
+        <div class="responsive-table">
+            <table id="schedule-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Група</th>
+                        <th>Ден</th>
+                        <th>Начало</th>
+                        <th>Край</th>
+                        <th>Преподавател</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- СПРАВКИ -->
+    <div id="reports" class="tab-content">
+        <h2 class="text-3xl font-bold mb-6">📊 Справки</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="form-section p-6">
+                <h3 class="text-xl font-semibold mb-4">Финансова справка</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="report-fin-start">От дата</label>
+                        <input type="date" id="report-fin-start" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="report-fin-end">До дата</label>
+                        <input type="date" id="report-fin-end" required>
+                    </div>
+                </div>
+                <div class="form-group mt-4">
+                    <label>Формат</label>
+                    <div class="flex gap-4">
+                        <label><input type="radio" name="report-fin-format" value="pdf" checked> PDF</label>
+                        <label><input type="radio" name="report-fin-format" value="sheet"> Google Sheet</label>
+                        <label><input type="radio" name="report-fin-format" value="doc"> Google Doc</label>
+                    </div>
+                </div>
+                <button id="report-fin-btn" class="btn btn-primary mt-4"><i class="fas fa-cogs"></i>Генерирай</button>
+            </div>
+
+            <div class="form-section p-6">
+                <h3 class="text-xl font-semibold mb-4">Разходи по категории</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="report-exp-start">От дата</label>
+                        <input type="date" id="report-exp-start" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="report-exp-end">До дата</label>
+                        <input type="date" id="report-exp-end" required>
+                    </div>
+                </div>
+                <div class="form-group mt-4">
+                    <label>Формат</label>
+                    <div class="flex gap-4">
+                        <label><input type="radio" name="report-exp-format" value="pdf" checked> PDF</label>
+                        <label><input type="radio" name="report-exp-format" value="sheet"> Google Sheet</label>
+                    </div>
+                </div>
+                <button id="report-exp-btn" class="btn btn-primary mt-4"><i class="fas fa-cogs"></i>Генерирай</button>
+            </div>
+
+            <div class="form-section p-6">
+                <h3 class="text-xl font-semibold mb-4">Списък с контакти (Roster)</h3>
+                <p class="text-sm text-gray-600 mb-4">Генерира списък с всички **активни** ученици и техните родители.</p>
+                <div class="form-group mt-4">
+                    <label>Формат</label>
+                    <div class="flex gap-4">
+                        <label><input type="radio" name="report-roster-format" value="pdf" checked> PDF</label>
+                        <label><input type="radio" name="report-roster-format" value="sheet"> Google Sheet</label>
+                    </div>
+                </div>
+                <button id="report-roster-btn" class="btn btn-primary mt-4"><i class="fas fa-cogs"></i>Генерирай</button>
+            </div>
+
+            <div class="form-section p-6">
+                <h3 class="text-xl font-semibold mb-4">Приходи по Групи</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="report-group-start">От дата</label>
+                        <input type="date" id="report-group-start" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="report-group-end">До дата</label>
+                        <input type="date" id="report-group-end" required>
+                    </div>
+                </div>
+                <button id="report-group-btn" class="btn btn-primary mt-4"><i class="fas fa-cogs"></i>Генерирай</button>
+            </div>
+        </div>
+
+        <div id="reports-output" class="mt-6"></div>
+    </div>
+
+</main>
+
+<datalist id="student-list"></datalist>
+
+<div id="loading-overlay">
+    <div class="spinner"></div>
+</div>
+
+<div id="toast-message" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 p-4 rounded-lg text-white z-50">
+    <span id="toast-text"></span>
+</div>
+
+<div id="confirmation-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="confirm-title" class="text-xl font-bold mb-4">Потвърждение</h3>
+        <p id="confirm-text" class="mb-6">Сигурни ли сте, че искате да извършите това действие?</p>
+        <div class="flex justify-end gap-4">
+            <button id="confirm-cancel-btn" class="btn btn-secondary">Отказ</button>
+            <button id="confirm-ok-btn" class="btn btn-danger">Да</button>
+        </div>
+    </div>
+</div>
+
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="edit-title" class="text-xl font-bold mb-6">Редакция на запис</h3>
+        <div id="edit-form-container"></div>
+        <div class="flex justify-end gap-4 mt-6">
+            <button id="edit-cancel-btn" class="btn btn-secondary">Отказ</button>
+            <button id="edit-save-btn" class="btn btn-primary"><i class="fas fa-save"></i>Запази</button>
+        </div>
+    </div>
+</div>
+
+<div id="mobile-menu-overlay" class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 md:hidden hidden"></div>
+<script>
+// ============================================
+// === ГЛОБАЛНИ ПРОМЕНЛИВИ ===
+// ============================================
+let db = {
+    students: [],
+    parents: [],
+    payments: [],
+    expenses: [],
+    discounts: [],
+    schedule: [],
+    attendance: [],
+    progress: [],
+    events: [],
+    teachers: [],
+};
+let config = {
+    eurRate: 0.51129,
+    expenseCategories: []
+};
+let currentActionTarget = null;
+let onConfirmAction = () => {};
+
+// ============================================
+// === ИНИЦИАЛИЗАЦИЯ ===
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM Зареден. Старт на Светлинки CRM.");
+    setupEventListeners();
+    loadAllData();
+
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        if(!input.value) {
+            input.value = new Date().toISOString().split('T')[0];
+        }
+    });
+
+    // Динамично показване на EUR при въвеждане на сума
+    document.getElementById('pay-amount').addEventListener('input', (e) => {
+        const eur = (parseFloat(e.target.value) || 0) * config.eurRate;
+        document.getElementById('pay-amount-eur').textContent = `≈ ${eur.toFixed(2)} €`;
+    });
+    document.getElementById('reg-fee').addEventListener('input', (e) => {
+        const eur = (parseFloat(e.target.value) || 0) * config.eurRate;
+        document.getElementById('reg-fee-eur').textContent = `≈ ${eur.toFixed(2)} €`;
+    });
+});
+
+// ============================================
+// === ЗАРЕЖДАНЕ НА ДАННИ ===
+// ============================================
+function showLoading() {
+    document.getElementById('loading-overlay').classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loading-overlay').classList.remove('show');
+}
+
+async function loadAllData() {
+    showLoading();
+    try {
+        const response = await callAPI('getAllDataWithConfig');
+
+        if (response.error) {
+            throw new Error(response.error);
+        }
+
+        db.students = response.students || [];
+        db.parents = response.parents || [];
+        db.payments = response.payments || [];
+        db.expenses = response.expenses || [];
+        db.discounts = response.discounts || [];
+        db.schedule = response.schedule || [];
+        db.attendance = response.attendance || [];
+        db.progress = response.progress || [];
+        db.events = response.events || [];
+        db.teachers = response.teachers || [];
+
+        config.eurRate = response.eurRate || 0.51129;
+        config.expenseCategories = response.expenseCategories || [];
+
+        console.log('Данни заредени:', db);
+        console.log('Конфигурация:', config);
+
+        renderAll();
+        renderDashboard(response.dashboard);
+
+        showToast('Данните са заредени успешно!', 'success');
+
+    } catch (error) {
+        console.error('Критична грешка при зареждане:', error);
+        showToast(`Грешка при зареждане: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+function callAPI(action, data) {
+    return new Promise((resolve, reject) => {
+        const runner = google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject);
+
+        if (data) {
+            runner[action](data);
+        } else {
+            runner[action]();
+        }
+    });
+}
+
+// ============================================
+// === UI ФУНКЦИИ ===
+// ============================================
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+
+    const tabToShow = document.getElementById(tabId);
+    if(tabToShow) {
+        tabToShow.classList.add('active');
+    }
+    const buttonToActivate = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+    if(buttonToActivate) {
+        buttonToActivate.classList.add('active');
+    }
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast-message');
+    const text = document.getElementById('toast-text');
+
+    text.textContent = message;
+    toast.classList.remove('hidden');
+
+    if (type === 'error') {
+        toast.style.backgroundColor = 'var(--danger-color)';
+    } else {
+        toast.style.backgroundColor = 'var(--primary-color)';
+    }
+
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
+}
+
+function showModal(modalId) {
+    document.getElementById(modalId).classList.add('show');
+}
+
+function hideModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+function showConfirmation(title, text, okClass, okText, onConfirm) {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-text').textContent = text;
+
+    const okBtn = document.getElementById('confirm-ok-btn');
+    okBtn.textContent = okText;
+    okBtn.className = `btn ${okClass}`;
+
+    onConfirmAction = onConfirm;
+
+    showModal('confirmation-modal');
+}
+
+// ============================================
+// === ХЕЛПЪРИ ===
+// ============================================
+function formatDate(isoString) {
+    if (!isoString) return '---';
+    try {
+        if (String(isoString).includes('.')) return isoString;
+        return new Date(isoString).toLocaleDateString('bg-BG', {
+            day: '2-digit', month: '2-digit', year: 'numeric'
+        });
+    } catch (e) { return isoString; }
+}
+
+function formatTime(timeString) {
+    if (!timeString) return '---';
+    if (timeString instanceof Date) {
+        return timeString.toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' });
+    }
+    return String(timeString);
+}
+
+function formatCurrency(num) {
+    const BGN = `${Number(num || 0).toFixed(2)} лв.`;
+    const EUR = `(${(Number(num || 0) * config.eurRate).toFixed(2)} €)`;
+    return `${BGN} <span class="text-xs text-gray-500">${EUR}</span>`;
+}
+
+function formatSimpleCurrency(num) {
+    return `${Number(num || 0).toFixed(2)} лв.`;
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const context = this;
+        const later = function() {
+            timeout = null;
+            func.apply(context, args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function getStudentIdFromInput(inputId) {
+    const input = document.getElementById(inputId);
+    const value = input.value;
+    const match = value.match(/\(ID: (\d+)\)$/);
+    if (match) {
+        return parseInt(match[1]);
+    }
+    const asInt = parseInt(value);
+    if (!isNaN(asInt)) {
+        if (db.students.find(s => s.ID == asInt)) {
+            input.value = db.students.find(s => s.ID == asInt).Име + ` (ID: ${asInt})`;
+            return asInt;
+        }
+    }
+    if (value.trim() === '') return null;
+
+    showToast('Грешка: Невалиден ученик. Моля, изберете от списъка или го оставете празно.', 'error');
+    return null;
+}
+
+function capitalize(s) {
+    if (!s) return '';
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// ============================================
+// === РЕНДИРАНЕ НА ДАННИ ===
+// ============================================
+function renderAll() {
+    populateStudentDatalist();
+    populateTeacherSelects();
+    populateCategorySelects();
+    populateParentSelect();
+
+    renderStudents();
+    renderParents();
+    renderPayments();
+    renderExpenses();
+    renderDiscounts();
+    renderSchedule();
+    renderAttendance();
+    renderProgress();
+    renderTeachers();
+    renderEvents();
+}
+
+function populateStudentDatalist() {
+    const datalist = document.getElementById('student-list');
+    if (!datalist) return;
+    datalist.innerHTML = '';
+    db.students.forEach(s => {
+        datalist.innerHTML += `<option value="${s.Име} (ID: ${s.ID})"></option>`;
+    });
+}
+
+function populateTeacherSelects() {
+    const selects = document.querySelectorAll('#event-teacher');
+    selects.forEach(select => {
+        select.innerHTML = '<option value="">-- Избери преподавател --</option>';
+        db.teachers.forEach(t => {
+            select.innerHTML += `<option value="${t.Име}">${t.Име}</option>`;
+        });
+    });
+}
+
+function populateCategorySelects() {
+    const selects = document.querySelectorAll('#exp-category');
+    selects.forEach(select => {
+        select.innerHTML = '<option value="">-- Избери категория --</option>';
+        config.expenseCategories.forEach(c => {
+            select.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+    });
+}
+
+function populateParentSelect() {
+    const select = document.getElementById('reg-parent-select');
+    if (!select) return;
+    select.innerHTML = '<option value="new">-- Нов родител --</option>';
+    db.parents.forEach(parent => {
+        const option = document.createElement('option');
+        option.value = parent.ID;
+        option.textContent = `${parent.Име} (ID: ${parent.ID})`;
+        select.appendChild(option);
+    });
+}
+// ============================================
+// === RENDER ФУНКЦИИ ЗА ТАБЛИЦИ ===
+// ============================================
+
+function renderStudents() {
+    const tbody = document.getElementById('students-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.students.forEach(s => {
+        const parent = db.parents.find(p => p.ID == s['Родител (ID)']);
+        const statusClass = s.Статус === 'active' ? 'status-paid' : 'status-inactive';
+        const statusText = s.Статус === 'active' ? 'Активен' : 'Неактивен';
+
+        // Намиране на активни отстъпки
+        const activeDiscounts = db.discounts.filter(d => d.УченикID == s.ID);
+        let discountHTML = '<span class="text-gray-400 text-xs">Няма</span>';
+        if (activeDiscounts.length > 0) {
+            discountHTML = activeDiscounts.map(d => {
+                const val = d.Тип === 'percent' ? `${d.Стойност}%` : `${d.Стойност} лв.`;
+                return `<span class="text-xs bg-yellow-100 px-2 py-1 rounded">${val}</span>`;
+            }).join(' ');
+        }
+
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="students" data-id="${s.ID}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="students" data-id="${s.ID}"><i class="fas fa-trash"></i></button>
+            <button class="btn ${s.Статус === 'active' ? 'btn-danger' : 'btn-primary'} text-xs py-1 px-2 mt-1"
+                    data-action="toggle-status" data-id="${s.ID}" data-status="${s.Статус}">
+                ${s.Статус === 'active' ? 'Деактивирай' : 'Активирай'}
+            </button>
+        `;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">${s.ID}</td>
+            <td data-label="Име" class="font-medium">${s.Име}</td>
+            <td data-label="Група">${s.Група || '---'}</td>
+            <td data-label="Такса">${formatCurrency(s.Такса)}</td>
+            <td data-label="Падеж">${formatDate(s.Падеж)}</td>
+            <td data-label="Тип">${s.ТипОбучение || '---'}</td>
+            <td data-label="Статус"><span class="status ${statusClass}">${statusText}</span></td>
+            <td data-label="Родител">${parent ? parent.Име : 'Няма'} (ID: ${s['Родител (ID)'] || 'N/A'})</td>
+            <td data-label="Отстъпка">${discountHTML}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderParents() {
+    const tbody = document.getElementById('parents-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.parents.forEach(p => {
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="parents" data-id="${p.ID}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="parents" data-id="${p.ID}"><i class="fas fa-trash"></i></button>
+        `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">${p.ID}</td>
+            <td data-label="Име" class="font-medium">${p.Име}</td>
+            <td data-label="Телефон">${p.Телефон || '---'}</td>
+            <td data-label="Имейл">${p.Имейл || '---'}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderPayments() {
+    const tbody = document.getElementById('payments-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.payments.slice().reverse().forEach(p => {
+        const student = db.students.find(s => s.ID == p.УченикID);
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="payments" data-id="${p.ID}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="payments" data-id="${p.ID}"><i class="fas fa-trash"></i></button>
+        `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">${p.ID}</td>
+            <td data-label="Ученик" class="font-medium">${student ? student.Име : `ID: ${p.УченикID}`}</td>
+            <td data-label="Дата">${formatDate(p.Дата)}</td>
+            <td data-label="Сума">${formatCurrency(p.Сума)}</td>
+            <td data-label="Артикул">${p.Артикул || '---'}</td>
+            <td data-label="Метод">${p.Метод}</td>
+            <td data-label="Описание">${p.Описание || '---'}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderExpenses() {
+    const tbody = document.getElementById('expenses-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.expenses.slice().reverse().forEach(e => {
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="expenses" data-id="${e.ID}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="expenses" data-id="${e.ID}"><i class="fas fa-trash"></i></button>
+        `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">${e.ID}</td>
+            <td data-label="Дата">${formatDate(e.Дата)}</td>
+            <td data-label="Описание" class="font-medium">${e.Описание}</td>
+            <td data-label="Категория">${e.Категория || '---'}</td>
+            <td data-label="Метод">${e.Метод}</td>
+            <td data-label="Сума">${formatCurrency(e.Сума)}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderDiscounts() {
+    const tbody = document.getElementById('discounts-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.discounts.slice().reverse().forEach(d => {
+        const student = db.students.find(s => s.ID == d.УченикID);
+        const value = d.Тип === 'percent' ? `${d.Стойност}%` : formatCurrency(d.Стойност);
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="discounts" data-id="${d.ID}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="discounts" data-id="${d.ID}"><i class="fas fa-trash"></i></button>
+        `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">${d.ID}</td>
+            <td data-label="Ученик" class="font-medium">${student ? student.Име : `ID: ${d.УченикID}`}</td>
+            <td data-label="Причина">${d.Причина}</td>
+            <td data-label="Тип">${d.Тип}</td>
+            <td data-label="Стойност">${value}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderSchedule() {
+    const tbody = document.getElementById('schedule-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.schedule.forEach(s => {
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="schedule" data-id="${s.ID}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="schedule" data-id="${s.ID}"><i class="fas fa-trash"></i></button>
+        `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">${s.ID}</td>
+            <td data-label="Група" class="font-medium">${s.Група}</td>
+            <td data-label="Ден">${s.Ден}</td>
+            <td data-label="Начало">${formatTime(s.НачалоЧас)}</td>
+            <td data-label="Край">${formatTime(s.КрайЧас)}</td>
+            <td data-label="Преподавател">${s.Преподавател}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderAttendance() {
+    const tbody = document.getElementById('attendance-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.attendance.slice().reverse().forEach(a => {
+        const student = db.students.find(s => s.ID == a.УченикID);
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="attendance" data-id="${a.ID}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="attendance" data-id="${a.ID}"><i class="fas fa-trash"></i></button>
+        `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">${a.ID}</td>
+            <td data-label="Ученик" class="font-medium">${student ? student.Име : `ID: ${a.УченикID}`}</td>
+            <td data-label="Дата">${formatDate(a.Дата)}</td>
+            <td data-label="Статус">${a.Статус}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderProgress() {
+    const tbody = document.getElementById('progress-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.progress.slice().reverse().forEach(p => {
+        const student = db.students.find(s => s.ID == p.УченикID);
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="progress" data-id="${p.ID}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="progress" data-id="${p.ID}"><i class="fas fa-trash"></i></button>
+        `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">${p.ID}</td>
+            <td data-label="Ученик" class="font-medium">${student ? student.Име : `ID: ${p.УченикID}`}</td>
+            <td data-label="Дата">${formatDate(p.Дата)}</td>
+            <td data-label="Бележка" class="whitespace-normal">${p.Бележка}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderTeachers() {
+    const tbody = document.getElementById('teachers-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.teachers.forEach(t => {
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="teachers" data-key="${t.Име}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="teachers" data-key="${t.Име}"><i class="fas fa-trash"></i></button>
+        `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="Име" class="font-medium">${t.Име}</td>
+            <td data-label="Имейл">${t.Имейл}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function renderEvents() {
+    const tbody = document.getElementById('events-table')?.querySelector('tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    db.events.slice().reverse().forEach(e => {
+        const student = db.students.find(s => s.ID == e.УченикID);
+        const actionsHTML = `
+            <button class="btn-icon edit" data-action="edit" data-sheetkey="events" data-id="${e.ID}"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete" data-action="delete" data-sheetkey="events" data-id="${e.ID}"><i class="fas fa-trash"></i></button>
+        `;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">${e.ID}</td>
+            <td data-label="Дата">${formatDate(e.Дата)}</td>
+            <td data-label="Час">${formatTime(e['Начален час'])} - ${formatTime(e['Краен час'])}</td>
+            <td data-label="Кратко описание" class="font-medium whitespace-normal">${e.Описание}</td>
+            <td data-label="Пълно описание" class="whitespace-normal">${e.ОписаниеСъбитие || '---'}</td>
+            <td data-label="Ученик">${student ? student.Име : '---'}</td>
+            <td data-label="Преподавател">${e.ПреподавателИме}</td>
+            <td data-label="Имейл">${e.EmailStatus}</td>
+            <td data-label="Действия" class="space-x-2">${actionsHTML}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// ============================================
+// === DASHBOARD ===
+// ============================================
+function renderDashboard(data) {
+    if (!data) return;
+
+    const totalRevenue = db.payments.reduce((sum, p) => sum + Number(p.Сума || 0), 0);
+    const totalExpenses = db.expenses.reduce((sum, e) => sum + Number(e.Сума || 0), 0);
+    document.getElementById('dash-revenue').innerHTML = formatCurrency(totalRevenue);
+    document.getElementById('dash-expenses').innerHTML = formatCurrency(totalExpenses);
+    document.getElementById('dash-profit').innerHTML = formatCurrency(totalRevenue - totalExpenses);
+
+    const classesEl = document.getElementById('dash-today-classes');
+    classesEl.innerHTML = '';
+    if (data.todayClasses.length === 0) {
+        classesEl.innerHTML = '<p class="text-gray-500">Няма класове днес.</p>';
+    } else {
+        data.todayClasses.forEach(c => {
+            classesEl.innerHTML += `<div class="border-b pb-1">
+                <span class="font-semibold">${formatTime(c.НачалоЧас)} - ${formatTime(c.КрайЧас)}</span>
+                <p class="text-gray-700">${c.Група} (с ${c.Преподавател})</p>
+            </div>`;
+        });
+    }
+
+    const overdueEl = document.getElementById('dash-overdue');
+    overdueEl.innerHTML = '';
+    if (data.overdue.length === 0) {
+        overdueEl.innerHTML = '<p class="text-gray-500">Няма просрочени.</p>';
+    } else {
+        data.overdue.forEach(s => {
+            overdueEl.innerHTML += `<p class="border-b pb-1">${s.Име} (падеж: ${formatDate(s.Падеж)})</p>`;
+        });
+    }
+
+    const upcomingEl = document.getElementById('dash-upcoming');
+    upcomingEl.innerHTML = '';
+    if (data.upcoming.length === 0) {
+        upcomingEl.innerHTML = '<p class="text-gray-500">Няма предстоящи.</p>';
+    } else {
+        data.upcoming.forEach(s => {
+            upcomingEl.innerHTML += `<p class="border-b pb-1">${s.Име} (падеж: ${formatDate(s.Падеж)})</p>`;
+        });
+    }
+}
+// ============================================
+// === EVENT LISTENERS ===
+// ============================================
+function setupEventListeners() {
+    // Мобилно меню
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobile-menu-overlay');
+
+    function toggleMenu() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('hidden');
+        sidebar.style.transform = sidebar.classList.contains('open') ? 'translateX(0)' : 'translateX(-100%)';
+    }
+    menuToggle.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+
+    // Навигация
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            showTab(tabId);
+            if (window.innerWidth < 768 && sidebar.classList.contains('open')) {
+                toggleMenu();
+            }
+        });
+    });
+
+    // Архив
+    document.getElementById('backup-button').addEventListener('click', handleBackup);
+
+    // Форми
+    document.getElementById('registration-form').addEventListener('submit', handleAddRegistration);
+    document.getElementById('payment-form').addEventListener('submit', handleAddPayment);
+    document.getElementById('expense-form').addEventListener('submit', handleAddExpense);
+    document.getElementById('attendance-form').addEventListener('submit', handleAddAttendance);
+    document.getElementById('progress-form').addEventListener('submit', handleAddProgress);
+    document.getElementById('schedule-form').addEventListener('submit', handleAddSchedule);
+    document.getElementById('discount-form').addEventListener('submit', handleAddDiscount);
+    document.getElementById('teacher-form').addEventListener('submit', handleAddTeacher);
+    document.getElementById('event-form').addEventListener('submit', handleAddEvent);
+
+    // Модали
+    document.getElementById('confirm-cancel-btn').addEventListener('click', () => hideModal('confirmation-modal'));
+    document.getElementById('edit-cancel-btn').addEventListener('click', () => hideModal('edit-modal'));
+
+    document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+        if (typeof onConfirmAction === 'function') {
+            onConfirmAction();
+        }
+        onConfirmAction = () => {};
+        hideModal('confirmation-modal');
+    });
+
+    // Търсене
+    document.getElementById('search-input').addEventListener('input', debounce(e => {
+        handleSearch(e.target.value);
+    }, 300));
+
+    // Справки
+    document.getElementById('report-fin-btn').addEventListener('click', () => handleGenerateReport('financial'));
+    document.getElementById('report-exp-btn').addEventListener('click', () => handleGenerateReport('expenseCategory'));
+    document.getElementById('report-roster-btn').addEventListener('click', () => handleGenerateReport('roster'));
+    document.getElementById('report-group-btn').addEventListener('click', () => handleGenerateReport('groupRevenue'));
+
+    // Регистрация - родител select
+    document.getElementById('reg-parent-select').addEventListener('change', (e) => {
+        const parentId = e.target.value;
+        const nameEl = document.getElementById('reg-parent-name');
+        const phoneEl = document.getElementById('reg-parent-phone');
+        const emailEl = document.getElementById('reg-parent-email');
+
+        if (parentId === 'new') {
+            [nameEl, phoneEl, emailEl].forEach(el => {
+                el.value = '';
+                el.disabled = false;
+            });
+            document.getElementById('reg-parent-name').required = true;
+        } else {
+            const parent = db.parents.find(p => p.ID == parentId);
+            if (parent) {
+                nameEl.value = parent.Име;
+                phoneEl.value = parent.Телефон;
+                emailEl.value = parent.Имейл;
+                [nameEl, phoneEl, emailEl].forEach(el => el.disabled = true);
+                nameEl.required = false;
+            }
+        }
+    });
+
+    // Таблици действия
+    setupTableActionListeners();
+}
+
+function setupTableActionListeners() {
+    const mainContent = document.querySelector('main');
+    mainContent.addEventListener('click', (e) => {
+        const button = e.target.closest('button[data-action]');
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const sheetKey = button.dataset.sheetkey;
+        const id = button.dataset.id ? parseInt(button.dataset.id) : null;
+        const uniqueKey = button.dataset.key;
+        const status = button.dataset.status;
+
+        switch (action) {
+            case 'edit':
+                handleEdit(sheetKey, id, uniqueKey);
+                break;
+            case 'delete':
+                handleDelete(sheetKey, id, uniqueKey);
+                break;
+            case 'toggle-status':
+                handleToggleStatus(id, status);
+                break;
+        }
+    });
+}
+
+// ============================================
+// === HANDLERS - ДОБАВЯНЕ ===
+// ============================================
+
+async function handleAddRegistration(e) {
+    e.preventDefault();
+    const parentId = document.getElementById('reg-parent-select').value;
+    let finalParentId = parentId;
+    let parentData = null;
+    let studentData = {};
+
+    try {
+        if (parentId === 'new') {
+            parentData = {
+                name: document.getElementById('reg-parent-name').value,
+                phone: document.getElementById('reg-parent-phone').value,
+                email: document.getElementById('reg-parent-email').value,
+            };
+            if (!parentData.name) throw new Error("Името на новия родител е задължително.");
+        }
+
+        studentData = {
+            name: document.getElementById('reg-name').value,
+            group: document.getElementById('reg-group').value,
+            fee: parseFloat(document.getElementById('reg-fee').value) || 0,
+            dueDate: document.getElementById('reg-due-date').value,
+            status: document.getElementById('reg-status').value,
+            studyType: document.getElementById('reg-study-type').value,
+            parentId: finalParentId,
+            initialPayment: document.getElementById('reg-initial-payment').checked
+        };
+        if (!studentData.name) throw new Error("Името на ученика е задължително.");
+
+    } catch (error) {
+        showToast(`Грешка: ${error.message}`, 'error');
+        return;
+    }
+
+    showConfirmation(
+        'Потвърди Регистрация',
+        `Ще регистрирате ${studentData.name} с родител ${parentId === 'new' ? parentData.name : 'съществуващ'}. Сигурни ли сте?`,
+        'btn-primary',
+        'Да, регистрирай',
+        async () => {
+            showLoading();
+            try {
+                if (parentId === 'new') {
+                    const parentResult = await callAPI('addParent', parentData);
+                    finalParentId = parentResult.newData.ID;
+                    db.parents.push(parentResult.newData);
+                    populateParentSelect();
+                }
+
+                studentData.parentId = finalParentId;
+
+                const result = await callAPI('addStudent', studentData);
+
+                db.students.push(result.newData);
+                renderStudents();
+                populateStudentDatalist();
+
+                document.getElementById('registration-form').reset();
+                document.getElementById('reg-parent-select').value = 'new';
+                ['reg-parent-name', 'reg-parent-phone', 'reg-parent-email'].forEach(id => {
+                    document.getElementById(id).disabled = false;
+                    document.getElementById(id).value = '';
+                });
+                document.getElementById('reg-parent-name').required = true;
+
+                showToast('Ученикът е регистриран успешно!', 'success');
+            } catch (error) {
+                showToast(`Грешка при регистрация: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+    );
+}
+
+async function handleAddPayment(e) {
+    e.preventDefault();
+    const studentId = getStudentIdFromInput('pay-student-input');
+    if (!studentId) return;
+
+    const data = {
+        studentId: studentId,
+        date: document.getElementById('pay-date').value,
+        amount: parseFloat(document.getElementById('pay-amount').value),
+        method: document.getElementById('pay-method').value,
+        description: document.getElementById('pay-description').value,
+        article: document.getElementById('pay-article').value
+    };
+
+    showLoading();
+    try {
+        const result = await callAPI('addPayment', data);
+        db.payments.push(result.newData);
+        renderPayments();
+        renderDashboard(await callAPI('getDashboardData'));
+        document.getElementById('payment-form').reset();
+        showToast('Плащането е добавено!', 'success');
+    } catch (error) {
+        showToast(`Грешка: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function handleAddExpense(e) {
+    e.preventDefault();
+    const data = {
+        date: document.getElementById('exp-date').value,
+        amount: parseFloat(document.getElementById('exp-amount').value),
+        category: document.getElementById('exp-category').value,
+        method: document.getElementById('exp-method').value,
+        description: document.getElementById('exp-description').value
+    };
+
+    showLoading();
+    try {
+        const result = await callAPI('addExpense', data);
+        db.expenses.push(result.newData);
+        renderExpenses();
+        renderDashboard(await callAPI('getDashboardData'));
+        document.getElementById('expense-form').reset();
+        showToast('Разходът е добавен!', 'success');
+    } catch (error) {
+        showToast(`Грешка: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function handleAddAttendance(e) {
+    e.preventDefault();
+    const studentId = getStudentIdFromInput('att-student-input');
+    if (!studentId) return;
+
+    const data = {
+        studentId: studentId,
+        date: document.getElementById('att-date').value,
+        status: document.getElementById('att-status').value
+    };
+
+    showLoading();
+    try {
+        const result = await callAPI('addAttendance', data);
+        db.attendance.push(result.newData);
+        renderAttendance();
+        document.getElementById('attendance-form').reset();
+        showToast('Посещението е добавено!', 'success');
+    } catch (error) {
+        showToast(`Грешка: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function handleAddProgress(e) {
+    e.preventDefault();
+    const studentId = getStudentIdFromInput('prog-student-input');
+    if (!studentId) return;
+
+    const data = {
+        studentId: studentId,
+        date: document.getElementById('prog-date').value,
+        note: document.getElementById('prog-note').value
+    };
+
+    showLoading();
+    try {
+        const result = await callAPI('addProgress', data);
+        db.progress.push(result.newData);
+        renderProgress();
+        document.getElementById('progress-form').reset();
+        showToast('Бележката е добавена!', 'success');
+    } catch (error) {
+        showToast(`Грешка: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function handleAddSchedule(e) {
+    e.preventDefault();
+    const data = {
+        group: document.getElementById('sched-group').value,
+        day: document.getElementById('sched-day').value,
+        startTime: document.getElementById('sched-start-time').value,
+        endTime: document.getElementById('sched-end-time').value,
+        teacher: document.getElementById('sched-teacher').value
+    };
+
+    showLoading();
+    try {
+        const result = await callAPI('addSchedule', data);
+        db.schedule.push(result.newData);
+        renderSchedule();
+        document.getElementById('schedule-form').reset();
+        showToast('Часът е добавен!', 'success');
+    } catch (error) {
+        showToast(`Грешка: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function handleAddDiscount(e) {
+    e.preventDefault();
+    const studentId = getStudentIdFromInput('disc-student-input');
+    if (!studentId) return;
+
+    const data = {
+        studentId: studentId,
+        reason: document.getElementById('disc-reason').value,
+        type: document.getElementById('disc-type').value,
+        value: parseFloat(document.getElementById('disc-value').value)
+    };
+
+    showLoading();
+    try {
+        const result = await callAPI('addDiscount', data);
+        db.discounts.push(result.newData);
+        renderDiscounts();
+        renderStudents();
+        document.getElementById('discount-form').reset();
+        showToast('Отстъпката е добавена!', 'success');
+    } catch (error) {
+        showToast(`Грешка: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function handleAddTeacher(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('teacher-name').value,
+        email: document.getElementById('teacher-email').value,
+    };
+
+    showLoading();
+    try {
+        const result = await callAPI('addTeacher', data);
+        db.teachers.push(result.newData);
+        renderTeachers();
+        populateTeacherSelects();
+        document.getElementById('teacher-form').reset();
+        showToast('Учителят е добавен!', 'success');
+    } catch (error) {
+        showToast(`Грешка: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function handleAddEvent(e) {
+    e.preventDefault();
+    const studentId = getStudentIdFromInput('event-student-input');
+
+    const data = {
+        date: document.getElementById('event-date').value,
+        teacherName: document.getElementById('event-teacher').value,
+        startTime: document.getElementById('event-start-time').value,
+        endTime: document.getElementById('event-end-time').value,
+        studentId: studentId,
+        description: document.getElementById('event-description').value,
+        eventDescription: document.getElementById('event-full-description').value,
+        reminder: document.getElementById('event-reminder').value
+    };
+
+    showLoading();
+    try {
+        const result = await callAPI('addEvent', data);
+        db.events.push(result.newData);
+        renderEvents();
+        document.getElementById('event-form').reset();
+        showToast('Събитието е добавено!', 'success');
+    } catch (error) {
+        showToast(`Грешка: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+// ============================================
+// === HANDLERS - РЕДАКЦИЯ, ТРИЕНЕ ===
+// ============================================
+
+function handleDelete(sheetKey, id, uniqueKey = null) {
+    const SHEETS = {
+        students: 'Ученици',
+        parents: 'Родители',
+        payments: 'Плащания',
+        expenses: 'Разходи',
+        discounts: 'Отстъпки',
+        schedule: 'Разписание',
+        attendance: 'Посещаемост',
+        progress: 'Напредък',
+        teachers: 'Учители',
+        events: 'Събития'
+    };
+    const sheetName = SHEETS[sheetKey];
+    const recordName = uniqueKey ? uniqueKey : `запис с ID #${id}`;
+
+    showConfirmation(
+        'Потвърди изтриване',
+        `Сигурни ли сте, че искате да изтриете ${recordName}? Тази операция е НЕОБРАТИМА.`,
+        'btn-danger',
+        'Да, изтрий',
+        async () => {
+            showLoading();
+            try {
+                const result = await callAPI('deleteRecord', { sheetName: sheetName, id: id, uniqueKey: uniqueKey });
+                if (result.success) {
+                    db[sheetKey] = db[sheetKey].filter(item => {
+                        return uniqueKey ? item.Име !== result.deletedKey : item.ID != result.deletedId;
+                    });
+                    window[`render${capitalize(sheetKey)}`]();
+                    if (sheetKey === 'discounts') renderStudents();
+                    showToast('Записът е изтрит успешно!', 'success');
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                showToast(`Грешка при изтриване: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+    );
+}
+
+function handleEdit(sheetKey, id, uniqueKey = null) {
+    const SHEETS = {
+        students: 'Ученици',
+        parents: 'Родители',
+        payments: 'Плащания',
+        expenses: 'Разходи',
+        discounts: 'Отстъпки',
+        schedule: 'Разписание',
+        attendance: 'Посещаемост',
+        progress: 'Напредък',
+        teachers: 'Учители',
+        events: 'Събития'
+    };
+    const sheetName = SHEETS[sheetKey];
+    let record;
+    if (uniqueKey) {
+        record = db[sheetKey].find(item => item.Име == uniqueKey);
+    } else {
+        record = db[sheetKey].find(item => item.ID == id);
+    }
+
+    if (!record) {
+        showToast('Грешка: Записът не е намерен.', 'error');
+        return;
+    }
+
+    currentActionTarget = { sheetKey, id, uniqueKey, sheetName, record };
+
+    const formHTML = generateEditForm(sheetKey, record);
+    document.getElementById('edit-form-container').innerHTML = formHTML;
+
+    const saveBtn = document.getElementById('edit-save-btn');
+    const newSaveBtn = saveBtn.cloneNode(true);
+    saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+    newSaveBtn.addEventListener('click', handleSaveEdit);
+
+    showModal('edit-modal');
+}
+
+async function handleSaveEdit() {
+    if (!currentActionTarget) return;
+
+    const { sheetKey, id, uniqueKey, sheetName, record } = currentActionTarget;
+    const form = document.getElementById('dynamic-edit-form');
+    const formData = new FormData(form);
+    const rowData = { ...record };
+
+    for (let [key, value] of formData.entries()) {
+        if (key === 'studentInput') {
+            rowData['УченикID'] = getStudentIdFromInput('edit-student-input');
+            continue;
+        }
+        rowData[key] = value;
+    }
+
+    showLoading();
+    hideModal('edit-modal');
+    try {
+        const result = await callAPI('updateRecord', { sheetName, id, uniqueKey, rowData });
+        if (result.success) {
+            const recordIndex = db[sheetKey].findIndex(item => uniqueKey ? item.Име == uniqueKey : item.ID == id);
+            if (recordIndex > -1) {
+                db[sheetKey][recordIndex] = result.updatedData;
+            }
+            window[`render${capitalize(sheetKey)}`]();
+            if (sheetKey === 'students' || sheetKey === 'discounts') renderStudents();
+            showToast('Записът е обновен!', 'success');
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        showToast(`Грешка при обновяване: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+        currentActionTarget = null;
+    }
+}
+
+async function handleToggleStatus(id, currentStatus) {
+    const SHEETS = {
+        students: 'Ученици'
+    };
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    const actionText = newStatus === 'active' ? 'активирате' : 'деактивирате';
+
+    showConfirmation(
+        'Смяна на статус',
+        `Сигурни ли сте, че искате да ${actionText} този ученик?`,
+        newStatus === 'active' ? 'btn-primary' : 'btn-danger',
+        `Да, ${actionText}`,
+        async () => {
+            showLoading();
+            try {
+                const result = await callAPI('updateRecord', {
+                    sheetName: SHEETS.students,
+                    id: id,
+                    rowData: { 'Статус': newStatus }
+                });
+
+                if (result.success) {
+                    const student = db.students.find(s => s.ID == id);
+                    if (student) student.Статус = newStatus;
+                    renderStudents();
+                    showToast('Статусът е променен!', 'success');
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                showToast(`Грешка: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+    );
+}
+
+function generateEditForm(sheetKey, record) {
+    let html = '<form id="dynamic-edit-form" class="space-y-4">';
+    const studentInputHTML = (studentId) => {
+        const student = db.students.find(s => s.ID == studentId);
+        const studentValue = student ? `${student.Име} (ID: ${student.ID})` : '';
+        return `<div class="form-group"><label>Ученик</label><input id="edit-student-input" name="studentInput" list="student-list" value="${studentValue}" required></div>`;
+    };
+
+    switch (sheetKey) {
+        case 'students':
+            html += `<div class="form-group"><label>Име</label><input name="Име" value="${record.Име || ''}" required></div>`;
+            html += `<div class="form-group"><label>Група</label><input name="Група" value="${record.Група || ''}"></div>`;
+            html += `<div class="form-group"><label>Такса (лв.)</label><input name="Такса" type="number" value="${record.Такса || 0}" required></div>`;
+            html += `<div class="form-group"><label>Дата на падеж</label><input name="Падеж" type="date" value="${new Date(record.Падеж).toISOString().split('T')[0]}" required></div>`;
+            html += `<div class="form-group"><label>Тип Обучение</label><select name="ТипОбучение">
+                <option value="Групово" ${record.ТипОбучение === 'Групово' ? 'selected' : ''}>Групово</option>
+                <option value="Индивидуално" ${record.ТипОбучение === 'Индивидуално' ? 'selected' : ''}>Индивидуално</option>
+            </select></div>`;
+            break;
+        case 'parents':
+            html += `<div class="form-group"><label>Име</label><input name="Име" value="${record.Име || ''}" required></div>`;
+            html += `<div class="form-group"><label>Телефон</label><input name="Телефон" value="${record.Телефон || ''}"></div>`;
+            html += `<div class="form-group"><label>Имейл</label><input name="Имейл" type="email" value="${record.Имейл || ''}"></div>`;
+            break;
+        case 'payments':
+            html += studentInputHTML(record.УченикID);
+            html += `<div class="form-group"><label>Дата</label><input name="Дата" type="date" value="${new Date(record.Дата).toISOString().split('T')[0]}" required></div>`;
+            html += `<div class="form-group"><label>Сума</label><input name="Сума" type="number" value="${record.Сума || 0}" required></div>`;
+            html += `<div class="form-group"><label>Артикул</label><select name="Артикул">
+                <option value="">Няма (такса обучение)</option>
+                <option value="Абакус" ${record.Артикул === 'Абакус' ? 'selected' : ''}>Абакус</option>
+                <option value="Учебна тетрадка" ${record.Артикул === 'Учебна тетрадка' ? 'selected' : ''}>Учебна тетрадка</option>
+                <option value="Други" ${record.Артикул === 'Други' ? 'selected' : ''}>Други</option>
+            </select></div>`;
+            html += `<div class="form-group"><label>Метод</label><select name="Метод">
+                ${['Кеш','ПОС','Банков път','Фактура'].map(m => `<option value="${m}" ${record.Метод === m ? 'selected' : ''}>${m}</option>`).join('')}
+            </select></div>`;
+            html += `<div class="form-group"><label>Описание</label><input name="Описание" value="${record.Описание || ''}"></div>`;
+            break;
+        case 'expenses':
+            html += `<div class="form-group"><label>Дата</label><input name="Дата" type="date" value="${new Date(record.Дата).toISOString().split('T')[0]}" required></div>`;
+            html += `<div class="form-group"><label>Сума</label><input name="Сума" type="number" value="${record.Сума || 0}" required></div>`;
+            html += `<div class="form-group"><label>Категория</label><select name="Категория" required>
+                ${config.expenseCategories.map(c => `<option value="${c}" ${record.Категория === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select></div>`;
+            html += `<div class="form-group"><label>Метод</label><select name="Метод">
+                ${['Кеш','ПОС','Банков път','Фактура'].map(m => `<option value="${m}" ${record.Метод === m ? 'selected' : ''}>${m}</option>`).join('')}
+            </select></div>`;
+            html += `<div class="form-group"><label>Описание</label><input name="Описание" value="${record.Описание || ''}" required></div>`;
+            break;
+        default:
+            html += '<p>Няма налична форма за редакция за този модул.</p>';
+    }
+    html += '</form>';
+    return html;
+}
+
+// ============================================
+// === ТЪРСЕНЕ ===
+// ============================================
+
+async function handleSearch(query) {
+    const resultsContainer = document.getElementById('search-results-container');
+    if (!query || query.length < 2) {
+        resultsContainer.innerHTML = '';
+        return;
+    }
+
+    try {
+        showLoading();
+        const results = await callAPI('searchAll', query);
+        renderSearchResults(results);
+    } catch (error) {
+        console.error("Грешка при търсене:", error);
+        showToast('Грешка при търсене', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+function renderSearchResults(results) {
+    const container = document.getElementById('search-results-container');
+    container.innerHTML = '';
+
+    if (results.error) {
+        container.innerHTML = `<p class="text-gray-500">${results.error}</p>`;
+        return;
+    }
+
+    if (!results.studentProfiles || results.studentProfiles.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">Няма намерени резултати.</p>';
+        return;
+    }
+
+    results.studentProfiles.forEach(profile => {
+        const s = profile.student;
+        const p = profile.parent;
+        const statusClass = s.Статус === 'active' ? 'status-paid' : 'status-inactive';
+
+        const profileHTML = `
+            <div class="result-item card p-6">
+                <div class="flex justify-end gap-2 mb-4">
+                    <button class="btn btn-secondary text-sm py-1 px-3" onclick="printDossier(${s.ID}, 'parent')"><i class="fas fa-user"></i>Принтирай (За родител)</button>
+                    <button class="btn btn-primary text-sm py-1 px-3" onclick="printDossier(${s.ID}, 'teacher')"><i class="fas fa-print"></i>Принтирай (Пълна)</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-2xl font-bold" style="color: var(--primary-color);">Досие на ученик</h3>
+                        <h4 class="text-xl font-semibold">${s.Име} (ID: ${s.ID})</h4>
+                        <p class="mt-2"><span class="label">Статус:</span> <span class="status ${statusClass}">${s.Статус === 'active' ? 'Активен' : 'Неактивен'}</span></p>
+                        <p><span class="label">Група:</span> ${s.Група}</p>
+                        <p><span class="label">Тип:</span> ${s.ТипОбучение}</p>
+                        <p><span class="label">Такса:</span> ${formatSimpleCurrency(s.Такса)}</p>
+                        <p><span class="label">Падеж:</span> ${formatDate(s.Падеж)}</p>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg border">
+                        <h4 class="text-lg font-semibold text-gray-800">Родител</h4>
+                        ${p.Име ? `
+                            <p class="mt-2"><span class="label">Име:</span> ${p.Име} (ID: ${p.ID})</p>
+                            <p><span class="label">Телефон:</span> ${p.Телефон}</p>
+                            <p><span class="label">Имейл:</span> ${p.Имейл}</p>
+                        ` : '<p class="text-gray-500">Няма свързан родител.</p>'}
+                    </div>
+                </div>
+
+                <div class="mt-6 border-t pt-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Разписание на групата (${s.Група})</h4>
+                    ${renderProfileScheduleList(profile.schedule)}
+                </div>
+
+                <div class="mt-6 border-t pt-4">
+                    <h4 class="text-lg font-semibold text-gray-800">История на плащанията</h4>
+                    ${renderProfilePaymentTable(profile.payments)}
+                </div>
+
+                <div class="mt-6 border-t pt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800">Посещаемост</h4>
+                        <div class="h-48 overflow-y-auto border rounded-md p-2 mt-2 bg-white">
+                            ${renderProfileAttendanceTable(profile.attendance)}
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800">Напредък / Бележки</h4>
+                        <div class="h-48 overflow-y-auto border rounded-md p-2 mt-2 bg-white">
+                            ${renderProfileProgressList(profile.progress)}
+                        </div>
+                    </div>
+                </div>
+
+                ${profile.discounts.length > 0 ? `
+                    <div class="mt-6 border-t pt-4">
+                        <h4 class="text-lg font-semibold text-gray-800">Активни отстъпки</h4>
+                        <ul class="list-disc pl-5 mt-2 text-sm">
+                            ${profile.discounts.map(d => `<li>${d.Причина}: ${d.Тип === 'percent' ? `${d.Стойност}%` : formatSimpleCurrency(d.Стойност)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+            </div>
+        `;
+        container.innerHTML += profileHTML;
+    });
+}
+
+function renderProfilePaymentTable(payments) {
+    if (!payments || payments.length === 0) return '<p class="text-gray-500 text-sm mt-2">Няма плащания.</p>';
+    let tableHTML = `<table class="w-full text-sm mt-2"><thead class="bg-gray-100"><tr>
+                    <th class="p-2 text-left">Дата</th><th class="p-2 text-left">Описание</th><th class="p-2 text-right">Сума</th>
+                </tr></thead><tbody>`;
+    payments.slice().reverse().forEach(p => {
+        tableHTML += `<tr class="border-b">
+                <td class="p-2">${formatDate(p.Дата)}</td>
+                <td class="p-2">${p.Описание}</td>
+                <td class="p-2 text-right">${formatSimpleCurrency(p.Сума)}</td>
+            </tr>`;
+    });
+    return tableHTML + '</tbody></table>';
+}
+function renderProfileAttendanceTable(attendance) {
+    if (!attendance || attendance.length === 0) return '<p class="text-gray-500 text-sm mt-2">Няма данни.</p>';
+    let tableHTML = `<table class="w-full text-sm mt-2"><thead class="bg-gray-100"><tr>
+                    <th class="p-2 text-left">Дата</th><th class="p-2 text-left">Статус</th>
+                </tr></thead><tbody>`;
+    attendance.slice().reverse().forEach(a => {
+        tableHTML += `<tr class="border-b">
+                <td class="p-2">${formatDate(a.Дата)}</td>
+                <td class="p-2">${a.Статус}</td>
+            </tr>`;
+    });
+    return tableHTML + '</tbody></table>';
+}
+function renderProfileProgressList(progress) {
+    if (!progress || progress.length === 0) return '<p class="text-gray-500 text-sm mt-2">Няма бележки.</p>';
+    let listHTML = '<ul class="space-y-2 mt-2">';
+    progress.slice().reverse().forEach(p => {
+        listHTML += `<li class="border-b pb-1">
+                <span class="font-semibold text-sm text-gray-600">${formatDate(p.Дата)}:</span>
+                <p class="text-gray-800 text-sm whitespace-normal">${p.Бележка}</p>
+            </li>`;
+    });
+    return listHTML + '</ul>';
+}
+function renderProfileScheduleList(schedule) {
+    if (!schedule || schedule.length === 0) return '<p class="text-gray-500 text-sm mt-2">Няма разписание за тази група.</p>';
+    let listHTML = '<ul class="list-disc pl-5 mt-2 space-y-1 text-sm">';
+    schedule.forEach(s => {
+        listHTML += `<li><span class="font-semibold">${s.Ден}:</span> ${formatTime(s.НачалоЧас)} - ${formatTime(s.КрайЧас)} (с ${s.Преподавател})</li>`;
+    });
+    return listHTML + '</ul>';
+}
+
+function printDossier(studentId, mode) {
+    const profile = db.students.find(s => s.ID == studentId);
+    if (!profile) return;
+
+    const parent = db.parents.find(p => p.ID == profile['Родител (ID)']);
+    const schedule = db.schedule.filter(s => s.Група === profile.Група);
+    const payments = db.payments.filter(p => p.УченикID == studentId);
+    const attendance = db.attendance.filter(a => a.УченикID == studentId);
+    const progress = db.progress.filter(p => p.УченикID == studentId);
+
+    let html = `
+        <html><head><title>Досие: ${profile.Име}</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #46B19D; border-bottom: 2px solid #46B19D; padding-bottom: 5px; }
+            h2 { color: #333; border-bottom: 1px solid #eee; padding-bottom: 3px; }
+            .label { font-weight: bold; color: #555; min-width: 100px; display: inline-block; }
+            p { margin: 5px 0; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+            th { background-color: #f4f4f4; }
+        </style>
+        </head><body>
+        <h1>Досие на ученик: ${profile.Име} (ID: ${profile.ID})</h1>
+    `;
+
+    if (mode === 'parent') {
+        html += `
+            <h2>Данни за ученика</h2>
+            <p><span class="label">Име:</span> ${profile.Име}</p>
+            <p><span class="label">Група:</span> ${profile.Група}</p>
+            <p><span class="label">Тип:</span> ${profile.ТипОбучение}</p>
+            <h2>Данни за родителя</h2>
+            <p><span class="label">Име:</span> ${parent.Име}</p>
+            <p><span class="label">Телефон:</span> ${parent.Телефон}</p>
+            <p><span class="label">Имейл:</span> ${parent.Имейл}</p>
+        `;
+    } else {
+        html += `
+            <h2>Данни за ученика</h2>
+            <p><span class="label">Име:</span> ${profile.Име}</p>
+            <p><span class="label">Група:</span> ${profile.Група}</p>
+            <p><span class="label">Тип:</span> ${profile.ТипОбучение}</p>
+            <p><span class="label">Такса:</span> ${formatSimpleCurrency(profile.Такса)}</p>
+            <p><span class="label">Падеж:</span> ${formatDate(profile.Падеж)}</p>
+            <h2>Данни за родителя</h2>
+            <p><span class="label">Име:</span> ${parent.Име}</p>
+            <p><span class="label">Телефон:</span> ${parent.Телефон}</p>
+            <p><span class="label">Имейл:</span> ${parent.Имейл}</p>
+
+            <h2>История на плащанията</h2>
+            ${renderProfilePaymentTable(payments)}
+        `;
+    }
+
+    html += `
+        <h2>Разписание на групата (${profile.Група})</h2>
+        ${renderProfileScheduleList(schedule)}
+
+        <h2>Посещаемост</h2>
+        ${renderProfileAttendanceTable(attendance)}
+
+        <h2>Напредък / Бележки</h2>
+        ${renderProfileProgressList(progress)}
+
+        </body></html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); }, 500);
+}
+
+// ============================================
+// === СПРАВКИ ===
+// ============================================
+
+async function handleBackup() {
+    showConfirmation(
+        'Архивиране',
+        'Сигурни ли сте, че искате да създадете нов архив? Това може да отнеме минута.',
+        'btn-accent',
+        'Да, архивирай',
+        async () => {
+            showLoading();
+            try {
+                const result = await callAPI('createBackup');
+                if (result.success) {
+                    showToast(result.message, 'success');
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                showToast(`Грешка при архивиране: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+    );
+}
+
+async function handleGenerateReport(reportType) {
+    let options = { reportType };
+    if (reportType === 'financial' || reportType === 'expenseCategory' || reportType === 'groupRevenue') {
+        const prefix = reportType === 'financial' ? 'fin' : reportType === 'expenseCategory' ? 'exp' : 'group';
+        options.startDate = document.getElementById(`report-${prefix}-start`).value;
+        options.endDate = document.getElementById(`report-${prefix}-end`).value;
+        if (!options.startDate || !options.endDate) {
+            showToast('Моля, изберете начална и крайна дата.', 'error');
+            return;
+        }
+    }
+    if (reportType !== 'groupRevenue') {
+        const prefix = reportType === 'financial' ? 'fin' : reportType === 'expenseCategory' ? 'exp' : 'roster';
+        options.format = document.querySelector(`input[name="report-${prefix}-format"]:checked`).value;
+    } else {
+        options.format = 'sheet';
+    }
+
+    showLoading();
+    const outputEl = document.getElementById('reports-output');
+    outputEl.innerHTML = '<p class="text-gray-600">Генерира се справка, моля изчакайте...</p>';
+    try {
+        const result = await callAPI('generateReport', options);
+        if (result.success) {
+            outputEl.innerHTML = `<p class="text-green-600 font-medium">Справката е готова!
+                <a href="${result.url}" target="_blank" class="text-blue-600 underline">Отвори/Изтегли "${result.name}"</a>
+            </p>`;
+            showToast('Справката е генерирана!', 'success');
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        outputEl.innerHTML = `<p class="text-red-600">Грешка: ${error.message}</p>`;
+        showToast(`Грешка при генериране: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+</script>
+</body>
+</html>
