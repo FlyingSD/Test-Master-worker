@@ -6,13 +6,13 @@ import DashboardPage from '@/pages/DashboardPage'
 import StudentsPage from '@/pages/StudentsPage'
 import PaymentsPage from '@/pages/PaymentsPage'
 import EventsPage from '@/pages/EventsPage'
+import DiscountsPage from '@/pages/DiscountsPage'
+import ReportsPage from '@/pages/ReportsPage'
 
 // Placeholder pages (will be created later)
 const ExpensesPage = () => <div className="p-6">Разходи страница - в разработка</div>
 const AttendancePage = () => <div className="p-6">Присъствия страница - в разработка</div>
 const ParentsPage = () => <div className="p-6">Родители страница - в разработка</div>
-const DiscountsPage = () => <div className="p-6">Отстъпки страница - в разработка</div>
-const ReportsPage = () => <div className="p-6">Репорти страница - в разработка</div>
 const SettingsPage = () => <div className="p-6">Настройки страница - в разработка</div>
 
 export default function App() {
