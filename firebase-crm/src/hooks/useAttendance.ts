@@ -21,6 +21,7 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
 import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 const attendanceCollection = collection(db, COLLECTIONS.ATTENDANCE)
 
@@ -228,7 +229,7 @@ export function useAddAttendance() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attendance'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.attendance })
       toast.success(SUCCESS_MESSAGES.ATTENDANCE_ADDED)
     },
   })
@@ -270,7 +271,7 @@ export function useUpdateAttendance() {
       await updateDoc(docRef, updateData)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attendance'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.attendance })
       toast.success(SUCCESS_MESSAGES.ATTENDANCE_UPDATED)
     },
   })
@@ -301,7 +302,7 @@ export function useDeleteAttendance() {
       await deleteDoc(doc(db, COLLECTIONS.ATTENDANCE, id))
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attendance'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.attendance })
       toast.success(SUCCESS_MESSAGES.ATTENDANCE_DELETED)
     },
   })
@@ -334,7 +335,7 @@ export function useBulkAddAttendance() {
       await Promise.all(promises)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attendance'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.attendance })
       toast.success(SUCCESS_MESSAGES.BULK_ATTENDANCE_ADDED)
     },
     onError: (error) => {

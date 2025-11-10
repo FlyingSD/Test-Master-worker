@@ -23,6 +23,7 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
 import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
 const eventsCollection = collection(db, COLLECTIONS.EVENTS)
@@ -88,7 +89,7 @@ export function useEvents() {
  */
 export function useEvent(eventId: string) {
   return useQuery({
-    queryKey: ['event', eventId],
+    queryKey: QUERY_KEYS.event(eventId),
     queryFn: async () => {
       const docRef = doc(db, COLLECTIONS.EVENTS, eventId)
       const docSnap = await getDoc(docRef)
@@ -178,7 +179,7 @@ export function useAddEvent() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events })
       toast.success(SUCCESS_MESSAGES.EVENT_ADDED)
     },
     onError: (error: Error) => {
@@ -224,8 +225,8 @@ export function useUpdateEvent() {
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['events'] })
-      queryClient.invalidateQueries({ queryKey: ['event', variables.id] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.event(variables.id) })
       toast.success(SUCCESS_MESSAGES.EVENT_UPDATED)
     },
     onError: (error: Error) => {
@@ -261,7 +262,7 @@ export function useDeleteEvent() {
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.events })
       toast.success(SUCCESS_MESSAGES.EVENT_DELETED)
     },
     onError: (error: Error) => {

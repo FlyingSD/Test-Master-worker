@@ -23,6 +23,7 @@ import { validateDocumentOwnership } from '@/utils/security'
 import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
 const parentsCollection = collection(db, COLLECTIONS.PARENTS)
@@ -74,7 +75,7 @@ export function useParents() {
  */
 export function useParent(parentId: string) {
   return useQuery({
-    queryKey: ['parent', parentId],
+    queryKey: QUERY_KEYS.parent(parentId),
     queryFn: async () => {
       const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
       const docSnap = await getDoc(docRef)
@@ -156,7 +157,7 @@ export function useAddParent() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
       toast.success(SUCCESS_MESSAGES.PARENT_ADDED)
     },
     onError: (error: Error) => {
@@ -200,8 +201,8 @@ export function useUpdateParent() {
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] })
-      queryClient.invalidateQueries({ queryKey: ['parent', variables.id] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.id) })
       toast.success(SUCCESS_MESSAGES.PARENT_UPDATED)
     },
     onError: (error: Error) => {
@@ -253,7 +254,7 @@ export function useDeleteParent() {
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
       toast.success(SUCCESS_MESSAGES.PARENT_DELETED)
     },
     onError: (error: Error) => {
@@ -291,8 +292,8 @@ export function useAddStudentToParent() {
       })
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] })
-      queryClient.invalidateQueries({ queryKey: ['parent', variables.parentId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.parentId) })
     },
     onError: (error: Error) => {
       console.error('Error adding student to parent:', error)
@@ -325,8 +326,8 @@ export function useRemoveStudentFromParent() {
       })
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] })
-      queryClient.invalidateQueries({ queryKey: ['parent', variables.parentId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.parentId) })
     },
     onError: (error: Error) => {
       console.error('Error removing student from parent:', error)
@@ -382,8 +383,8 @@ export function useUploadVideoToParent() {
       return downloadURL
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] })
-      queryClient.invalidateQueries({ queryKey: ['parent', variables.parentId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.parentId) })
       toast.success('Видеото беше качено успешно!')
     },
     onError: (error: Error) => {
@@ -422,8 +423,8 @@ export function useDeleteVideoFromParent() {
       })
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] })
-      queryClient.invalidateQueries({ queryKey: ['parent', variables.parentId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.parentId) })
       toast.success('Видеото беше изтрито успешно!')
     },
     onError: (error: Error) => {

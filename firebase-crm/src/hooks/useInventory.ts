@@ -23,6 +23,7 @@ import { COLLECTIONS } from '@/lib/collections'
 import { syncAllInventoryData } from './useDenormalizedSync'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentOwnership } from '@/utils/security'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection references
 const inventoryCollection = collection(db, COLLECTIONS.INVENTORY)
@@ -75,7 +76,7 @@ export function useInventory() {
  */
 export function useInventoryItem(itemId: string) {
   return useQuery({
-    queryKey: ['inventoryItem', itemId],
+    queryKey: QUERY_KEYS.inventoryItem(itemId),
     queryFn: async () => {
       const docRef = doc(db, 'inventory', itemId)
       const docSnap = await getDoc(docRef)
@@ -130,7 +131,7 @@ export function useAddInventoryItem() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.inventory })
       toast.success(SUCCESS_MESSAGES.INVENTORY_ADDED)
     },
     onError: (error: Error) => {
@@ -178,8 +179,8 @@ export function useUpdateInventoryItem() {
       }
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      queryClient.invalidateQueries({ queryKey: ['inventoryItem', variables.id] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.inventory })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.inventoryItem(variables.id) })
       toast.success(SUCCESS_MESSAGES.INVENTORY_UPDATED)
     },
     onError: (error: Error) => {
@@ -218,7 +219,7 @@ export function useDeleteInventoryItem() {
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.inventory })
       toast.success(SUCCESS_MESSAGES.INVENTORY_DELETED)
     },
     onError: (error: Error) => {
@@ -386,9 +387,9 @@ export function useAddStockTransaction() {
       return { newStock }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      queryClient.invalidateQueries({ queryKey: ['stockTransactions'] })
-      queryClient.invalidateQueries({ queryKey: ['payments'] }) // NEW: Invalidate payments too!
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.inventory })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stockTransactions })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments }) // NEW: Invalidate payments too!
       toast.success(SUCCESS_MESSAGES.STOCK_TRANSACTION_ADDED)
     },
     onError: (error: Error) => {

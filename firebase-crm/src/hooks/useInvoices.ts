@@ -22,6 +22,7 @@ import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentOwnership } from '@/utils/security'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
 const invoicesCollection = collection(db, COLLECTIONS.INVOICES)
@@ -73,7 +74,7 @@ export function useInvoices() {
  */
 export function useInvoice(invoiceId: string) {
   return useQuery({
-    queryKey: ['invoice', invoiceId],
+    queryKey: QUERY_KEYS.invoice(invoiceId),
     queryFn: async () => {
       const docRef = doc(db, 'invoices', invoiceId)
       const docSnap = await getDoc(docRef)
@@ -182,7 +183,7 @@ export function useAddInvoice() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoices })
       toast.success(SUCCESS_MESSAGES.INVOICE_ADDED)
     },
     onError: (error: Error) => {
@@ -239,8 +240,8 @@ export function useUpdateInvoice() {
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
-      queryClient.invalidateQueries({ queryKey: ['invoice', variables.id] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoices })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoice(variables.id) })
       toast.success(SUCCESS_MESSAGES.INVOICE_UPDATED)
     },
     onError: (error: Error) => {
@@ -280,7 +281,7 @@ export function useDeleteInvoice() {
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoices })
       toast.success(SUCCESS_MESSAGES.INVOICE_DELETED)
     },
     onError: (error: Error) => {
@@ -307,8 +308,8 @@ export function useMarkInvoicePaid() {
       })
     },
     onSuccess: (_, invoiceId) => {
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
-      queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoices })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoice(invoiceId) })
       toast.success(SUCCESS_MESSAGES.INVOICE_MARKED_PAID)
     },
     onError: (error: Error) => {

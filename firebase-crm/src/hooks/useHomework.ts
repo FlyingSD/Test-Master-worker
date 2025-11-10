@@ -22,6 +22,7 @@ import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
 const homeworkCollection = collection(db, COLLECTIONS.HOMEWORK)
@@ -210,7 +211,7 @@ export function useAddHomework() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['homework'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.homework })
       toast.success(SUCCESS_MESSAGES.HOMEWORK_ADDED)
     },
     onError: (error: Error) => {
@@ -264,7 +265,7 @@ export function useUpdateHomework() {
       await updateDoc(docRef, updateData)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['homework'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.homework })
       toast.success(SUCCESS_MESSAGES.HOMEWORK_UPDATED)
     },
     onError: (error: Error) => {
@@ -304,7 +305,7 @@ export function useDeleteHomework() {
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['homework'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.homework })
       toast.success(SUCCESS_MESSAGES.HOMEWORK_DELETED)
     },
     onError: (error: Error) => {

@@ -21,6 +21,7 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
 import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 const discountsCollection = collection(db, COLLECTIONS.DISCOUNTS)
 
@@ -191,7 +192,7 @@ export function useAddDiscount() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['discounts'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.discounts })
       toast.success(SUCCESS_MESSAGES.DISCOUNT_ADDED)
     },
   })
@@ -230,7 +231,7 @@ export function useUpdateDiscount() {
       await updateDoc(docRef, updateData)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['discounts'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.discounts })
       toast.success(SUCCESS_MESSAGES.DISCOUNT_UPDATED)
     },
     onError: (error) => {
@@ -261,7 +262,7 @@ export function useDeleteDiscount() {
       await deleteDoc(doc(db, COLLECTIONS.DISCOUNTS, id))
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['discounts'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.discounts })
       toast.success(SUCCESS_MESSAGES.DISCOUNT_DELETED)
     },
     onError: (error) => {

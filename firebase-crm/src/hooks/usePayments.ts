@@ -23,6 +23,7 @@ import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
 const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
@@ -193,7 +194,7 @@ export function usePayments() {
  */
 export function usePayment(paymentId: string) {
   return useQuery({
-    queryKey: ['payment', paymentId],
+    queryKey: QUERY_KEYS.payment(paymentId),
     queryFn: async () => {
       const docRef = doc(db, 'payments', paymentId)
       const docSnap = await getDoc(docRef)
@@ -274,7 +275,7 @@ export function useAddPayment() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments })
       toast.success(SUCCESS_MESSAGES.PAYMENT_ADDED)
     },
     onError: (error: Error) => {
@@ -314,8 +315,8 @@ export function useUpdatePayment() {
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['payments'] })
-      queryClient.invalidateQueries({ queryKey: ['payment', variables.id] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payment(variables.id) })
       toast.success(SUCCESS_MESSAGES.PAYMENT_UPDATED)
     },
     onError: (error: Error) => {
@@ -350,7 +351,7 @@ export function useDeletePayment() {
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments })
       toast.success(SUCCESS_MESSAGES.PAYMENT_DELETED)
     },
     onError: (error: Error) => {
@@ -519,7 +520,7 @@ export function useBulkAddPayments() {
       await Promise.all(promises)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments })
       toast.success('Плащанията бяха добавени успешно!')
     },
     onError: (error: Error) => {

@@ -25,6 +25,7 @@ import { syncAllStudentData } from './useDenormalizedSync'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentGroupAccess, validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
 const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
@@ -160,7 +161,7 @@ export function useStudents() {
  */
 export function useStudent(studentId: string) {
   return useQuery({
-    queryKey: ['student', studentId],
+    queryKey: QUERY_KEYS.student(studentId),
     queryFn: async () => {
       const docRef = doc(db, 'students', studentId)
       const docSnap = await getDoc(docRef)
@@ -243,7 +244,7 @@ export function useAddStudent() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.students })
       toast.success(SUCCESS_MESSAGES.STUDENT_ADDED)
     },
     onError: (error: Error) => {
@@ -291,8 +292,8 @@ export function useUpdateStudent() {
       }
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['students'] })
-      queryClient.invalidateQueries({ queryKey: ['student', variables.id] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.students })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.student(variables.id) })
       toast.success(SUCCESS_MESSAGES.STUDENT_UPDATED)
     },
     onError: (error: Error) => {
@@ -327,7 +328,7 @@ export function useDeleteStudent() {
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.students })
       toast.success(SUCCESS_MESSAGES.STUDENT_DELETED)
     },
     onError: (error: Error) => {
@@ -385,7 +386,7 @@ export function useBulkAddStudents() {
       await Promise.all(promises)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.students })
       toast.success(SUCCESS_MESSAGES.STUDENTS_IMPORTED)
     },
     onError: (error: Error) => {

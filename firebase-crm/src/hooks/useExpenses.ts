@@ -21,6 +21,7 @@ import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
+import { QUERY_KEYS } from '@/constants/queryKeys'
 
 const expensesCollection = collection(db, COLLECTIONS.EXPENSES)
 
@@ -75,7 +76,7 @@ export function useAddExpense() {
       return docRef.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expenses'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.expenses })
       toast.success(SUCCESS_MESSAGES.EXPENSE_ADDED)
     },
   })
@@ -108,7 +109,7 @@ export function useUpdateExpense() {
       await updateDoc(docRef, updateData)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expenses'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.expenses })
       toast.success(SUCCESS_MESSAGES.EXPENSE_UPDATED)
     },
     onError: (error: Error) => {
@@ -142,7 +143,7 @@ export function useDeleteExpense() {
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expenses'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.expenses })
       toast.success(SUCCESS_MESSAGES.EXPENSE_DELETED)
     },
     onError: (error: Error) => {
