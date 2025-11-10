@@ -92,19 +92,57 @@ export default function RevenueExpensesChart() {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
     plugins: {
       legend: {
         position: 'top' as const,
+        onClick: (e: any, legendItem: any, legend: any) => {
+          // Default click behavior (toggle dataset visibility)
+          const index = legendItem.datasetIndex
+          const chart = legend.chart
+          const meta = chart.getDatasetMeta(index)
+          meta.hidden = !meta.hidden
+          chart.update()
+        },
+        onHover: (e: any) => {
+          e.native.target.style.cursor = 'pointer'
+        },
+        onLeave: (e: any) => {
+          e.native.target.style.cursor = 'default'
+        },
+        labels: {
+          usePointStyle: true,
+          padding: 15,
+          font: {
+            size: 12,
+            weight: '500' as any,
+          },
+        },
       },
       title: {
         display: true,
         text: 'Приходи vs Разходи (последни 6 месеца)',
         font: {
-          size: 16,
-          weight: 'bold',
+          size: 18,
+          weight: 'bold' as any,
+        },
+        padding: {
+          top: 10,
+          bottom: 20,
         },
       },
       tooltip: {
+        enabled: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
         callbacks: {
           label: function (context: any) {
             let label = context.dataset.label || ''
@@ -112,9 +150,25 @@ export default function RevenueExpensesChart() {
               label += ': '
             }
             if (context.parsed.y !== null) {
-              label += context.parsed.y.toFixed(2) + ' лв.'
+              label += new Intl.NumberFormat('bg-BG', {
+                style: 'currency',
+                currency: 'BGN',
+                minimumFractionDigits: 2,
+              }).format(context.parsed.y)
             }
             return label
+          },
+          footer: function (tooltipItems: any[]) {
+            const revenueIndex = 0
+            const expenseIndex = 1
+            const revenue = tooltipItems.find(item => item.datasetIndex === revenueIndex)?.parsed.y || 0
+            const expense = tooltipItems.find(item => item.datasetIndex === expenseIndex)?.parsed.y || 0
+            const profit = revenue - expense
+            return `Нетна печалба: ${new Intl.NumberFormat('bg-BG', {
+              style: 'currency',
+              currency: 'BGN',
+              minimumFractionDigits: 2,
+            }).format(profit)}`
           },
         },
       },
@@ -124,10 +178,30 @@ export default function RevenueExpensesChart() {
         beginAtZero: true,
         ticks: {
           callback: function (value: any) {
-            return value + ' лв.'
+            return new Intl.NumberFormat('bg-BG', {
+              style: 'currency',
+              currency: 'BGN',
+              minimumFractionDigits: 0,
+            }).format(value)
           },
         },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
       },
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+    },
+    animation: {
+      duration: 750,
+      easing: 'easeInOutQuart' as const,
+    },
+    hover: {
+      mode: 'index' as const,
+      intersect: false,
     },
   }
 
