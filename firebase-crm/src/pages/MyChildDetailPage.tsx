@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
-import { ArrowLeft, User, CreditCard, BookOpen, Calendar, CheckCircle, Clock, AlertCircle, AlertTriangle, Printer, Filter } from 'lucide-react'
+import { ArrowLeft, User, CreditCard, BookOpen, Calendar, CheckCircle, Clock, AlertCircle, AlertTriangle, Printer, Filter, UserCheck, XCircle, HelpCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudentsByParent } from '@/hooks/useStudents'
 import { usePayments } from '@/hooks/usePayments'
 import { useHomeworkByStudent } from '@/hooks/useHomework'
+import { useAttendanceByStudent, useAttendanceStats } from '@/hooks/useAttendance'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { getDueDateStatus, subtractDays } from '@/utils/date'
 import { generatePaymentReceipt } from '@/utils/pdfGenerator'
@@ -12,6 +13,7 @@ import { triggerHaptic } from '@/utils/touchGestures'
 import SwipeableCard from '@/components/SwipeableCard'
 
 type PaymentPeriod = 'all' | '3months' | '6months' | '1year'
+type AttendancePeriod = 'all' | '1month' | '3months' | '6months'
 
 export default function MyChildDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -19,7 +21,10 @@ export default function MyChildDetailPage() {
   const { students, loading: studentsLoading } = useStudentsByParent(user?.uid || '')
   const { payments, loading: paymentsLoading } = usePayments()
   const { homework, loading: homeworkLoading } = useHomeworkByStudent(id || '')
+  const { attendance, loading: attendanceLoading } = useAttendanceByStudent(id || '')
+  const attendanceStats = useAttendanceStats(id || '')
   const [paymentPeriod, setPaymentPeriod] = useState<PaymentPeriod>('all')
+  const [attendancePeriod, setAttendancePeriod] = useState<AttendancePeriod>('all')
 
   // Get the specific student
   const student = students.find(s => s.id === id)
@@ -29,7 +34,7 @@ export default function MyChildDetailPage() {
     return <Navigate to="/" replace />
   }
 
-  if (studentsLoading || paymentsLoading || homeworkLoading) {
+  if (studentsLoading || paymentsLoading || homeworkLoading || attendanceLoading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
@@ -96,6 +101,31 @@ export default function MyChildDetailPage() {
   const totalPaid = useMemo(() => {
     return studentPayments.reduce((sum, p) => sum + p.amount, 0)
   }, [studentPayments])
+
+  // Filter attendance records by period
+  const filteredAttendance = useMemo(() => {
+    const today = new Date()
+    let cutoffDate: Date | null = null
+
+    // Calculate cutoff date based on selected period
+    if (attendancePeriod === '1month') {
+      cutoffDate = subtractDays(today, 30)
+    } else if (attendancePeriod === '3months') {
+      cutoffDate = subtractDays(today, 90)
+    } else if (attendancePeriod === '6months') {
+      cutoffDate = subtractDays(today, 180)
+    }
+
+    return attendance.filter(a => {
+      // If filtering by period, check date
+      if (cutoffDate) {
+        const attendanceDate = a.date instanceof Date ? a.date : a.date?.toDate?.()
+        if (!attendanceDate) return false
+        return attendanceDate >= cutoffDate
+      }
+      return true
+    })
+  }, [attendance, attendancePeriod])
 
   // Categorize homework
   const today = new Date()
@@ -387,6 +417,136 @@ export default function MyChildDetailPage() {
                 })}
               </div>
             )}
+          </div>
+        )}
+      </div>
+
+      {/* Attendance History */}
+      <div className="card">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <UserCheck className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-bold text-gray-900">История на присъствията</h2>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <select
+              value={attendancePeriod}
+              onChange={(e) => setAttendancePeriod(e.target.value as AttendancePeriod)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+            >
+              <option value="all">Всички</option>
+              <option value="1month">Последният месец</option>
+              <option value="3months">Последните 3 месеца</option>
+              <option value="6months">Последните 6 месеца</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Attendance Statistics */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600 mb-1">Общо уроци</p>
+            <p className="text-2xl font-bold text-gray-900">{attendanceStats.total}</p>
+          </div>
+          <div className="bg-green-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2 mb-1">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <p className="text-sm text-gray-600">Присъствал</p>
+            </div>
+            <p className="text-2xl font-bold text-green-600">{attendanceStats.present}</p>
+          </div>
+          <div className="bg-red-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2 mb-1">
+              <XCircle className="w-4 h-4 text-red-600" />
+              <p className="text-sm text-gray-600">Отсъствал</p>
+            </div>
+            <p className="text-2xl font-bold text-red-600">{attendanceStats.absent}</p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2 mb-1">
+              <Clock className="w-4 h-4 text-yellow-600" />
+              <p className="text-sm text-gray-600">Закъснял</p>
+            </div>
+            <p className="text-2xl font-bold text-yellow-600">{attendanceStats.late}</p>
+          </div>
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600 mb-1">Процент присъствие</p>
+            <p className="text-2xl font-bold text-purple-600">{attendanceStats.attendanceRate}%</p>
+          </div>
+        </div>
+
+        {/* Attendance List */}
+        {filteredAttendance.length === 0 ? (
+          <div className="text-center py-8">
+            <UserCheck className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-600">Няма данни за присъствия</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {filteredAttendance.map((record) => {
+              const attendanceDate = record.date instanceof Date ? record.date : record.date?.toDate?.()
+
+              // Status configuration
+              const statusConfig = {
+                present: {
+                  icon: CheckCircle,
+                  label: 'Присъствал',
+                  bgColor: 'bg-green-50',
+                  textColor: 'text-green-800',
+                  borderColor: 'border-green-500',
+                  iconColor: 'text-green-600'
+                },
+                absent: {
+                  icon: XCircle,
+                  label: 'Отсъствал',
+                  bgColor: 'bg-red-50',
+                  textColor: 'text-red-800',
+                  borderColor: 'border-red-500',
+                  iconColor: 'text-red-600'
+                },
+                late: {
+                  icon: Clock,
+                  label: 'Закъснял',
+                  bgColor: 'bg-yellow-50',
+                  textColor: 'text-yellow-800',
+                  borderColor: 'border-yellow-500',
+                  iconColor: 'text-yellow-600'
+                },
+                excused: {
+                  icon: HelpCircle,
+                  label: 'Уважително отсъствие',
+                  bgColor: 'bg-blue-50',
+                  textColor: 'text-blue-800',
+                  borderColor: 'border-blue-500',
+                  iconColor: 'text-blue-600'
+                }
+              }
+
+              const config = statusConfig[record.status]
+              const Icon = config.icon
+
+              return (
+                <div
+                  key={record.id}
+                  className={`flex items-center gap-4 p-4 ${config.bgColor} border-l-4 ${config.borderColor} rounded-lg`}
+                >
+                  <Icon className={`w-5 h-5 ${config.iconColor} flex-shrink-0`} />
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900">
+                      {attendanceDate ? formatDate(attendanceDate) : 'Няма дата'}
+                    </p>
+                    {record.notes && (
+                      <p className="text-sm text-gray-600 mt-1">{record.notes}</p>
+                    )}
+                  </div>
+                  <span className={`px-3 py-1 ${config.bgColor} ${config.textColor} text-sm font-medium rounded-full border ${config.borderColor}`}>
+                    {config.label}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
