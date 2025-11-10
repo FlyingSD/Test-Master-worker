@@ -27,12 +27,62 @@ if ('serviceWorker' in navigator) {
       .register('/sw.js')
       .then((registration) => {
         console.log('✅ SW registered:', registration)
+
+        // Check for updates every hour
+        setInterval(() => {
+          registration.update()
+        }, 1000 * 60 * 60)
+
+        // Handle service worker updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New service worker available
+                console.log('🔄 New version available! Refresh to update.')
+
+                // Notify user about update
+                if (confirm('Налична е нова версия на приложението. Обновете сега?')) {
+                  newWorker.postMessage({ type: 'SKIP_WAITING' })
+                  window.location.reload()
+                }
+              }
+            })
+          }
+        })
       })
       .catch((error) => {
         console.log('❌ SW registration failed:', error)
       })
   })
+
+  // Handle service worker updates
+  let refreshing = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true
+      window.location.reload()
+    }
+  })
 }
+
+// PWA Install Prompt
+let deferredPrompt: any = null
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  console.log('💡 PWA install prompt available')
+  e.preventDefault()
+  deferredPrompt = e
+
+  // Show install button/banner (можем да добавим UI за това)
+  console.log('PWA можем да се инсталира')
+})
+
+window.addEventListener('appinstalled', () => {
+  console.log('✅ PWA installed successfully')
+  deferredPrompt = null
+})
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

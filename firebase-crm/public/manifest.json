@@ -1,12 +1,15 @@
 {
-  "name": "Светлинки CRM",
+  "name": "Светлинки CRM - Образователна система",
   "short_name": "Светлинки",
-  "description": "CRM система за образователен център",
+  "description": "Модерна CRM система за управление на образователен център. Плащания, домашни, присъствия, събития и повече.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#46B19D",
-  "orientation": "portrait",
+  "theme_color": "#6D28D9",
+  "orientation": "portrait-primary",
+  "lang": "bg",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -21,13 +24,40 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["education", "business"],
+  "categories": ["education", "business", "productivity"],
   "screenshots": [
     {
       "src": "/screenshot-mobile.png",
       "sizes": "540x720",
       "type": "image/png",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "Начална страница за родители"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Моите деца",
+      "short_name": "Деца",
+      "description": "Преглед на моите деца",
+      "url": "/my-children",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Плащания",
+      "short_name": "Плащания",
+      "description": "История на плащанията",
+      "url": "/payments",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
