@@ -1,10 +1,11 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
-import { ArrowLeft, User, CreditCard, BookOpen, Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { ArrowLeft, User, CreditCard, BookOpen, Calendar, CheckCircle, Clock, AlertCircle, AlertTriangle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudentsByParent } from '@/hooks/useStudents'
 import { usePayments } from '@/hooks/usePayments'
 import { useHomeworkByStudent } from '@/hooks/useHomework'
 import { formatDate, formatCurrency } from '@/utils/formatters'
+import { getDueDateStatus } from '@/utils/date'
 
 export default function MyChildDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -75,6 +76,20 @@ export default function MyChildDetailPage() {
   const dueDate = student.dueDate instanceof Date ? student.dueDate : student.dueDate?.toDate?.()
   const isOverdue = dueDate && dueDate < today
 
+  // Due date warnings for homework
+  const criticalHomework = assignedHomework.filter(hw => {
+    const status = getDueDateStatus(hw.dueDate)
+    return status.status === 'critical'
+  })
+
+  const warningHomework = assignedHomework.filter(hw => {
+    const status = getDueDateStatus(hw.dueDate)
+    return status.status === 'warning'
+  })
+
+  // Payment due date status
+  const paymentDueStatus = getDueDateStatus(dueDate)
+
   return (
     <div className="p-6 space-y-6 animate-fade-in">
       {/* Header with back button */}
@@ -92,6 +107,69 @@ export default function MyChildDetailPage() {
           </p>
         </div>
       </div>
+
+      {/* Warning Alerts */}
+      {(paymentDueStatus.status === 'overdue' || paymentDueStatus.status === 'critical' ||
+        criticalHomework.length > 0 || warningHomework.length > 0) && (
+        <div className="space-y-3">
+          {/* Payment due warning */}
+          {(paymentDueStatus.status === 'overdue' || paymentDueStatus.status === 'critical') && (
+            <div className={`${paymentDueStatus.bgColor} border-l-4 ${paymentDueStatus.borderColor} p-4 rounded-lg`}>
+              <div className="flex items-start gap-3">
+                <AlertTriangle className={`w-5 h-5 ${paymentDueStatus.textColor} flex-shrink-0 mt-0.5`} />
+                <div className="flex-1">
+                  <h3 className={`font-semibold ${paymentDueStatus.textColor}`}>
+                    {paymentDueStatus.status === 'overdue' ? '⚠️ Просрочено плащане!' : '⏰ Падеж на плащане!'}
+                  </h3>
+                  <p className="text-sm text-gray-700 mt-1">
+                    {paymentDueStatus.message} • Месечна такса: {formatCurrency(student.fee)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Critical homework (today or tomorrow) */}
+          {criticalHomework.length > 0 && (
+            <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-orange-800">
+                    🔥 Спешни домашни! ({criticalHomework.length})
+                  </h3>
+                  <p className="text-sm text-gray-700 mt-1">
+                    {criticalHomework.map(hw => {
+                      const status = getDueDateStatus(hw.dueDate)
+                      return <span key={hw.id} className="block">• {hw.title} - {status.message}</span>
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Warning homework (2-3 days) */}
+          {warningHomework.length > 0 && (
+            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-yellow-800">
+                    ⏳ Предстоящи домашни ({warningHomework.length})
+                  </h3>
+                  <p className="text-sm text-gray-700 mt-1">
+                    {warningHomework.map(hw => {
+                      const status = getDueDateStatus(hw.dueDate)
+                      return <span key={hw.id} className="block">• {hw.title} - {status.message}</span>
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Student Info Card */}
       <div className="card">
@@ -149,13 +227,25 @@ export default function MyChildDetailPage() {
             <BookOpen className="w-6 h-6 text-primary" />
             <h2 className="text-xl font-bold text-gray-900">Домашни</h2>
           </div>
-          <div className="flex gap-2">
-            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">
-              {assignedHomework.length} активни
-            </span>
+          <div className="flex flex-wrap gap-2">
             {overdueHomework.length > 0 && (
               <span className="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">
-                {overdueHomework.length} просрочени
+                🔴 {overdueHomework.length} просрочени
+              </span>
+            )}
+            {criticalHomework.length > 0 && (
+              <span className="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">
+                🔥 {criticalHomework.length} спешни
+              </span>
+            )}
+            {warningHomework.length > 0 && (
+              <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">
+                ⏳ {warningHomework.length} предстоящи
+              </span>
+            )}
+            {assignedHomework.length > 0 && (
+              <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full">
+                {assignedHomework.length} общо активни
               </span>
             )}
           </div>
@@ -200,14 +290,16 @@ export default function MyChildDetailPage() {
             {/* Active homework */}
             {assignedHomework.filter(h => !overdueHomework.includes(h)).length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-yellow-600 mb-2 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   Активни
                 </h3>
                 {assignedHomework.filter(h => !overdueHomework.includes(h)).map((hw) => {
+                  const dueDateInfo = getDueDateStatus(hw.dueDate)
                   const hwDueDate = hw.dueDate instanceof Date ? hw.dueDate : hw.dueDate?.toDate?.()
+
                   return (
-                    <div key={hw.id} className="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg mb-2">
+                    <div key={hw.id} className={`p-4 ${dueDateInfo.bgColor} border-l-4 ${dueDateInfo.borderColor} rounded-lg mb-2`}>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900">{hw.title}</h4>
@@ -216,8 +308,8 @@ export default function MyChildDetailPage() {
                             <span>Краен срок: {hwDueDate ? formatDate(hwDueDate) : 'Няма'}</span>
                           </div>
                         </div>
-                        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">
-                          Активно
+                        <span className={`px-3 py-1 ${dueDateInfo.bgColor} ${dueDateInfo.textColor} text-sm font-medium rounded-full border ${dueDateInfo.borderColor}`}>
+                          {dueDateInfo.message}
                         </span>
                       </div>
                     </div>

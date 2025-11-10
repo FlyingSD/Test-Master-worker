@@ -374,3 +374,125 @@ export function formatRelativeTime(date: Date | Timestamp): string {
   if (diffDays > 0) return `след ${diffDays} дни`
   return `преди ${Math.abs(diffDays)} дни`
 }
+
+// ============================================================================
+// DUE DATE WARNINGS
+// ============================================================================
+
+/**
+ * Due date status type
+ */
+export type DueDateStatus = 'overdue' | 'critical' | 'warning' | 'safe'
+
+/**
+ * Due date info with warning level
+ */
+export interface DueDateInfo {
+  status: DueDateStatus
+  daysUntil: number
+  message: string
+  color: 'red' | 'orange' | 'yellow' | 'green'
+  bgColor: string
+  textColor: string
+  borderColor: string
+}
+
+/**
+ * Gets due date status with warning level
+ * - overdue: Past due date (red)
+ * - critical: 1 day or less until due (orange)
+ * - warning: 2-3 days until due (yellow)
+ * - safe: More than 3 days or no due date (green)
+ *
+ * @param dueDate - The due date to check
+ * @returns Due date info with status and styling
+ *
+ * @example
+ * const info = getDueDateStatus(homework.dueDate)
+ * if (info.status === 'overdue') {
+ *   console.log('Просрочено!')
+ * }
+ * // Use styling: <div className={info.bgColor}>
+ */
+export function getDueDateStatus(dueDate: Date | Timestamp | null | undefined): DueDateInfo {
+  if (!dueDate) {
+    return {
+      status: 'safe',
+      daysUntil: 999,
+      message: 'Няма краен срок',
+      color: 'green',
+      bgColor: 'bg-gray-100',
+      textColor: 'text-gray-800',
+      borderColor: 'border-gray-300',
+    }
+  }
+
+  const d = toDate(dueDate)
+  const today = startOfDay(new Date())
+  const due = startOfDay(d)
+  const diffMs = due.getTime() - today.getTime()
+  const daysUntil = Math.floor(diffMs / DATE_TIME.MS_PER_DAY)
+
+  // Overdue - past due date
+  if (daysUntil < 0) {
+    return {
+      status: 'overdue',
+      daysUntil,
+      message: `Просрочено с ${Math.abs(daysUntil)} дни`,
+      color: 'red',
+      bgColor: 'bg-red-50',
+      textColor: 'text-red-800',
+      borderColor: 'border-red-500',
+    }
+  }
+
+  // Due today
+  if (daysUntil === 0) {
+    return {
+      status: 'critical',
+      daysUntil,
+      message: 'Краен срок днес!',
+      color: 'orange',
+      bgColor: 'bg-orange-50',
+      textColor: 'text-orange-800',
+      borderColor: 'border-orange-500',
+    }
+  }
+
+  // Critical - 1 day left
+  if (daysUntil === 1) {
+    return {
+      status: 'critical',
+      daysUntil,
+      message: 'Краен срок утре!',
+      color: 'orange',
+      bgColor: 'bg-orange-50',
+      textColor: 'text-orange-800',
+      borderColor: 'border-orange-500',
+    }
+  }
+
+  // Warning - 2-3 days left
+  if (daysUntil <= 3) {
+    return {
+      status: 'warning',
+      daysUntil,
+      message: `Краен срок след ${daysUntil} дни`,
+      color: 'yellow',
+      bgColor: 'bg-yellow-50',
+      textColor: 'text-yellow-800',
+      borderColor: 'border-yellow-500',
+    }
+  }
+
+  // Safe - more than 3 days
+  return {
+    status: 'safe',
+    daysUntil,
+    message: `Краен срок след ${daysUntil} дни`,
+    color: 'green',
+    bgColor: 'bg-green-50',
+    textColor: 'text-green-800',
+    borderColor: 'border-green-500',
+  }
+}
