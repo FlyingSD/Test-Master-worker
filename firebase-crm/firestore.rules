@@ -1,0 +1,360 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ========================================
+    // HELPER FUNCTIONS
+    // ========================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Get user data from users collection
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Check if user has specific role
+    function hasRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+
+    // Check if user is admin
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    // Check if user is teacher
+    function isTeacher() {
+      return hasRole('teacher');
+    }
+
+    // Check if user is parent
+    function isParent() {
+      return hasRole('parent');
+    }
+
+    // Check if user is admin or teacher
+    function isAdminOrTeacher() {
+      return isAdmin() || isTeacher();
+    }
+
+    // Check if user owns the document (createdBy field)
+    function ownsDocument() {
+      return resource.data.createdBy == request.auth.uid;
+    }
+
+    // Check if user can modify document (admin or owner)
+    function canModifyDocument() {
+      return isAdmin() || ownsDocument();
+    }
+
+    // Check if parent has access to student
+    function parentHasStudent(studentId) {
+      return isParent() && studentId in getUserData().studentIds;
+    }
+
+    // Check if teacher teaches student's group
+    function teacherTeachesGroup(groupId) {
+      return isTeacher() && groupId in getUserData().groups;
+    }
+
+
+    // ========================================
+    // USERS COLLECTION
+    // ========================================
+    match /users/{userId} {
+      // Users can read their own profile
+      // Admins can read all profiles
+      // Teachers can read all profiles (to see students/parents)
+      allow read: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        isAdmin() ||
+        isTeacher()
+      );
+
+      // Only admins can create users (via Firebase Auth + Cloud Function)
+      allow create: if isAdmin();
+
+      // Users can update their own profile (but not role!)
+      // Admins can update any profile
+      allow update: if isAuthenticated() && (
+        (request.auth.uid == userId && request.resource.data.role == resource.data.role) ||
+        isAdmin()
+      );
+
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+
+
+    // ========================================
+    // STUDENTS COLLECTION
+    // ========================================
+    match /students/{studentId} {
+      // Read access:
+      // - Admins: see all students
+      // - Teachers: see all students (need for teaching)
+      // - Parents: see ONLY their children
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isTeacher() ||
+        parentHasStudent(studentId)
+      );
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner
+      allow update: if canModifyDocument();
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // PAYMENTS COLLECTION
+    // ========================================
+    match /payments/{paymentId} {
+      // Read access:
+      // - Admins: see all payments
+      // - Teachers: see all payments (for class management)
+      // - Parents: see ONLY payments for their children
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isTeacher() ||
+        (isParent() && parentHasStudent(resource.data.studentId))
+      );
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner
+      allow update: if canModifyDocument();
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // EXPENSES COLLECTION
+    // ========================================
+    match /expenses/{expenseId} {
+      // Read: Only admins and teachers
+      allow read: if isAdminOrTeacher();
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner
+      allow update: if canModifyDocument();
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // EVENTS COLLECTION
+    // ========================================
+    match /events/{eventId} {
+      // Read: Everyone authenticated (parents need to see schedule)
+      allow read: if isAuthenticated();
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner
+      allow update: if canModifyDocument();
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // HOMEWORK COLLECTION
+    // ========================================
+    match /homework/{homeworkId} {
+      // Read access:
+      // - Admins: see all homework
+      // - Teachers: see homework they created
+      // - Parents: see ONLY homework for their children
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        (isTeacher() && ownsDocument()) ||
+        (isParent() && parentHasStudent(resource.data.studentId))
+      );
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner (teachers who created it)
+      allow update: if canModifyDocument();
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // ATTENDANCE COLLECTION
+    // ========================================
+    match /attendance/{attendanceId} {
+      // Read access:
+      // - Admins: see all attendance
+      // - Teachers: see all attendance
+      // - Parents: see ONLY their children's attendance
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isTeacher() ||
+        (isParent() && parentHasStudent(resource.data.studentId))
+      );
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner
+      allow update: if canModifyDocument();
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // DISCOUNTS COLLECTION
+    // ========================================
+    match /discounts/{discountId} {
+      // Read access:
+      // - Admins: see all discounts
+      // - Teachers: see all discounts
+      // - Parents: see ONLY discounts for their children
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isTeacher() ||
+        (isParent() && parentHasStudent(resource.data.studentId))
+      );
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner
+      allow update: if canModifyDocument();
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // PARENTS COLLECTION
+    // ========================================
+    match /parents/{parentId} {
+      // Read access:
+      // - Admins: see all parents
+      // - Teachers: see all parents (for communication)
+      // - Parents: see ONLY their own record
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isTeacher() ||
+        (isParent() && getUserData().id == parentId)
+      );
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner
+      allow update: if canModifyDocument();
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // INVOICES COLLECTION
+    // ========================================
+    match /invoices/{invoiceId} {
+      // Read access:
+      // - Admins: see all invoices
+      // - Teachers: see all invoices
+      // - Parents: see ONLY their invoices
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isTeacher() ||
+        (isParent() && resource.data.parentId == getUserData().id)
+      );
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins
+      allow update: if isAdmin();
+
+      // Delete: Only admins
+      allow delete: if isAdmin();
+    }
+
+
+    // ========================================
+    // INVENTORY COLLECTION
+    // ========================================
+    match /inventory/{itemId} {
+      // Read: Only admins and teachers
+      allow read: if isAdminOrTeacher();
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner
+      allow update: if canModifyDocument();
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // STOCK_TRANSACTIONS COLLECTION
+    // ========================================
+    match /stock_transactions/{transactionId} {
+      // Read: Only admins and teachers
+      allow read: if isAdminOrTeacher();
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: No updates allowed (transactions are immutable)
+      allow update: if false;
+
+      // Delete: Only admins
+      allow delete: if isAdmin();
+    }
+
+
+    // ========================================
+    // DEFAULT DENY ALL
+    // ========================================
+    // Any collection not explicitly defined above is denied
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
