@@ -221,8 +221,9 @@ export default function ParentsPage() {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="table">
+          <>
+            <div className="overflow-x-auto">
+              <table className="table">
               <thead>
                 <tr>
                   <th>Име</th>
@@ -335,17 +336,18 @@ export default function ParentsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+              </table>
+            </div>
 
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={goToPage}
-            itemsPerPage={itemsPerPage}
-            totalItems={totalItems}
-          />
+            {/* Pagination */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+              itemsPerPage={itemsPerPage}
+              totalItems={totalItems}
+            />
+          </>
         )}
       </div>
 

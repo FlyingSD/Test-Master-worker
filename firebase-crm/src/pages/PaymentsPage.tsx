@@ -217,8 +217,9 @@ export default function PaymentsPage() {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="table">
+          <>
+            <div className="overflow-x-auto">
+              <table className="table">
               <thead>
                 <tr>
                   <th>Дата</th>
@@ -291,17 +292,18 @@ export default function PaymentsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+              </table>
+            </div>
 
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={goToPage}
-            itemsPerPage={itemsPerPage}
-            totalItems={totalItems}
-          />
+            {/* Pagination */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+              itemsPerPage={itemsPerPage}
+              totalItems={totalItems}
+            />
+          </>
         )}
       </div>
 
