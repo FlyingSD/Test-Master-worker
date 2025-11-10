@@ -46,7 +46,6 @@ export interface Parent {
   companyVAT?: string // ЕИК/БУЛСТАТ на фирма
   companyAddress?: string // Адрес на фирма за фактури
   notes?: string // Бележки
-  videoUrls?: string[] // URLs към качени видео клипове от Firebase Storage
   createdAt: Date | Timestamp
   updatedAt?: Date | Timestamp
 }
@@ -108,6 +107,26 @@ export interface Attendance {
   notes?: string
   createdBy: string
   createdAt: Date | Timestamp
+}
+
+// Homework interface
+export interface Homework {
+  id: string
+  studentId: string
+  studentName: string
+  title: string // Заглавие на домашното
+  description: string // Описание какво трябва да се направи
+  assignedDate: Date | Timestamp // Кога е дадено
+  dueDate: Date | Timestamp // Краен срок
+  status: 'assigned' | 'completed' | 'overdue' // Статус
+  completedDate?: Date | Timestamp // Кога е завършено
+  grade?: number // Оценка (опционално) 1-6 или 1-100
+  teacherNotes?: string // Коментар от учител
+  parentNotes?: string // Коментар от родител
+  attachments?: string[] // URLs към файлове (ако има)
+  createdBy: string // Teacher ID
+  createdAt: Date | Timestamp
+  updatedAt?: Date | Timestamp
 }
 
 // Discount interface
@@ -413,6 +432,7 @@ export type PaymentFormValues = Omit<Payment, 'id' | 'createdAt' | 'createdBy'>
 export type ExpenseFormValues = Omit<Expense, 'id' | 'createdAt' | 'createdBy'>
 export type EventFormValues = Omit<Event, 'id' | 'createdAt' | 'createdBy'>
 export type DiscountFormValues = Omit<Discount, 'id' | 'createdAt' | 'createdBy'>
+export type HomeworkFormValues = Omit<Homework, 'id' | 'createdAt' | 'createdBy' | 'updatedAt'>
 export type InventoryFormValues = Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
 export type StockTransactionFormValues = Omit<StockTransaction, 'id' | 'createdAt' | 'createdBy' | 'inventoryItemName'>
 export type InvoiceFormValues = Omit<Invoice, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
