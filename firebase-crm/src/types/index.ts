@@ -30,15 +30,23 @@ export interface Student {
   updatedAt?: Date | Timestamp
 }
 
-// Parent interface
+// Parent interface - Enhanced for full contact management
 export interface Parent {
   id: string
   name: string
   email?: string
   phone: string
+  phone2?: string // Втори телефон
   address?: string
   city?: string
   studentIds: string[] // IDs на децата
+  relationship?: 'Майка' | 'Баща' | 'Настойник' | 'Друго' // Родство
+  paymentMethod?: 'Кеш' | 'ПОС' | 'Банков път' | 'Фактура' // Предпочитан метод на плащане
+  companyName?: string // Име на фирма (ако плаща фирма)
+  companyVAT?: string // ЕИК/БУЛСТАТ на фирма
+  companyAddress?: string // Адрес на фирма за фактури
+  notes?: string // Бележки
+  videoUrls?: string[] // URLs към качени видео клипове от Firebase Storage
   createdAt: Date | Timestamp
   updatedAt?: Date | Timestamp
 }
@@ -117,6 +125,100 @@ export interface Discount {
   createdAt: Date | Timestamp
 }
 
+// Inventory Item interface - За складова база
+export interface InventoryItem {
+  id: string
+  sku: string // Складов код (напр. "ABA-001")
+  name: string // Име на артикула (напр. "Абакус 13 реда")
+  category: 'Абакуси' | 'Учебници' | 'Тетрадки' | 'Материали' | 'Други'
+  description?: string
+  purchasePrice: number // Входна цена в BGN
+  salePrice: number // Продажна цена в BGN
+  currentStock: number // Текущо количество на склад
+  minimumStock: number // Минимално количество (за автоматични известия)
+  location?: string // Локация в склада (напр. "Рафт А-3")
+  supplier?: string // Доставчик
+  lastRestockDate?: Date | Timestamp // Последно зареждане
+  imageUrl?: string // Снимка на артикула
+  isActive: boolean // Активен/Неактивен
+  createdBy: string
+  createdAt: Date | Timestamp
+  updatedAt?: Date | Timestamp
+}
+
+// Stock Transaction interface - За движения на склада
+export interface StockTransaction {
+  id: string
+  inventoryItemId: string
+  inventoryItemName: string // Денормализирано
+  type: 'IN' | 'OUT' // Вход/Изход
+  quantity: number
+  pricePerUnit: number // Цена за единица
+  totalPrice: number // Обща стойност
+  reason: 'Покупка от доставчик' | 'Продажба на ученик' | 'Брак' | 'Инвентаризация' | 'Друго'
+  relatedStudentId?: string // ID на ученик (ако е продажба)
+  relatedPaymentId?: string // ID на плащане (ако е продажба)
+  relatedExpenseId?: string // ID на разход (ако е покупка)
+  notes?: string
+  createdBy: string
+  createdAt: Date | Timestamp
+}
+
+// Invoice interface - За фактури и касови бележки (НАП-съвместими)
+export interface Invoice {
+  id: string
+  invoiceNumber: string // Уникален номер (напр. "0000001")
+  type: 'Фактура' | 'Касова бележка' | 'Разписка' // Тип документ
+  status: 'Чернова' | 'Издадена' | 'Анулирана'
+
+  // Client info
+  clientType: 'Физическо лице' | 'Фирма'
+  clientName: string
+  clientAddress?: string
+  clientVAT?: string // ЕИК/БУЛСТАТ за фирми
+  clientPhone?: string
+  clientEmail?: string
+
+  // Related entities
+  parentId?: string // ID на родител
+  studentIds?: string[] // IDs на ученици
+  relatedPaymentIds?: string[] // IDs на свързани плащания
+
+  // Invoice items
+  items: InvoiceItem[]
+
+  // Amounts
+  subtotal: number // Сума без ДДС
+  vatRate: number // % ДДС (обикновено 20% в България)
+  vatAmount: number // Сума на ДДС
+  total: number // Обща сума с ДДС
+
+  // Payment info
+  paymentMethod: 'Кеш' | 'ПОС' | 'Банков път'
+  isPaid: boolean
+  paidAt?: Date | Timestamp
+
+  // Document info
+  issueDate: Date | Timestamp // Дата на издаване
+  dueDate?: Date | Timestamp // Падеж (за фактури)
+  notes?: string
+  qrCode?: string // QR код за НАП проверка
+  pdfUrl?: string // URL към генериран PDF
+
+  createdBy: string
+  createdAt: Date | Timestamp
+  updatedAt?: Date | Timestamp
+}
+
+// Invoice Item interface - Ред от фактура
+export interface InvoiceItem {
+  description: string // Описание на услугата/стоката
+  quantity: number
+  unitPrice: number // Единична цена
+  total: number // Обща стойност (quantity * unitPrice)
+  inventoryItemId?: string // ID на артикул от склада (опционално)
+}
+
 // Report interface
 export interface Report {
   id: string
@@ -161,7 +263,7 @@ export interface ActivityLog {
   userId: string
   userName: string
   action: 'create' | 'update' | 'delete'
-  entity: 'student' | 'payment' | 'expense' | 'event' | 'discount' | 'parent'
+  entity: 'student' | 'payment' | 'expense' | 'event' | 'discount' | 'parent' | 'inventory' | 'invoice'
   entityId: string
   description: string
   timestamp: Date | Timestamp
@@ -190,6 +292,18 @@ export type Permission =
   | 'create_discounts'
   | 'edit_discounts'
   | 'delete_discounts'
+  | 'view_parents'
+  | 'create_parents'
+  | 'edit_parents'
+  | 'delete_parents'
+  | 'view_inventory'
+  | 'create_inventory'
+  | 'edit_inventory'
+  | 'delete_inventory'
+  | 'view_invoices'
+  | 'create_invoices'
+  | 'edit_invoices'
+  | 'delete_invoices'
   | 'view_reports'
   | 'export_data'
   | 'view_users'
@@ -225,6 +339,18 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'create_discounts',
     'edit_discounts',
     'delete_discounts',
+    'view_parents',
+    'create_parents',
+    'edit_parents',
+    'delete_parents',
+    'view_inventory',
+    'create_inventory',
+    'edit_inventory',
+    'delete_inventory',
+    'view_invoices',
+    'create_invoices',
+    'edit_invoices',
+    'delete_invoices',
     'view_reports',
     'export_data',
     'view_users',
@@ -246,6 +372,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'create_events',
     'edit_events',
     'view_discounts', // Read-only
+    'view_parents', // Read-only за своите групи
   ],
   parent: [
     'view_dashboard', // Персонален dashboard
@@ -286,4 +413,7 @@ export type PaymentFormValues = Omit<Payment, 'id' | 'createdAt' | 'createdBy' |
 export type ExpenseFormValues = Omit<Expense, 'id' | 'createdAt' | 'createdBy'>
 export type EventFormValues = Omit<Event, 'id' | 'createdAt' | 'createdBy'>
 export type DiscountFormValues = Omit<Discount, 'id' | 'createdAt' | 'createdBy' | 'studentName'>
+export type InventoryFormValues = Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
+export type StockTransactionFormValues = Omit<StockTransaction, 'id' | 'createdAt' | 'createdBy' | 'inventoryItemName'>
+export type InvoiceFormValues = Omit<Invoice, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
 export type UserFormValues = Omit<UserProfile, 'id' | 'createdAt' | 'lastLogin'>

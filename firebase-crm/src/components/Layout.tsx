@@ -11,6 +11,7 @@ import {
   X,
   LogOut,
   Shield,
+  Package,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
@@ -19,7 +20,9 @@ import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissi
 const mainNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Ученици', href: '/students', icon: Users },
+  { name: 'Родители', href: '/parents', icon: Users },
   { name: 'Плащания', href: '/payments', icon: CreditCard },
+  { name: 'Склад', href: '/inventory', icon: Package },
   { name: 'Події', href: '/events', icon: Calendar },
   { name: 'Отстъпки', href: '/discounts', icon: Percent },
   { name: 'Репорти', href: '/reports', icon: FileText },

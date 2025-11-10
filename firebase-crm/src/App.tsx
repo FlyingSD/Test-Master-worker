@@ -9,11 +9,12 @@ import EventsPage from '@/pages/EventsPage'
 import DiscountsPage from '@/pages/DiscountsPage'
 import ReportsPage from '@/pages/ReportsPage'
 import AdminPanelPage from '@/pages/AdminPanelPage'
+import ParentsPage from '@/pages/ParentsPage'
+import InventoryPage from '@/pages/InventoryPage'
 
 // Placeholder pages (will be created later)
 const ExpensesPage = () => <div className="p-6">Разходи страница - в разработка</div>
 const AttendancePage = () => <div className="p-6">Присъствия страница - в разработка</div>
-const ParentsPage = () => <div className="p-6">Родители страница - в разработка</div>
 const SettingsPage = () => <div className="p-6">Настройки страница - в разработка</div>
 
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="events" element={<EventsPage />} />
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="parents" element={<ParentsPage />} />
+          <Route path="inventory" element={<InventoryPage />} />
           <Route path="discounts" element={<DiscountsPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<SettingsPage />} />
