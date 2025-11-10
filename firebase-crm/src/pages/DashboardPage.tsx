@@ -8,6 +8,7 @@ import {
   CreditCard,
   Activity,
 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useStudents } from '@/hooks/useStudents'
 import { usePayments } from '@/hooks/usePayments'
 import { useExpenses } from '@/hooks/useExpenses'
@@ -18,6 +19,7 @@ import RevenueExpensesChart from '@/components/RevenueExpensesChart'
 import ExpensesByCategoryChart from '@/components/ExpensesByCategoryChart'
 
 export default function DashboardPage() {
+  const { isAdmin } = useAuth()
   const { students } = useStudents()
   const { payments } = usePayments()
   const { expenses } = useExpenses()
@@ -43,7 +45,8 @@ export default function DashboardPage() {
     return dueDate > now && dueDate <= weekLater
   })
 
-  const stats = [
+  // Stats - admins see financial data, teachers see only operational data
+  const stats = isAdmin ? [
     {
       name: 'Общи приходи',
       value: formatCurrency(totalRevenue),
@@ -65,6 +68,14 @@ export default function DashboardPage() {
       color: profit >= 0 ? 'text-primary' : 'text-red-600',
       bgColor: profit >= 0 ? 'bg-primary-light' : 'bg-red-50',
     },
+    {
+      name: 'Активни ученици',
+      value: activeStudents.length.toString(),
+      icon: Users,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+    },
+  ] : [
     {
       name: 'Активни ученици',
       value: activeStudents.length.toString(),
@@ -99,8 +110,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Charts */}
-      {(payments.length > 0 || expenses.length > 0) && (
+      {/* Charts - Only admins see financial charts */}
+      {isAdmin && (payments.length > 0 || expenses.length > 0) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <RevenueExpensesChart />
           <ExpensesByCategoryChart />

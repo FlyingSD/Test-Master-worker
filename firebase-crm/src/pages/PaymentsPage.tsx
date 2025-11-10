@@ -15,7 +15,7 @@ import { Payment } from '@/types'
 export default function PaymentsPage() {
   const { payments, loading } = usePayments()
   const deletePayment = useDeletePayment()
-  const { user, isParent } = useAuth()
+  const { user, isParent, isAdmin } = useAuth()
   const { students: myChildren } = useStudentsByParent(user?.uid || '')
 
   const [searchTerm, setSearchTerm] = useState('')
@@ -144,46 +144,48 @@ export default function PaymentsPage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-50 rounded-xl">
-              <TrendingUp className="w-6 h-6 text-green-600" />
+      {/* Stats - Only admins see financial statistics */}
+      {isAdmin && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="card">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-green-50 rounded-xl">
+                <TrendingUp className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Общо приходи</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {formatCurrency(totalRevenue)}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Общо приходи</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatCurrency(totalRevenue)}
-              </p>
+          </div>
+          <div className="card">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary-light rounded-xl">
+                <Calendar className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Този месец</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {formatCurrency(monthRevenue)}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="card">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <CreditCard className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Брой плащания</p>
+                <p className="text-2xl font-bold text-gray-900">{payments.length}</p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="card">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary-light rounded-xl">
-              <Calendar className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Този месец</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatCurrency(monthRevenue)}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="card">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-xl">
-              <CreditCard className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Брой плащания</p>
-              <p className="text-2xl font-bold text-gray-900">{payments.length}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Filters */}
       <div className="card">
