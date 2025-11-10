@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Plus, Search, Edit, Trash2, FileText, DollarSign, CheckCircle, XCircle, Printer, FileDown, Download } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useInvoices, useDeleteInvoice, useInvoiceStats, useMarkInvoicePaid } from '@/hooks/useInvoices'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { exportInvoicesToExcel } from '@/utils/excelExport'
@@ -10,10 +12,16 @@ import InvoiceModal from '@/components/InvoiceModal'
 import Pagination from '@/components/Pagination'
 
 export default function InvoicesPage() {
+  const { userData, isAdmin } = useAuth()
   const { invoices, loading } = useInvoices()
   const deleteInvoice = useDeleteInvoice()
   const markPaid = useMarkInvoicePaid()
   const stats = useInvoiceStats()
+
+  // 🔒 SECURITY: Only teachers and admins can issue invoices and payment documents
+  if (userData?.role === 'parent') {
+    return <Navigate to="/" replace />
+  }
 
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -190,60 +198,62 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="card">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary-light rounded-xl">
-              <FileText className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Общо документи</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalInvoices}</p>
+      {/* Stats - Only admins see financial statistics */}
+      {isAdmin && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="card">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary-light rounded-xl">
+                <FileText className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Общо документи</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalInvoices}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="card">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-50 rounded-xl">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Платени</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.paidInvoices}</p>
+          <div className="card">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-green-50 rounded-xl">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Платени</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.paidInvoices}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="card">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-xl">
-              <DollarSign className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Общо приходи</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatCurrency(stats.totalRevenue)}
-              </p>
+          <div className="card">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <DollarSign className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Общо приходи</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {formatCurrency(stats.totalRevenue)}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="card">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-orange-50 rounded-xl">
-              <XCircle className="w-6 h-6 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Чакащи плащане</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatCurrency(stats.pendingRevenue)}
-              </p>
+          <div className="card">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-orange-50 rounded-xl">
+                <XCircle className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Чакащи плащане</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {formatCurrency(stats.pendingRevenue)}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Filters */}
       <div className="card">
@@ -369,20 +379,24 @@ export default function InvoicesPage() {
                             <CheckCircle className="w-4 h-4 text-green-600" />
                           </button>
                         )}
-                        <button
-                          onClick={() => handleEdit(invoice)}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                          title="Редактиране"
-                        >
-                          <Edit className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(invoice.id, invoice.invoiceNumber)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Изтриване"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </button>
+                        {isAdmin && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(invoice)}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                              title="Редактиране"
+                            >
+                              <Edit className="w-4 h-4 text-gray-600" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(invoice.id, invoice.invoiceNumber)}
+                              className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Изтриване"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -9,9 +9,10 @@ import InventoryModal from '@/components/InventoryModal'
 import StockTransactionModal from '@/components/StockTransactionModal'
 
 export default function InventoryPage() {
-  const { userData } = useAuth()
+  const { userData, isAdmin } = useAuth()
 
-  // 🔒 SECURITY: Only teachers and admins can manage inventory
+  // 🔒 SECURITY: Only teachers and admins can view inventory
+  // Teachers can view and sell, but only admins can add/edit/delete items
   if (userData?.role === 'parent') {
     return <Navigate to="/" replace />
   }
@@ -103,16 +104,18 @@ export default function InventoryPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Складова база</h1>
           <p className="text-gray-600 mt-1">
-            Управление на учебни материали и инвентар
+            {isAdmin ? 'Управление на учебни материали и инвентар' : 'Преглед и продажба на учебни материали'}
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary"
-        >
-          <Plus className="w-5 h-5" />
-          Добави артикул
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-primary"
+          >
+            <Plus className="w-5 h-5" />
+            Добави артикул
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -237,9 +240,11 @@ export default function InventoryPage() {
             <p className="text-gray-600 mb-4">
               {searchTerm
                 ? 'Опитайте с друг критерий за търсене'
-                : 'Започнете като добавите първия артикул'}
+                : isAdmin
+                  ? 'Започнете като добавите първия артикул'
+                  : 'Няма налични артикули в момента'}
             </p>
-            {!searchTerm && (
+            {!searchTerm && isAdmin && (
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="btn btn-primary"
@@ -328,20 +333,24 @@ export default function InventoryPage() {
                           >
                             <TrendingDown className="w-4 h-4 text-orange-600" />
                           </button>
-                          <button
-                            onClick={() => handleEdit(item)}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                            title="Редактиране"
-                          >
-                            <Edit className="w-4 h-4 text-gray-600" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(item.id, item.name)}
-                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Изтриване"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                          </button>
+                          {isAdmin && (
+                            <>
+                              <button
+                                onClick={() => handleEdit(item)}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Редактиране"
+                              >
+                                <Edit className="w-4 h-4 text-gray-600" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(item.id, item.name)}
+                                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Изтриване"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

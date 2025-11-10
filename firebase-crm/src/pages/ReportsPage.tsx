@@ -14,8 +14,8 @@ export default function ReportsPage() {
   const currentYear = new Date().getFullYear()
   const [selectedYear, setSelectedYear] = useState(currentYear)
 
-  // 🔒 SECURITY: Only teachers and admins can view financial reports
-  if (userData?.role === 'parent') {
+  // 🔒 SECURITY: Only admins can view financial reports and statistics
+  if (userData?.role !== 'admin') {
     return <Navigate to="/" replace />
   }
 

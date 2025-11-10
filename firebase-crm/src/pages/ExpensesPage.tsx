@@ -14,8 +14,8 @@ import DateRangePicker from '@/components/DateRangePicker'
 export default function ExpensesPage() {
   const { userData } = useAuth()
 
-  // 🔒 SECURITY: Only teachers and admins can view business expenses
-  if (userData?.role === 'parent') {
+  // 🔒 SECURITY: Only admins can view business expenses
+  if (userData?.role !== 'admin') {
     return <Navigate to="/" replace />
   }
 
