@@ -25,6 +25,29 @@ import { QUERY_KEYS } from '@/constants/queryKeys'
 
 const expensesCollection = collection(db, COLLECTIONS.EXPENSES)
 
+/**
+ * Hook to get all expenses with real-time updates
+ *
+ * @description Fetches all expense records with real-time synchronization using Firestore onSnapshot.
+ * Orders expenses by date in descending order (newest first).
+ *
+ * @returns {{expenses: Expense[], loading: boolean, error: Error | null}} Object containing:
+ *   - expenses: Array of all expense records
+ *   - loading: True while fetching data
+ *   - error: Error object if fetch fails, null otherwise
+ *
+ * @example
+ * ```tsx
+ * function ExpensesList() {
+ *   const { expenses, loading, error } = useExpenses()
+ *
+ *   if (loading) return <Spinner />
+ *   if (error) return <Error message={error.message} />
+ *
+ *   return expenses.map(expense => <ExpenseCard key={expense.id} {...expense} />)
+ * }
+ * ```
+ */
 export function useExpenses() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [loading, setLoading] = useState(true)
@@ -56,6 +79,33 @@ export function useExpenses() {
   return { expenses, loading, error }
 }
 
+/**
+ * Hook to add a new expense
+ *
+ * @description Creates a new expense record with automatic timestamp conversion and ownership tracking.
+ * Converts Date objects to Firestore Timestamps and populates createdBy field.
+ *
+ * @returns {UseMutationResult} React Query mutation object with:
+ *   - mutate/mutateAsync: Function to trigger expense creation
+ *   - isPending: True while request is in progress
+ *   - isSuccess/isError: Status flags
+ *
+ * @security Populates createdBy field with current user.uid for ownership tracking
+ *
+ * @example
+ * ```tsx
+ * function ExpenseForm() {
+ *   const addExpense = useAddExpense()
+ *
+ *   const handleSubmit = async (data: ExpenseFormValues) => {
+ *     await addExpense.mutateAsync(data)
+ *     onClose()
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} loading={addExpense.isPending} />
+ * }
+ * ```
+ */
 export function useAddExpense() {
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -84,9 +134,32 @@ export function useAddExpense() {
 
 /**
  * Hook to update an expense
- * 🔒 SECURITY FIX: Now validates ownership before update
- * - Admins can update any expense
- * - Teachers can only update expenses THEY created
+ *
+ * @description Updates an existing expense record after validating ownership.
+ * Converts Date objects to Firestore Timestamps if present.
+ *
+ * @param {object} params - Update parameters
+ * @param {string} params.id - The expense ID to update
+ * @param {Partial<ExpenseFormValues>} params.data - Partial expense data to update
+ *
+ * @returns {UseMutationResult} React Query mutation object for expense update
+ *
+ * @security 🔒 Validates ownership before update using validateDocumentOwnership:
+ * - **Admins**: Can update any expense
+ * - **Teachers/Others**: Can only update expenses THEY created
+ *
+ * @example
+ * ```tsx
+ * function EditExpenseForm({ expense }: { expense: Expense }) {
+ *   const updateExpense = useUpdateExpense()
+ *
+ *   const handleSubmit = async (data: Partial<ExpenseFormValues>) => {
+ *     await updateExpense.mutateAsync({ id: expense.id, data })
+ *   }
+ *
+ *   return <Form initialValues={expense} onSubmit={handleSubmit} />
+ * }
+ * ```
  */
 export function useUpdateExpense() {
   const queryClient = useQueryClient()
@@ -121,9 +194,31 @@ export function useUpdateExpense() {
 
 /**
  * Hook to delete an expense
- * 🔒 SECURITY FIX: Now validates ownership before deletion
- * - Admins can delete any expense
- * - Teachers/others can only delete expenses THEY created
+ *
+ * @description Deletes an expense record after validating ownership.
+ *
+ * @param {string} id - The unique identifier of the expense to delete
+ *
+ * @returns {UseMutationResult} React Query mutation object for expense deletion
+ *
+ * @security 🔒 Validates ownership before deletion using validateDocumentOwnership:
+ * - **Admins**: Can delete any expense
+ * - **Teachers/Others**: Can only delete expenses THEY created
+ *
+ * @example
+ * ```tsx
+ * function ExpenseRow({ expense }: { expense: Expense }) {
+ *   const deleteExpense = useDeleteExpense()
+ *
+ *   const handleDelete = async () => {
+ *     if (confirm('Delete this expense?')) {
+ *       await deleteExpense.mutateAsync(expense.id)
+ *     }
+ *   }
+ *
+ *   return <Button onClick={handleDelete}>Delete</Button>
+ * }
+ * ```
  */
 export function useDeleteExpense() {
   const queryClient = useQueryClient()
@@ -153,6 +248,28 @@ export function useDeleteExpense() {
   })
 }
 
+/**
+ * Hook to get total expenses
+ *
+ * @description Calculates total expenses by summing all expense amounts.
+ * Uses the base useExpenses hook and reduces the array.
+ *
+ * @returns {number} Total sum of all expense amounts
+ *
+ * @example
+ * ```tsx
+ * function ExpenseStats() {
+ *   const totalExpenses = useTotalExpenses()
+ *
+ *   return (
+ *     <Card>
+ *       <h3>Total Expenses</h3>
+ *       <p className="text-red-600">{totalExpenses.toFixed(2)} BGN</p>
+ *     </Card>
+ *   )
+ * }
+ * ```
+ */
 export function useTotalExpenses() {
   const { expenses } = useExpenses()
   return expenses.reduce((sum, e) => sum + e.amount, 0)

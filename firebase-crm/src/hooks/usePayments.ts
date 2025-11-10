@@ -212,6 +212,29 @@ export function usePayments() {
 
 /**
  * Hook to get a single payment by ID
+ *
+ * @description Fetches a single payment record by its unique ID using React Query.
+ * Provides caching and automatic refetching capabilities.
+ *
+ * @param {string} paymentId - The unique identifier of the payment to fetch
+ *
+ * @returns {UseQueryResult<Payment>} React Query result object with:
+ *   - data: Payment object if found
+ *   - isLoading: True while fetching
+ *   - error: Error object if fetch fails
+ *
+ * @example
+ * ```tsx
+ * function PaymentDetails({ paymentId }: { paymentId: string }) {
+ *   const { data: payment, isLoading, error } = usePayment(paymentId)
+ *
+ *   if (isLoading) return <Spinner />
+ *   if (error) return <Error />
+ *   if (!payment) return <NotFound />
+ *
+ *   return <PaymentCard {...payment} />
+ * }
+ * ```
  */
 export function usePayment(paymentId: string) {
   return useQuery({
@@ -235,6 +258,31 @@ export function usePayment(paymentId: string) {
 
 /**
  * Hook to get payments by student ID
+ *
+ * @description Fetches all payments for a specific student with real-time updates.
+ * Orders payments by date in descending order (newest first).
+ *
+ * @param {string} studentId - The unique identifier of the student
+ *
+ * @returns {{payments: Payment[], loading: boolean}} Object containing:
+ *   - payments: Array of payment records for the specified student
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function StudentPaymentHistory({ studentId }: { studentId: string }) {
+ *   const { payments, loading } = usePaymentsByStudent(studentId)
+ *
+ *   if (loading) return <Spinner />
+ *
+ *   return (
+ *     <div>
+ *       <h3>Payment History</h3>
+ *       {payments.map(p => <PaymentRow key={p.id} {...p} />)}
+ *     </div>
+ *   )
+ * }
+ * ```
  */
 export function usePaymentsByStudent(studentId: string) {
   const [payments, setPayments] = useState<Payment[]>([])
@@ -273,6 +321,31 @@ export function usePaymentsByStudent(studentId: string) {
 
 /**
  * Hook to add a new payment
+ *
+ * @description Creates a new payment record with automatic timestamp conversion and ownership tracking.
+ * Converts Date objects to Firestore Timestamps and populates createdBy field.
+ *
+ * @returns {UseMutationResult} React Query mutation object with:
+ *   - mutate/mutateAsync: Function to trigger payment creation
+ *   - isPending: True while request is in progress
+ *   - isSuccess/isError: Status flags
+ *
+ * @security Populates createdBy field with current user.uid for ownership tracking
+ *
+ * @example
+ * ```tsx
+ * function PaymentForm() {
+ *   const addPayment = useAddPayment()
+ *
+ *   const handleSubmit = async (data: PaymentFormValues) => {
+ *     await addPayment.mutateAsync(data)
+ *     toast.success('Payment added!')
+ *     onClose()
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} loading={addPayment.isPending} />
+ * }
+ * ```
  */
 export function useAddPayment() {
   const queryClient = useQueryClient()
@@ -384,6 +457,25 @@ export function useDeletePayment() {
 
 /**
  * Hook to get total revenue
+ *
+ * @description Calculates total revenue by summing all payment amounts visible to the current user.
+ * Revenue calculation respects RBAC (parents see only their children's payments).
+ *
+ * @returns {number} Total sum of all payment amounts
+ *
+ * @example
+ * ```tsx
+ * function RevenueWidget() {
+ *   const totalRevenue = useTotalRevenue()
+ *
+ *   return (
+ *     <Card>
+ *       <h3>Total Revenue</h3>
+ *       <p>{totalRevenue.toFixed(2)} BGN</p>
+ *     </Card>
+ *   )
+ * }
+ * ```
  */
 export function useTotalRevenue() {
   const { payments } = usePayments()
@@ -392,6 +484,30 @@ export function useTotalRevenue() {
 
 /**
  * Hook to get payments by date range
+ *
+ * @description Filters payments within a specified date range (client-side filtering).
+ * Uses the base usePayments hook and filters the results by date.
+ *
+ * @param {Date} startDate - Start date of the range (inclusive)
+ * @param {Date} endDate - End date of the range (inclusive)
+ *
+ * @returns {{payments: Payment[]}} Object containing filtered payments array
+ *
+ * @example
+ * ```tsx
+ * function MonthlyPayments() {
+ *   const startOfMonth = new Date(2024, 0, 1)
+ *   const endOfMonth = new Date(2024, 0, 31)
+ *   const { payments } = usePaymentsByDateRange(startOfMonth, endOfMonth)
+ *
+ *   return (
+ *     <div>
+ *       <h3>January 2024 Payments</h3>
+ *       <p>Total: {payments.reduce((sum, p) => sum + p.amount, 0)} BGN</p>
+ *     </div>
+ *   )
+ * }
+ * ```
  */
 export function usePaymentsByDateRange(startDate: Date, endDate: Date) {
   const { payments } = usePayments()
@@ -515,6 +631,36 @@ export function usePaymentsByParent(parentId: string) {
 
 /**
  * Hook to bulk add payments (for bulk payment modal)
+ *
+ * @description Creates multiple payment records in a single operation.
+ * All payments are processed in parallel using Promise.all for performance.
+ *
+ * @returns {UseMutationResult} React Query mutation object for bulk payment creation
+ *
+ * @param {Array<Omit<Payment, 'id' | 'createdAt' | 'createdBy'>>} payments - Array of payment data to create
+ *
+ * @security Each payment automatically gets createdBy field populated with current user.uid
+ *
+ * @example
+ * ```tsx
+ * function BulkPaymentModal() {
+ *   const bulkAdd = useBulkAddPayments()
+ *
+ *   const handleSubmit = async (studentIds: string[], amount: number) => {
+ *     const payments = studentIds.map(id => ({
+ *       studentId: id,
+ *       amount,
+ *       method: 'Кеш',
+ *       date: new Date(),
+ *       article: 'Monthly Fee'
+ *     }))
+ *
+ *     await bulkAdd.mutateAsync(payments)
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} />
+ * }
+ * ```
  */
 export function useBulkAddPayments() {
   const queryClient = useQueryClient()

@@ -86,6 +86,28 @@ export function useEvents() {
 
 /**
  * Hook to get a single event by ID
+ *
+ * @description Fetches a single event record by its unique ID using React Query.
+ * Provides caching and automatic refetching capabilities.
+ *
+ * @param {string} eventId - The unique identifier of the event to fetch
+ *
+ * @returns {UseQueryResult<Event>} React Query result object with:
+ *   - data: Event object if found
+ *   - isLoading: True while fetching
+ *   - error: Error object if fetch fails
+ *
+ * @example
+ * ```tsx
+ * function EventDetails({ eventId }: { eventId: string }) {
+ *   const { data: event, isLoading, error } = useEvent(eventId)
+ *
+ *   if (isLoading) return <Spinner />
+ *   if (error || !event) return <NotFound />
+ *
+ *   return <EventCard {...event} />
+ * }
+ * ```
  */
 export function useEvent(eventId: string) {
   return useQuery({
@@ -109,6 +131,27 @@ export function useEvent(eventId: string) {
 
 /**
  * Hook to get events by date range
+ *
+ * @description Fetches events within a specified date range with real-time updates.
+ * Uses server-side filtering with Firestore where clauses for performance.
+ *
+ * @param {Date} startDate - Start date of the range (inclusive)
+ * @param {Date} endDate - End date of the range (inclusive)
+ *
+ * @returns {{events: Event[], loading: boolean}} Object containing:
+ *   - events: Array of events within the specified date range
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function WeeklyEvents() {
+ *   const weekStart = new Date()
+ *   const weekEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+ *   const { events, loading } = useEventsByDateRange(weekStart, weekEnd)
+ *
+ *   return <EventsCalendar events={events} loading={loading} />
+ * }
+ * ```
  */
 export function useEventsByDateRange(startDate: Date, endDate: Date) {
   const [events, setEvents] = useState<Event[]>([])
@@ -142,6 +185,25 @@ export function useEventsByDateRange(startDate: Date, endDate: Date) {
 
 /**
  * Hook to get today's events
+ *
+ * @description Convenience hook that fetches today's events (from 00:00 to 23:59).
+ * Internally uses useEventsByDateRange with today's date boundaries.
+ *
+ * @returns {{events: Event[], loading: boolean}} Object containing today's events
+ *
+ * @example
+ * ```tsx
+ * function TodaySchedule() {
+ *   const { events, loading } = useTodayEvents()
+ *
+ *   return (
+ *     <Card>
+ *       <h3>Today's Schedule</h3>
+ *       {loading ? <Spinner /> : events.map(e => <EventRow key={e.id} {...e} />)}
+ *     </Card>
+ *   )
+ * }
+ * ```
  */
 export function useTodayEvents() {
   const today = new Date()
@@ -155,6 +217,31 @@ export function useTodayEvents() {
 
 /**
  * Hook to add a new event
+ *
+ * @description Creates a new event record with automatic timestamp conversion and ownership tracking.
+ * Converts startTime and endTime Date objects to Firestore Timestamps.
+ *
+ * @returns {UseMutationResult} React Query mutation object with:
+ *   - mutate/mutateAsync: Function to trigger event creation
+ *   - isPending: True while request is in progress
+ *   - isSuccess/isError: Status flags
+ *
+ * @security Populates createdBy field with current user.uid for ownership tracking
+ *
+ * @example
+ * ```tsx
+ * function AddEventForm() {
+ *   const addEvent = useAddEvent()
+ *
+ *   const handleSubmit = async (data: EventFormValues) => {
+ *     await addEvent.mutateAsync(data)
+ *     toast.success('Event created!')
+ *     onClose()
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} loading={addEvent.isPending} />
+ * }
+ * ```
  */
 export function useAddEvent() {
   const queryClient = useQueryClient()
@@ -191,10 +278,33 @@ export function useAddEvent() {
 
 /**
  * Hook to update an event
- * 🔒 SECURITY FIX: Now validates ownership before update
- * - Admins can update any event
- * - Teachers can only update events THEY created
- * - Parents cannot update events
+ *
+ * @description Updates an existing event record after validating ownership.
+ * Converts Date objects to Firestore Timestamps if present.
+ *
+ * @param {object} params - Update parameters
+ * @param {string} params.id - The event ID to update
+ * @param {Partial<EventFormValues>} params.data - Partial event data to update
+ *
+ * @returns {UseMutationResult} React Query mutation object for event update
+ *
+ * @security 🔒 Validates ownership before update using validateDocumentOwnership:
+ * - **Admins**: Can update any event
+ * - **Teachers**: Can only update events THEY created
+ * - **Parents**: Cannot update events
+ *
+ * @example
+ * ```tsx
+ * function EditEventForm({ event }: { event: Event }) {
+ *   const updateEvent = useUpdateEvent()
+ *
+ *   const handleSubmit = async (data: Partial<EventFormValues>) => {
+ *     await updateEvent.mutateAsync({ id: event.id, data })
+ *   }
+ *
+ *   return <Form initialValues={event} onSubmit={handleSubmit} />
+ * }
+ * ```
  */
 export function useUpdateEvent() {
   const queryClient = useQueryClient()
@@ -238,10 +348,32 @@ export function useUpdateEvent() {
 
 /**
  * Hook to delete an event
- * 🔒 SECURITY FIX: Now validates ownership before delete
- * - Admins can delete any event
- * - Teachers can only delete events THEY created
- * - Parents cannot delete events
+ *
+ * @description Deletes an event record after validating ownership.
+ *
+ * @param {string} eventId - The unique identifier of the event to delete
+ *
+ * @returns {UseMutationResult} React Query mutation object for event deletion
+ *
+ * @security 🔒 Validates ownership before deletion using validateDocumentOwnership:
+ * - **Admins**: Can delete any event
+ * - **Teachers**: Can only delete events THEY created
+ * - **Parents**: Cannot delete events
+ *
+ * @example
+ * ```tsx
+ * function EventRow({ event }: { event: Event }) {
+ *   const deleteEvent = useDeleteEvent()
+ *
+ *   const handleDelete = async () => {
+ *     if (confirm('Delete this event?')) {
+ *       await deleteEvent.mutateAsync(event.id)
+ *     }
+ *   }
+ *
+ *   return <Button onClick={handleDelete}>Delete</Button>
+ * }
+ * ```
  */
 export function useDeleteEvent() {
   const queryClient = useQueryClient()
@@ -274,6 +406,29 @@ export function useDeleteEvent() {
 
 /**
  * Hook to get events by group
+ *
+ * @description Fetches all events assigned to a specific group with real-time updates.
+ * Useful for displaying group-specific schedules.
+ *
+ * @param {string} group - The group identifier to filter events by
+ *
+ * @returns {{events: Event[], loading: boolean}} Object containing:
+ *   - events: Array of events for the specified group
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function GroupSchedule({ groupId }: { groupId: string }) {
+ *   const { events, loading } = useEventsByGroup(groupId)
+ *
+ *   return (
+ *     <div>
+ *       <h3>Group Schedule</h3>
+ *       {loading ? <Spinner /> : events.map(e => <EventCard key={e.id} {...e} />)}
+ *     </div>
+ *   )
+ * }
+ * ```
  */
 export function useEventsByGroup(group: string) {
   const [events, setEvents] = useState<Event[]>([])
