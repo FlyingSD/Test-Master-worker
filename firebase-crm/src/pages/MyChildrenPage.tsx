@@ -7,6 +7,7 @@ import { useHomeworkByStudent } from '@/hooks/useHomework'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import { triggerHaptic } from '@/utils/touchGestures'
 
 export default function MyChildrenPage() {
   const { user, userData, isParent } = useAuth()
@@ -146,8 +147,11 @@ export default function MyChildrenPage() {
                 {studentPayments.length > 0 && (
                   <div className="mb-4">
                     <button
-                      onClick={() => setExpandedStudent(isExpanded ? null : student.id)}
-                      className="text-sm font-medium text-primary hover:text-primary-hover mb-2 flex items-center gap-1"
+                      onClick={() => {
+                        triggerHaptic('light')
+                        setExpandedStudent(isExpanded ? null : student.id)
+                      }}
+                      className="text-sm font-medium text-primary hover:text-primary-hover mb-2 flex items-center gap-1 min-h-[44px]"
                     >
                       {isExpanded ? '▼' : '▶'} Последни плащания ({studentPayments.length})
                     </button>
@@ -180,7 +184,8 @@ export default function MyChildrenPage() {
                 {/* Action Button */}
                 <Link
                   to={`/my-children/${student.id}`}
-                  className="btn btn-primary w-full flex items-center justify-center gap-2"
+                  onClick={() => triggerHaptic('tap')}
+                  className="btn btn-primary w-full flex items-center justify-center gap-2 min-h-[44px]"
                 >
                   <BookOpen className="w-4 h-4" />
                   Виж детайли и домашни

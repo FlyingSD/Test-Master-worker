@@ -21,6 +21,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
 import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
+import { triggerHaptic } from '@/utils/touchGestures'
 
 // Navigation item type
 interface NavItem {
@@ -110,6 +111,7 @@ export default function Layout() {
   const mobileNavigation = getMobileNavigation()
 
   const handleSignOut = async () => {
+    triggerHaptic('medium')
     await signOut()
   }
 
@@ -141,8 +143,11 @@ export default function Layout() {
             </div>
           </div>
           <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            onClick={() => {
+              triggerHaptic('tap')
+              setSidebarOpen(false)
+            }}
+            className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -155,9 +160,12 @@ export default function Layout() {
               key={item.name}
               to={item.href}
               end={item.href === '/'}
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => {
+                triggerHaptic('light')
+                setSidebarOpen(false)
+              }}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all touch-manipulation ${
+                `flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all touch-manipulation min-h-[44px] ${
                   isActive
                     ? 'bg-primary text-white shadow-sm'
                     : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
@@ -209,8 +217,11 @@ export default function Layout() {
         {/* Mobile header */}
         <header className="lg:hidden h-14 bg-white border-b border-gray-200 flex items-center px-4 sticky top-0 z-30 safe-area-inset-top">
           <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 -ml-2 hover:bg-gray-100 rounded-lg active:bg-gray-200 touch-manipulation"
+            onClick={() => {
+              triggerHaptic('tap')
+              setSidebarOpen(true)
+            }}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg active:bg-gray-200 touch-manipulation -ml-2"
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -238,7 +249,8 @@ export default function Layout() {
               <NavLink
                 key={item.name}
                 to={item.href}
-                className={`flex flex-col items-center justify-center gap-1 touch-manipulation transition-colors ${
+                onClick={() => triggerHaptic('tap')}
+                className={`flex flex-col items-center justify-center gap-1 touch-manipulation transition-colors min-h-[56px] ${
                   isActive
                     ? 'text-primary'
                     : 'text-gray-600 active:bg-gray-100'

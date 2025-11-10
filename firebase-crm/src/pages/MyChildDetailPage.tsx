@@ -8,6 +8,8 @@ import { useHomeworkByStudent } from '@/hooks/useHomework'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { getDueDateStatus, subtractDays } from '@/utils/date'
 import { generatePaymentReceipt } from '@/utils/pdfGenerator'
+import { triggerHaptic } from '@/utils/touchGestures'
+import SwipeableCard from '@/components/SwipeableCard'
 
 type PaymentPeriod = 'all' | '3months' | '6months' | '1year'
 
@@ -128,7 +130,8 @@ export default function MyChildDetailPage() {
       <div className="flex items-center gap-4">
         <Link
           to="/my-children"
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          onClick={() => triggerHaptic('tap')}
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </Link>
@@ -429,35 +432,48 @@ export default function MyChildDetailPage() {
             {studentPayments.slice(0, 10).map((payment) => {
               const paymentDate = payment.date instanceof Date ? payment.date : payment.date?.toDate?.()
               return (
-                <div key={payment.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">
-                      {payment.article || 'Месечна такса'}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {paymentDate ? formatDate(paymentDate) : 'Няма дата'} • {payment.method}
-                    </p>
-                    {payment.notes && (
-                      <p className="text-sm text-gray-500 mt-1">{payment.notes}</p>
-                    )}
+                <SwipeableCard
+                  key={payment.id}
+                  enableSwipe={true}
+                  onView={() => {
+                    triggerHaptic('success')
+                    generatePaymentReceipt(payment, student)
+                  }}
+                  className="rounded-lg"
+                >
+                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900">
+                        {payment.article || 'Месечна такса'}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {paymentDate ? formatDate(paymentDate) : 'Няма дата'} • {payment.method}
+                      </p>
+                      {payment.notes && (
+                        <p className="text-sm text-gray-500 mt-1">{payment.notes}</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-green-600">
+                        {formatCurrency(payment.amount)}
+                      </p>
+                      {payment.receiptNumber && (
+                        <p className="text-xs text-gray-500">№ {payment.receiptNumber}</p>
+                      )}
+                    </div>
+                    {/* Print Receipt Button - Touch-friendly size */}
+                    <button
+                      onClick={() => {
+                        triggerHaptic('tap')
+                        generatePaymentReceipt(payment, student)
+                      }}
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-primary-light rounded-lg transition-colors group"
+                      title="Принтирай квитанция"
+                    >
+                      <Printer className="w-5 h-5 text-gray-600 group-hover:text-primary" />
+                    </button>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-green-600">
-                      {formatCurrency(payment.amount)}
-                    </p>
-                    {payment.receiptNumber && (
-                      <p className="text-xs text-gray-500">№ {payment.receiptNumber}</p>
-                    )}
-                  </div>
-                  {/* Print Receipt Button */}
-                  <button
-                    onClick={() => generatePaymentReceipt(payment, student)}
-                    className="p-2 hover:bg-primary-light rounded-lg transition-colors group"
-                    title="Принтирай квитанция"
-                  >
-                    <Printer className="w-5 h-5 text-gray-600 group-hover:text-primary" />
-                  </button>
-                </div>
+                </SwipeableCard>
               )
             })}
           </div>
