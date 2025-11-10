@@ -146,6 +146,26 @@ export function useHomework() {
 
 /**
  * Hook to get homework by student ID
+ *
+ * @description Fetches all homework assignments for a specific student with real-time updates.
+ * Orders homework by due date in descending order (newest/furthest first).
+ *
+ * @param {string} studentId - The unique identifier of the student
+ *
+ * @returns {{homework: Homework[], loading: boolean}} Object containing:
+ *   - homework: Array of homework assignments for the specified student
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function StudentHomework({ studentId }: { studentId: string }) {
+ *   const { homework, loading } = useHomeworkByStudent(studentId)
+ *
+ *   if (loading) return <Spinner />
+ *
+ *   return homework.map(hw => <HomeworkCard key={hw.id} {...hw} />)
+ * }
+ * ```
  */
 export function useHomeworkByStudent(studentId: string) {
   const [homework, setHomework] = useState<Homework[]>([])
@@ -184,6 +204,31 @@ export function useHomeworkByStudent(studentId: string) {
 
 /**
  * Hook to add new homework
+ *
+ * @description Creates a new homework assignment with automatic timestamp conversion and ownership tracking.
+ * Converts Date objects to Firestore Timestamps for assignedDate, dueDate, and optionally completedDate.
+ *
+ * @returns {UseMutationResult} React Query mutation object with:
+ *   - mutate/mutateAsync: Function to trigger homework creation
+ *   - isPending: True while request is in progress
+ *   - isSuccess/isError: Status flags
+ *
+ * @security Populates createdBy field with current user.uid for ownership tracking
+ *
+ * @example
+ * ```tsx
+ * function HomeworkForm() {
+ *   const addHomework = useAddHomework()
+ *
+ *   const handleSubmit = async (data: HomeworkFormValues) => {
+ *     await addHomework.mutateAsync(data)
+ *     toast.success('Homework assigned!')
+ *     onClose()
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} loading={addHomework.isPending} />
+ * }
+ * ```
  */
 export function useAddHomework() {
   const queryClient = useQueryClient()
@@ -223,10 +268,33 @@ export function useAddHomework() {
 
 /**
  * Hook to update homework
- * 🔒 SECURITY FIX: Now validates ownership before update
- * - Admins can update any homework
- * - Teachers can only update homework THEY created
- * - Parents cannot update homework
+ *
+ * @description Updates an existing homework assignment after validating ownership.
+ * Converts Date objects to Firestore Timestamps if present.
+ *
+ * @param {object} params - Update parameters
+ * @param {string} params.id - The homework ID to update
+ * @param {Partial<HomeworkFormValues>} params.data - Partial homework data to update
+ *
+ * @returns {UseMutationResult} React Query mutation object for homework update
+ *
+ * @security 🔒 Validates ownership before update using validateDocumentOwnership:
+ * - **Admins**: Can update any homework
+ * - **Teachers**: Can only update homework THEY created
+ * - **Parents**: Cannot update homework
+ *
+ * @example
+ * ```tsx
+ * function EditHomeworkForm({ homework }: { homework: Homework }) {
+ *   const updateHomework = useUpdateHomework()
+ *
+ *   const handleSubmit = async (data: Partial<HomeworkFormValues>) => {
+ *     await updateHomework.mutateAsync({ id: homework.id, data })
+ *   }
+ *
+ *   return <Form initialValues={homework} onSubmit={handleSubmit} />
+ * }
+ * ```
  */
 export function useUpdateHomework() {
   const queryClient = useQueryClient()
@@ -277,10 +345,32 @@ export function useUpdateHomework() {
 
 /**
  * Hook to delete homework
- * 🔒 SECURITY FIX: Now validates ownership before deletion
- * - Admins can delete any homework
- * - Teachers can only delete homework THEY created
- * - Parents cannot delete homework
+ *
+ * @description Deletes a homework assignment after validating ownership.
+ *
+ * @param {string} homeworkId - The unique identifier of the homework to delete
+ *
+ * @returns {UseMutationResult} React Query mutation object for homework deletion
+ *
+ * @security 🔒 Validates ownership before deletion using validateDocumentOwnership:
+ * - **Admins**: Can delete any homework
+ * - **Teachers**: Can only delete homework THEY created
+ * - **Parents**: Cannot delete homework
+ *
+ * @example
+ * ```tsx
+ * function HomeworkRow({ homework }: { homework: Homework }) {
+ *   const deleteHomework = useDeleteHomework()
+ *
+ *   const handleDelete = async () => {
+ *     if (confirm('Delete this homework assignment?')) {
+ *       await deleteHomework.mutateAsync(homework.id)
+ *     }
+ *   }
+ *
+ *   return <Button onClick={handleDelete}>Delete</Button>
+ * }
+ * ```
  */
 export function useDeleteHomework() {
   const queryClient = useQueryClient()
@@ -317,6 +407,34 @@ export function useDeleteHomework() {
 
 /**
  * Hook to mark homework as completed
+ *
+ * @description Convenience hook that marks homework as completed with optional grade and teacher notes.
+ * Internally uses useUpdateHomework with specific update data.
+ *
+ * @param {object} params - Completion parameters
+ * @param {string} params.id - The homework ID to mark as completed
+ * @param {number} [params.grade] - Optional grade for the homework
+ * @param {string} [params.teacherNotes] - Optional teacher notes/feedback
+ *
+ * @returns {UseMutationResult} React Query mutation object
+ *
+ * @example
+ * ```tsx
+ * function HomeworkGrading({ homework }: { homework: Homework }) {
+ *   const completeHomework = useCompleteHomework()
+ *
+ *   const handleGrade = async (grade: number, notes: string) => {
+ *     await completeHomework.mutateAsync({
+ *       id: homework.id,
+ *       grade,
+ *       teacherNotes: notes
+ *     })
+ *     toast.success('Homework graded!')
+ *   }
+ *
+ *   return <GradingForm onSubmit={handleGrade} />
+ * }
+ * ```
  */
 export function useCompleteHomework() {
   const updateHomework = useUpdateHomework()

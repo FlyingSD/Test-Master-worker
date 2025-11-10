@@ -31,6 +31,26 @@ const stockTransactionsCollection = collection(db, COLLECTIONS.STOCK_TRANSACTION
 
 /**
  * Hook to get all inventory items with real-time updates
+ *
+ * @description Fetches all inventory items with real-time synchronization using Firestore onSnapshot.
+ * Orders items by name alphabetically for consistent display.
+ *
+ * @returns {{inventory: InventoryItem[], loading: boolean, error: Error | null}} Object containing:
+ *   - inventory: Array of all inventory items
+ *   - loading: True while fetching data
+ *   - error: Error object if fetch fails, null otherwise
+ *
+ * @example
+ * ```tsx
+ * function InventoryList() {
+ *   const { inventory, loading, error } = useInventory()
+ *
+ *   if (loading) return <Spinner />
+ *   if (error) return <Error message={error.message} />
+ *
+ *   return inventory.map(item => <InventoryCard key={item.id} {...item} />)
+ * }
+ * ```
  */
 export function useInventory() {
   const [inventory, setInventory] = useState<InventoryItem[]>([])
@@ -73,6 +93,28 @@ export function useInventory() {
 
 /**
  * Hook to get a single inventory item by ID
+ *
+ * @description Fetches a single inventory item by its unique ID using React Query.
+ * Provides caching and automatic refetching capabilities.
+ *
+ * @param {string} itemId - The unique identifier of the inventory item to fetch
+ *
+ * @returns {UseQueryResult<InventoryItem>} React Query result object with:
+ *   - data: InventoryItem object if found
+ *   - isLoading: True while fetching
+ *   - error: Error object if fetch fails
+ *
+ * @example
+ * ```tsx
+ * function ItemDetails({ itemId }: { itemId: string }) {
+ *   const { data: item, isLoading, error } = useInventoryItem(itemId)
+ *
+ *   if (isLoading) return <Spinner />
+ *   if (error || !item) return <NotFound />
+ *
+ *   return <ItemDetailsView {...item} />
+ * }
+ * ```
  */
 export function useInventoryItem(itemId: string) {
   return useQuery({
@@ -96,6 +138,29 @@ export function useInventoryItem(itemId: string) {
 
 /**
  * Hook to get low stock items (below minimum)
+ *
+ * @description Filters active inventory items that have stock levels at or below their minimum threshold.
+ * Useful for inventory alerts and restock reminders.
+ *
+ * @returns {{lowStockItems: InventoryItem[], count: number}} Object containing:
+ *   - lowStockItems: Array of items needing restock
+ *   - count: Number of low stock items
+ *
+ * @example
+ * ```tsx
+ * function LowStockAlert() {
+ *   const { lowStockItems, count } = useLowStockItems()
+ *
+ *   if (count === 0) return null
+ *
+ *   return (
+ *     <Alert type="warning">
+ *       {count} items need restocking!
+ *       {lowStockItems.map(item => <LowStockRow key={item.id} {...item} />)}
+ *     </Alert>
+ *   )
+ * }
+ * ```
  */
 export function useLowStockItems() {
   const { inventory } = useInventory()
@@ -109,6 +174,31 @@ export function useLowStockItems() {
 
 /**
  * Hook to add a new inventory item
+ *
+ * @description Creates a new inventory item with automatic timestamp and ownership tracking.
+ * Populates createdBy, createdAt, and updatedAt fields automatically.
+ *
+ * @returns {UseMutationResult} React Query mutation object with:
+ *   - mutate/mutateAsync: Function to trigger item creation
+ *   - isPending: True while request is in progress
+ *   - isSuccess/isError: Status flags
+ *
+ * @security Populates createdBy field with current user.uid for ownership tracking
+ *
+ * @example
+ * ```tsx
+ * function AddItemForm() {
+ *   const addItem = useAddInventoryItem()
+ *
+ *   const handleSubmit = async (data: InventoryFormValues) => {
+ *     await addItem.mutateAsync(data)
+ *     toast.success('Item added!')
+ *     onClose()
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} loading={addItem.isPending} />
+ * }
+ * ```
  */
 export function useAddInventoryItem() {
   const queryClient = useQueryClient()
@@ -143,9 +233,34 @@ export function useAddInventoryItem() {
 
 /**
  * Hook to update an inventory item
- * 🔒 SECURITY FIX: Now validates ownership before update
- * - Admins can update any inventory item
- * - Teachers can only update items THEY created
+ *
+ * @description Updates an existing inventory item after validating ownership.
+ * Automatically syncs denormalized data if item name changes.
+ *
+ * @param {object} params - Update parameters
+ * @param {string} params.id - The inventory item ID to update
+ * @param {Partial<InventoryFormValues>} params.data - Partial inventory data to update
+ *
+ * @returns {UseMutationResult} React Query mutation object for item update
+ *
+ * @security 🔒 Validates ownership before update using validateDocumentOwnership:
+ * - **Admins**: Can update any inventory item
+ * - **Teachers**: Can only update items THEY created
+ *
+ * @note If item name changes, automatically syncs denormalized data across stock transactions
+ *
+ * @example
+ * ```tsx
+ * function EditItemForm({ item }: { item: InventoryItem }) {
+ *   const updateItem = useUpdateInventoryItem()
+ *
+ *   const handleSubmit = async (data: Partial<InventoryFormValues>) => {
+ *     await updateItem.mutateAsync({ id: item.id, data })
+ *   }
+ *
+ *   return <Form initialValues={item} onSubmit={handleSubmit} />
+ * }
+ * ```
  */
 export function useUpdateInventoryItem() {
   const queryClient = useQueryClient()
@@ -192,9 +307,31 @@ export function useUpdateInventoryItem() {
 
 /**
  * Hook to delete an inventory item
- * 🔒 SECURITY FIX: Now validates ownership before deletion
- * - Admins can delete any inventory item
- * - Teachers/others can only delete items THEY created
+ *
+ * @description Deletes an inventory item after validating ownership.
+ *
+ * @param {string} itemId - The unique identifier of the inventory item to delete
+ *
+ * @returns {UseMutationResult} React Query mutation object for item deletion
+ *
+ * @security 🔒 Validates ownership before deletion using validateDocumentOwnership:
+ * - **Admins**: Can delete any inventory item
+ * - **Teachers/Others**: Can only delete items THEY created
+ *
+ * @example
+ * ```tsx
+ * function ItemRow({ item }: { item: InventoryItem }) {
+ *   const deleteItem = useDeleteInventoryItem()
+ *
+ *   const handleDelete = async () => {
+ *     if (confirm('Delete this item?')) {
+ *       await deleteItem.mutateAsync(item.id)
+ *     }
+ *   }
+ *
+ *   return <Button onClick={handleDelete}>Delete</Button>
+ * }
+ * ```
  */
 export function useDeleteInventoryItem() {
   const queryClient = useQueryClient()
@@ -231,6 +368,24 @@ export function useDeleteInventoryItem() {
 
 /**
  * Hook to get all stock transactions
+ *
+ * @description Fetches all stock transactions (IN/OUT) with real-time updates.
+ * Orders transactions by creation date in descending order (newest first).
+ *
+ * @returns {{transactions: StockTransaction[], loading: boolean}} Object containing:
+ *   - transactions: Array of all stock transactions
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function TransactionHistory() {
+ *   const { transactions, loading } = useStockTransactions()
+ *
+ *   if (loading) return <Spinner />
+ *
+ *   return transactions.map(tx => <TransactionRow key={tx.id} {...tx} />)
+ * }
+ * ```
  */
 export function useStockTransactions() {
   const [transactions, setTransactions] = useState<StockTransaction[]>([])
@@ -261,6 +416,29 @@ export function useStockTransactions() {
 
 /**
  * Hook to get stock transactions for a specific inventory item
+ *
+ * @description Fetches all stock transactions for a specific inventory item with real-time updates.
+ * Orders transactions by creation date in descending order (newest first).
+ *
+ * @param {string} itemId - The unique identifier of the inventory item
+ *
+ * @returns {{transactions: StockTransaction[], loading: boolean}} Object containing:
+ *   - transactions: Array of transactions for the specified item
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function ItemHistory({ itemId }: { itemId: string }) {
+ *   const { transactions, loading } = useStockTransactionsByItem(itemId)
+ *
+ *   return (
+ *     <Card>
+ *       <h3>Transaction History</h3>
+ *       {loading ? <Spinner /> : transactions.map(tx => <TxRow key={tx.id} {...tx} />)}
+ *     </Card>
+ *   )
+ * }
+ * ```
  */
 export function useStockTransactionsByItem(itemId: string) {
   const [transactions, setTransactions] = useState<StockTransaction[]>([])
@@ -401,6 +579,31 @@ export function useAddStockTransaction() {
 
 /**
  * Hook to get inventory statistics
+ *
+ * @description Calculates comprehensive inventory statistics including total items, value, and stock alerts.
+ * All calculations are performed on active items only.
+ *
+ * @returns {object} Statistics object containing:
+ *   - totalItems: Count of active inventory items
+ *   - totalValue: Total value of all active stock (quantity × purchase price)
+ *   - lowStockCount: Number of items at or below minimum stock level
+ *   - outOfStockCount: Number of items with zero stock
+ *
+ * @example
+ * ```tsx
+ * function InventoryDashboard() {
+ *   const stats = useInventoryStats()
+ *
+ *   return (
+ *     <div className="stats-grid">
+ *       <StatCard label="Total Items" value={stats.totalItems} />
+ *       <StatCard label="Total Value" value={`${stats.totalValue.toFixed(2)} BGN`} />
+ *       <StatCard label="Low Stock" value={stats.lowStockCount} variant="warning" />
+ *       <StatCard label="Out of Stock" value={stats.outOfStockCount} variant="error" />
+ *     </div>
+ *   )
+ * }
+ * ```
  */
 export function useInventoryStats() {
   const { inventory } = useInventory()
@@ -423,6 +626,30 @@ export function useInventoryStats() {
 
 /**
  * Hook to search inventory items
+ *
+ * @description Filters inventory items by search term matching name, SKU, or category.
+ * Search is case-insensitive and uses client-side filtering.
+ *
+ * @param {string} searchTerm - The search term to filter by
+ *
+ * @returns {{inventory: InventoryItem[], loading: boolean}} Object containing:
+ *   - inventory: Array of items matching the search term
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function InventorySearch() {
+ *   const [search, setSearch] = useState('')
+ *   const { inventory, loading } = useSearchInventory(search)
+ *
+ *   return (
+ *     <>
+ *       <SearchInput value={search} onChange={setSearch} />
+ *       {loading ? <Spinner /> : inventory.map(item => <ItemRow key={item.id} {...item} />)}
+ *     </>
+ *   )
+ * }
+ * ```
  */
 export function useSearchInventory(searchTerm: string) {
   const { inventory, loading } = useInventory()
