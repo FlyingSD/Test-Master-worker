@@ -4,15 +4,14 @@ import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 import { getFunctions } from 'firebase/functions'
 
-// Firebase configuration from environment variables
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyCe3HkkFFtUtalPK5xA5E1J4JkjIJyWn70",
+  authDomain: "svetlinki-7911c.firebaseapp.com",
+  projectId: "svetlinki-7911c",
+  storageBucket: "svetlinki-7911c.firebasestorage.app",
+  messagingSenderId: "362553535023",
+  appId: "1:362553535023:web:f87e811f9349414f69b4da"
 }
 
 // Initialize Firebase
