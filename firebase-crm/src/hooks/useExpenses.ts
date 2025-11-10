@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   collection,
   doc,
+  getDoc,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -16,8 +17,9 @@ import { Expense, ExpenseFormValues } from '@/types'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
+import { COLLECTIONS } from '@/lib/collections'
 
-const expensesCollection = collection(db, 'expenses')
+const expensesCollection = collection(db, COLLECTIONS.EXPENSES)
 
 export function useExpenses() {
   const [expenses, setExpenses] = useState<Expense[]>([])
@@ -80,16 +82,50 @@ export function useUpdateExpense() {
   })
 }
 
+/**
+ * Hook to delete an expense
+ * 🔒 SECURITY FIX: Now validates ownership before deletion
+ * - Admins can delete any expense
+ * - Teachers/others can only delete expenses THEY created
+ */
 export function useDeleteExpense() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await deleteDoc(doc(db, 'expenses', id))
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch expense first to check ownership
+      const docRef = doc(db, COLLECTIONS.EXPENSES, id)
+      const expenseSnap = await getDoc(docRef)
+
+      if (!expenseSnap.exists()) {
+        throw new Error('Разходът не е намерен')
+      }
+
+      const expense = expenseSnap.data() as Expense
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        // Only admins OR expense creator can delete
+        if (expense.createdBy !== userData.id) {
+          throw new Error('Нямате права да изтриете този разход')
+        }
+      }
+
+      // Delete expense
+      await deleteDoc(docRef)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] })
       toast.success('Разходът беше изтрит успешно!')
+    },
+    onError: (error: Error) => {
+      console.error('Error deleting expense:', error)
+      toast.error('Грешка при изтриване на разход: ' + error.message)
     },
   })
 }

@@ -19,9 +19,10 @@ import { Payment, PaymentFormValues } from '@/types'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
+import { COLLECTIONS } from '@/lib/collections'
 
 // Collection reference
-const paymentsCollection = collection(db, 'payments')
+const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
 
 /**
  * Hook to get all payments with real-time updates
@@ -193,13 +194,40 @@ export function useUpdatePayment() {
 
 /**
  * Hook to delete a payment
+ * 🔒 SECURITY FIX: Now validates ownership before deletion
+ * - Admins can delete any payment
+ * - Teachers can only delete payments THEY created
+ * - Parents cannot delete payments
  */
 export function useDeletePayment() {
   const queryClient = useQueryClient()
+  const { user, userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async (paymentId: string) => {
-      const docRef = doc(db, 'payments', paymentId)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch payment first to check ownership
+      const docRef = doc(db, COLLECTIONS.PAYMENTS, paymentId)
+      const paymentSnap = await getDoc(docRef)
+
+      if (!paymentSnap.exists()) {
+        throw new Error('Плащането не е намерено')
+      }
+
+      const payment = paymentSnap.data() as Payment
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        // Only admins OR payment creator can delete
+        if (payment.createdBy !== userData.id) {
+          throw new Error('Нямате права да изтриете това плащане')
+        }
+      }
+
+      // Delete payment
       await deleteDoc(docRef)
     },
     onSuccess: () => {
@@ -260,7 +288,7 @@ export function usePaymentsByParent(parentId: string) {
     // First, we need to get the parent's students to know which studentIds to filter by
     // We'll query students and then query payments for those students
     const studentsQuery = query(
-      collection(db, 'students'),
+      collection(db, COLLECTIONS.STUDENTS),
       where('parentId', '==', parentId)
     )
 

@@ -18,10 +18,12 @@ import { db } from '@/lib/firebase'
 import { InventoryItem, StockTransaction, InventoryFormValues, StockTransactionFormValues } from '@/types'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useAuth } from './useAuth'
+import { COLLECTIONS } from '@/lib/collections'
 
 // Collection references
-const inventoryCollection = collection(db, 'inventory')
-const stockTransactionsCollection = collection(db, 'stockTransactions')
+const inventoryCollection = collection(db, COLLECTIONS.INVENTORY)
+const stockTransactionsCollection = collection(db, COLLECTIONS.STOCK_TRANSACTIONS)
 
 /**
  * Hook to get all inventory items with real-time updates
@@ -161,13 +163,39 @@ export function useUpdateInventoryItem() {
 
 /**
  * Hook to delete an inventory item
+ * 🔒 SECURITY FIX: Now validates ownership before deletion
+ * - Admins can delete any inventory item
+ * - Teachers/others can only delete items THEY created
  */
 export function useDeleteInventoryItem() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async (itemId: string) => {
-      const docRef = doc(db, 'inventory', itemId)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch inventory item first to check ownership
+      const docRef = doc(db, COLLECTIONS.INVENTORY, itemId)
+      const itemSnap = await getDoc(docRef)
+
+      if (!itemSnap.exists()) {
+        throw new Error('Артикулът не е намерен')
+      }
+
+      const item = itemSnap.data() as InventoryItem
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        // Only admins OR item creator can delete
+        if (item.createdBy !== userData.id) {
+          throw new Error('Нямате права да изтриете този артикул')
+        }
+      }
+
+      // Delete inventory item
       await deleteDoc(docRef)
     },
     onSuccess: () => {
@@ -293,7 +321,7 @@ export function useAddStockTransaction() {
         data.relatedStudentId
       ) {
         // Get student name for payment record
-        const studentRef = doc(db, 'students', data.relatedStudentId)
+        const studentRef = doc(db, COLLECTIONS.STUDENTS, data.relatedStudentId)
         const studentSnap = await getDoc(studentRef)
 
         if (studentSnap.exists()) {
@@ -312,7 +340,7 @@ export function useAddStockTransaction() {
             createdAt: serverTimestamp(),
           }
 
-          const paymentRef = await addDoc(collection(db, 'payments'), paymentData)
+          const paymentRef = await addDoc(collection(db, COLLECTIONS.PAYMENTS), paymentData)
 
           // Link payment to transaction
           await updateDoc(transactionRef, {

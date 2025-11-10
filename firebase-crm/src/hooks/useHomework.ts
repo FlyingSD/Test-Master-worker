@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   collection,
   doc,
+  getDoc,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -16,19 +17,42 @@ import { db } from '@/lib/firebase'
 import { Homework, HomeworkFormValues } from '@/types'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useAuth } from './useAuth'
+import { COLLECTIONS } from '@/lib/collections'
 
 // Collection reference
-const homeworkCollection = collection(db, 'homework')
+const homeworkCollection = collection(db, COLLECTIONS.HOMEWORK)
 
 /**
  * Hook to get all homework with real-time updates
+ * 🔒 SECURITY FIX: Now filters homework by role
+ * - Admins see ALL homework
+ * - Teachers see ONLY homework they created (ownership-based filtering)
+ * - Parents should use useHomeworkByStudent() for their children
+ *
+ * NOTE: For teachers, we filter by ownership (createdBy) rather than by group,
+ * because homework is created by specific teachers
  */
 export function useHomework() {
+  const { userData, isAdmin, isTeacher, isParent } = useAuth()
   const [homework, setHomework] = useState<Homework[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
+    if (!userData) {
+      setHomework([])
+      setLoading(false)
+      return
+    }
+
+    // 🔒 SECURITY: Parents should use useHomeworkByStudent() instead
+    if (isParent) {
+      setHomework([])
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
 
     // Real-time listener
@@ -37,13 +61,20 @@ export function useHomework() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const homeworkData: Homework[] = []
+        let homeworkData: Homework[] = []
         snapshot.forEach((doc) => {
           homeworkData.push({
             id: doc.id,
             ...doc.data(),
           } as Homework)
         })
+
+        // 🔒 SECURITY: Filter for teachers - only show homework they created
+        if (isTeacher) {
+          homeworkData = homeworkData.filter(hw => hw.createdBy === userData.id)
+        }
+        // Admins see all homework (no filtering)
+
         setHomework(homeworkData)
         setLoading(false)
         setError(null)
@@ -57,7 +88,7 @@ export function useHomework() {
     )
 
     return () => unsubscribe()
-  }, [])
+  }, [userData, isAdmin, isTeacher, isParent])
 
   return { homework, loading, error }
 }
@@ -179,13 +210,40 @@ export function useUpdateHomework() {
 
 /**
  * Hook to delete homework
+ * 🔒 SECURITY FIX: Now validates ownership before deletion
+ * - Admins can delete any homework
+ * - Teachers can only delete homework THEY created
+ * - Parents cannot delete homework
  */
 export function useDeleteHomework() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async (homeworkId: string) => {
-      const docRef = doc(db, 'homework', homeworkId)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch homework first to check ownership
+      const docRef = doc(db, COLLECTIONS.HOMEWORK, homeworkId)
+      const homeworkSnap = await getDoc(docRef)
+
+      if (!homeworkSnap.exists()) {
+        throw new Error('Домашното не е намерено')
+      }
+
+      const homework = homeworkSnap.data() as Homework
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        // Only admins OR homework creator can delete
+        if (homework.createdBy !== userData.id) {
+          throw new Error('Нямате права да изтриете това домашно')
+        }
+      }
+
+      // Delete homework
       await deleteDoc(docRef)
     },
     onSuccess: () => {

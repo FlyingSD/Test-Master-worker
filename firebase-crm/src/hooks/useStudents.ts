@@ -18,34 +18,63 @@ import { db } from '@/lib/firebase'
 import { Student, StudentFormValues } from '@/types'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useAuth } from './useAuth'
+import { COLLECTIONS } from '@/lib/collections'
 
 // Collection reference
-const studentsCollection = collection(db, 'students')
+const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
 
 /**
  * Hook to get all students with real-time updates
+ * 🔒 SECURITY FIX: Now filters students by role
+ * - Admins see ALL students
+ * - Teachers see ONLY students in their assigned groups
+ * - Parents should use useStudentsByParent() instead
  */
 export function useStudents() {
+  const { userData, isAdmin, isTeacher, isParent } = useAuth()
   const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
+    if (!userData) {
+      setStudents([])
+      setLoading(false)
+      return
+    }
+
+    // 🔒 SECURITY: Parents should use useStudentsByParent() instead
+    if (isParent) {
+      setStudents([])
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
 
-    // Real-time listener
+    // Real-time listener (fetches all students, then filters client-side for teachers)
     const q = query(studentsCollection, orderBy('createdAt', 'desc'))
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const studentsData: Student[] = []
+        let studentsData: Student[] = []
         snapshot.forEach((doc) => {
           studentsData.push({
             id: doc.id,
             ...doc.data(),
           } as Student)
         })
+
+        // 🔒 SECURITY: Filter for teachers by assignedGroups
+        if (isTeacher && userData.assignedGroups && userData.assignedGroups.length > 0) {
+          studentsData = studentsData.filter(s =>
+            userData.assignedGroups?.includes(s.group)
+          )
+        }
+        // Admins see all students (no filtering)
+
         setStudents(studentsData)
         setLoading(false)
         setError(null)
@@ -59,7 +88,7 @@ export function useStudents() {
     )
 
     return () => unsubscribe()
-  }, [])
+  }, [userData, isAdmin, isTeacher, isParent])
 
   return { students, loading, error }
 }
@@ -192,13 +221,40 @@ export function useUpdateStudent() {
 
 /**
  * Hook to delete a student
+ * 🔒 SECURITY FIX: Now validates ownership before deletion
+ * - Admins can delete any student
+ * - Teachers can only delete students THEY created
+ * - Parents cannot delete students
  */
 export function useDeleteStudent() {
   const queryClient = useQueryClient()
+  const { user, userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async (studentId: string) => {
-      const docRef = doc(db, 'students', studentId)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch student first to check ownership
+      const docRef = doc(db, COLLECTIONS.STUDENTS, studentId)
+      const studentSnap = await getDoc(docRef)
+
+      if (!studentSnap.exists()) {
+        throw new Error('Ученикът не е намерен')
+      }
+
+      const student = studentSnap.data() as Student
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        // Only admins OR student creator can delete
+        if (student.createdBy !== userData.id) {
+          throw new Error('Нямате права да изтриете този ученик')
+        }
+      }
+
+      // Delete student
       await deleteDoc(docRef)
     },
     onSuccess: () => {

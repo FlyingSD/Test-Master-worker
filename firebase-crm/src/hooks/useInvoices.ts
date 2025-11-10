@@ -18,9 +18,11 @@ import { db } from '@/lib/firebase'
 import { Invoice, InvoiceFormValues } from '@/types'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useAuth } from './useAuth'
+import { COLLECTIONS } from '@/lib/collections'
 
 // Collection reference
-const invoicesCollection = collection(db, 'invoices')
+const invoicesCollection = collection(db, COLLECTIONS.INVOICES)
 
 /**
  * Hook to get all invoices with real-time updates
@@ -228,13 +230,40 @@ export function useUpdateInvoice() {
 
 /**
  * Hook to delete an invoice
+ * 🔒 SECURITY FIX: Now validates ownership before deletion
+ * - Admins can delete any invoice
+ * - Teachers can only delete invoices THEY created
+ * - Parents cannot delete invoices
  */
 export function useDeleteInvoice() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async (invoiceId: string) => {
-      const docRef = doc(db, 'invoices', invoiceId)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch invoice first to check ownership
+      const docRef = doc(db, COLLECTIONS.INVOICES, invoiceId)
+      const invoiceSnap = await getDoc(docRef)
+
+      if (!invoiceSnap.exists()) {
+        throw new Error('Документът не е намерен')
+      }
+
+      const invoice = invoiceSnap.data() as Invoice
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        // Only admins OR invoice creator can delete
+        if (invoice.createdBy !== userData.id) {
+          throw new Error('Нямате права да изтриете този документ')
+        }
+      }
+
+      // Delete invoice
       await deleteDoc(docRef)
     },
     onSuccess: () => {
