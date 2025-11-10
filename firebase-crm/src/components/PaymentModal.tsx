@@ -30,7 +30,6 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
     receiptNumber: '',
   })
 
-  const [currencyInput, setCurrencyInput] = useState<'BGN' | 'EUR'>('BGN')
   const [warnings, setWarnings] = useState<ErrorMessage[]>([])
   const [errors, setErrors] = useState<ErrorMessage[]>([])
 
@@ -256,7 +255,6 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                     onChange={(e) =>
                       handleAmountChange(Number(e.target.value), 'BGN')
                     }
-                    onFocus={() => setCurrencyInput('BGN')}
                   />
                   <div className="px-4 py-2 bg-gray-100 rounded-lg font-medium text-gray-700 flex items-center">
                     BGN
@@ -276,7 +274,6 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                     onChange={(e) =>
                       handleAmountChange(Number(e.target.value), 'EUR')
                     }
-                    onFocus={() => setCurrencyInput('EUR')}
                   />
                   <div className="px-4 py-2 bg-gray-100 rounded-lg font-medium text-gray-700 flex items-center">
                     EUR

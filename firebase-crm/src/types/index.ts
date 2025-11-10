@@ -409,10 +409,10 @@ export interface UserProfile extends User {
 // Form values for creating/editing
 export type StudentFormValues = Omit<Student, 'id' | 'createdAt' | 'updatedAt'>
 export type ParentFormValues = Omit<Parent, 'id' | 'createdAt' | 'updatedAt' | 'studentIds'>
-export type PaymentFormValues = Omit<Payment, 'id' | 'createdAt' | 'createdBy' | 'studentName'>
+export type PaymentFormValues = Omit<Payment, 'id' | 'createdAt' | 'createdBy'>
 export type ExpenseFormValues = Omit<Expense, 'id' | 'createdAt' | 'createdBy'>
 export type EventFormValues = Omit<Event, 'id' | 'createdAt' | 'createdBy'>
-export type DiscountFormValues = Omit<Discount, 'id' | 'createdAt' | 'createdBy' | 'studentName'>
+export type DiscountFormValues = Omit<Discount, 'id' | 'createdAt' | 'createdBy'>
 export type InventoryFormValues = Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
 export type StockTransactionFormValues = Omit<StockTransaction, 'id' | 'createdAt' | 'createdBy' | 'inventoryItemName'>
 export type InvoiceFormValues = Omit<Invoice, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
