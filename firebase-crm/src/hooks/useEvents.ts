@@ -21,6 +21,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
+import { validateDocumentOwnership } from '@/utils/security'
 
 // Collection reference
 const eventsCollection = collection(db, COLLECTIONS.EVENTS)
@@ -174,12 +175,26 @@ export function useAddEvent() {
 
 /**
  * Hook to update an event
+ * 🔒 SECURITY FIX: Now validates ownership before update
+ * - Admins can update any event
+ * - Teachers can only update events THEY created
+ * - Parents cannot update events
  */
 export function useUpdateEvent() {
   const queryClient = useQueryClient()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<EventFormValues> }) => {
+      // 🔒 SECURITY: Validate ownership before update
+      // Ensures user has permission to modify this event
+      await validateDocumentOwnership(
+        COLLECTIONS.EVENTS,
+        id,
+        userData!,
+        ERROR_MESSAGES.EVENT_NOT_FOUND
+      )
+
       const docRef = doc(db, COLLECTIONS.EVENTS, id)
 
       // Convert dates to Timestamps
@@ -209,12 +224,26 @@ export function useUpdateEvent() {
 
 /**
  * Hook to delete an event
+ * 🔒 SECURITY FIX: Now validates ownership before delete
+ * - Admins can delete any event
+ * - Teachers can only delete events THEY created
+ * - Parents cannot delete events
  */
 export function useDeleteEvent() {
   const queryClient = useQueryClient()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async (eventId: string) => {
+      // 🔒 SECURITY: Validate ownership before delete
+      // Ensures user has permission to remove this event
+      await validateDocumentOwnership(
+        COLLECTIONS.EVENTS,
+        eventId,
+        userData!,
+        ERROR_MESSAGES.EVENT_NOT_FOUND
+      )
+
       const docRef = doc(db, COLLECTIONS.EVENTS, eventId)
       await deleteDoc(docRef)
     },

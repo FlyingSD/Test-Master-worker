@@ -19,6 +19,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
+import { validateDocumentOwnership } from '@/utils/security'
 
 const attendanceCollection = collection(db, COLLECTIONS.ATTENDANCE)
 
@@ -150,9 +151,14 @@ export function useAddAttendance() {
 
 /**
  * Hook to update attendance record
+ *
+ * Security: Validates document ownership before update
+ * - Admins can update any attendance record
+ * - Teachers/Users can only update records they created
  */
 export function useUpdateAttendance() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
     mutationFn: async ({
@@ -162,6 +168,15 @@ export function useUpdateAttendance() {
       id: string
       data: Partial<Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>>
     }) => {
+      // Security: Validate document ownership and fetch current document
+      // This ensures only owners (or admins) can update attendance records
+      await validateDocumentOwnership(
+        COLLECTIONS.ATTENDANCE,
+        id,
+        user!,
+        ERROR_MESSAGES.ATTENDANCE_NOT_FOUND
+      )
+
       const docRef = doc(db, COLLECTIONS.ATTENDANCE, id)
       const updateData = {
         ...data,
@@ -178,12 +193,26 @@ export function useUpdateAttendance() {
 
 /**
  * Hook to delete attendance record
+ *
+ * Security: Validates document ownership before deletion
+ * - Admins can delete any attendance record
+ * - Teachers/Users can only delete records they created
  */
 export function useDeleteAttendance() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // Security: Validate document ownership before deletion
+      // This ensures only owners (or admins) can delete attendance records
+      await validateDocumentOwnership(
+        COLLECTIONS.ATTENDANCE,
+        id,
+        user!,
+        ERROR_MESSAGES.ATTENDANCE_NOT_FOUND
+      )
+
       await deleteDoc(doc(db, COLLECTIONS.ATTENDANCE, id))
     },
     onSuccess: () => {

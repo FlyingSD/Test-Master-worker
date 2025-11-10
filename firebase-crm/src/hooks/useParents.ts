@@ -19,6 +19,8 @@ import { db, storage } from '@/lib/firebase'
 import { Parent, ParentFormValues } from '@/types'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
+import { validateDocumentOwnership } from '@/utils/security'
+import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -163,9 +165,25 @@ export function useAddParent() {
  */
 export function useUpdateParent() {
   const queryClient = useQueryClient()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ParentFormValues> }) => {
+      // 🔒 SECURITY: Validate ownership before update
+      // - Admins can update any parent
+      // - Teachers can only update parents THEY created
+      // - Parents cannot update other parents
+      if (!userData) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
+      await validateDocumentOwnership(
+        COLLECTIONS.PARENTS,
+        id,
+        userData,
+        ERROR_MESSAGES.PARENT_NOT_FOUND
+      )
+
       const docRef = doc(db, COLLECTIONS.PARENTS, id)
 
       const updateData = {
@@ -192,28 +210,38 @@ export function useUpdateParent() {
  */
 export function useDeleteParent() {
   const queryClient = useQueryClient()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async (parentId: string) => {
+      // 🔒 SECURITY: Validate ownership before deletion
+      // - Admins can delete any parent
+      // - Teachers can only delete parents THEY created
+      // - Parents cannot delete other parents
+      if (!userData) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
+      const parentData = await validateDocumentOwnership(
+        COLLECTIONS.PARENTS,
+        parentId,
+        userData,
+        ERROR_MESSAGES.PARENT_NOT_FOUND
+      )
+
       const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
 
-      // Get parent data to delete videos from storage
-      const parentSnap = await getDoc(docRef)
-      if (parentSnap.exists()) {
-        const parentData = parentSnap.data() as Parent
-
-        // Delete all videos from Firebase Storage
-        if (parentData.videoUrls && parentData.videoUrls.length > 0) {
-          const deletePromises = parentData.videoUrls.map(async (videoUrl) => {
-            try {
-              const videoRef = ref(storage, videoUrl)
-              await deleteObject(videoRef)
-            } catch (error) {
-              console.error('Error deleting video:', error)
-            }
-          })
-          await Promise.all(deletePromises)
-        }
+      // Delete all videos from Firebase Storage
+      if (parentData.videoUrls && parentData.videoUrls.length > 0) {
+        const deletePromises = parentData.videoUrls.map(async (videoUrl) => {
+          try {
+            const videoRef = ref(storage, videoUrl)
+            await deleteObject(videoRef)
+          } catch (error) {
+            console.error('Error deleting video:', error)
+          }
+        })
+        await Promise.all(deletePromises)
       }
 
       await deleteDoc(docRef)

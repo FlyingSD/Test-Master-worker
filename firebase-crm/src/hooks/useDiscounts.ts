@@ -19,6 +19,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
+import { validateDocumentOwnership } from '@/utils/security'
 
 const discountsCollection = collection(db, COLLECTIONS.DISCOUNTS)
 
@@ -109,14 +110,29 @@ export function useAddDiscount() {
 
 export function useUpdateDiscount() {
   const queryClient = useQueryClient()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<DiscountFormValues> }) => {
+      // 🔒 SECURITY: Validate ownership before allowing update
+      // This ensures users can only update discounts they created (or admins can update any)
+      if (!userData) {
+        throw new Error(ERROR_MESSAGES.NO_PERMISSION)
+      }
+
+      await validateDocumentOwnership(
+        COLLECTIONS.DISCOUNTS,
+        id,
+        userData,
+        ERROR_MESSAGES.NOT_FOUND || 'Discount not found'
+      )
+
       const docRef = doc(db, COLLECTIONS.DISCOUNTS, id)
       const updateData = {
         ...data,
         startDate: data.startDate instanceof Date ? Timestamp.fromDate(data.startDate) : data.startDate,
         endDate: data.endDate instanceof Date ? Timestamp.fromDate(data.endDate) : data.endDate,
+        updatedAt: serverTimestamp(),
       }
       await updateDoc(docRef, updateData)
     },
@@ -124,19 +140,39 @@ export function useUpdateDiscount() {
       queryClient.invalidateQueries({ queryKey: ['discounts'] })
       toast.success(SUCCESS_MESSAGES.DISCOUNT_UPDATED)
     },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : ERROR_MESSAGES.NO_PERMISSION)
+    },
   })
 }
 
 export function useDeleteDiscount() {
   const queryClient = useQueryClient()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // 🔒 SECURITY: Validate ownership before allowing deletion
+      // This ensures users can only delete discounts they created (or admins can delete any)
+      if (!userData) {
+        throw new Error(ERROR_MESSAGES.NO_PERMISSION)
+      }
+
+      await validateDocumentOwnership(
+        COLLECTIONS.DISCOUNTS,
+        id,
+        userData,
+        ERROR_MESSAGES.NOT_FOUND || 'Discount not found'
+      )
+
       await deleteDoc(doc(db, COLLECTIONS.DISCOUNTS, id))
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['discounts'] })
       toast.success(SUCCESS_MESSAGES.DISCOUNT_DELETED)
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : ERROR_MESSAGES.NO_PERMISSION)
     },
   })
 }
