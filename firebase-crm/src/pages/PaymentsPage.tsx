@@ -65,14 +65,14 @@ export default function PaymentsPage() {
     totalItems,
   } = usePagination(filteredPayments, 20)
 
-  // Stats
-  const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0)
-  const thisMonth = payments.filter((p) => {
+  // 🔒 SECURITY: Stats - Only calculate financial totals for admins
+  const totalRevenue = isAdmin ? payments.reduce((sum, p) => sum + p.amount, 0) : 0
+  const thisMonth = isAdmin ? payments.filter((p) => {
     const paymentDate = p.date instanceof Date ? p.date : p.date.toDate()
     const now = new Date()
     return paymentDate.getMonth() === now.getMonth() && paymentDate.getFullYear() === now.getFullYear()
-  })
-  const monthRevenue = thisMonth.reduce((sum, p) => sum + p.amount, 0)
+  }) : []
+  const monthRevenue = isAdmin ? thisMonth.reduce((sum, p) => sum + p.amount, 0) : 0
 
   const handleEdit = (payment: Payment) => {
     setEditingPayment(payment)
