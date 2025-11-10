@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus, Search, Edit, Trash2, Calendar as CalendarIcon, Clock, MapPin, Briefcase } from 'lucide-react'
 import { useEvents, useDeleteEvent } from '@/hooks/useEvents'
 import { useAuth } from '@/hooks/useAuth'
+import { useStudentsByParent } from '@/hooks/useStudents'
 import { formatDate } from '@/utils/formatters'
 import EventModal from '@/components/EventModal'
 import { Event } from '@/types'
@@ -9,12 +10,16 @@ import { Event } from '@/types'
 export default function EventsPage() {
   const { events, loading } = useEvents()
   const deleteEvent = useDeleteEvent()
-  const { isParent } = useAuth()
+  const { user, isParent } = useAuth()
+  const { students: myChildren } = useStudentsByParent(user?.uid || '')
 
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
   const [filterType, setFilterType] = useState<string>('all')
+
+  // Get groups of parent's children for filtering
+  const myChildrenGroups = isParent ? myChildren.map(child => child.group) : []
 
   // Filter events
   const filteredEvents = events.filter((event) => {
@@ -22,19 +27,26 @@ export default function EventsPage() {
       event.businessDescription?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesType = filterType === 'all' || event.type === filterType
 
-    return matchesSearch && matchesType
+    // 🔒 SECURITY: Parents only see events for their children's groups
+    const matchesParentAccess = !isParent ||
+      !event.group || // Events without group (general events)
+      myChildrenGroups.includes(event.group) // Events for my children's groups
+
+    return matchesSearch && matchesType && matchesParentAccess
   })
 
-  // Stats
+  // Stats (also filtered for parents)
   const upcomingEvents = events.filter((e) => {
     const eventDate = e.startTime instanceof Date ? e.startTime : e.startTime.toDate()
-    return eventDate > new Date()
+    const matchesParentAccess = !isParent || !e.group || myChildrenGroups.includes(e.group)
+    return eventDate > new Date() && matchesParentAccess
   })
 
   const todayEvents = events.filter((e) => {
     const eventDate = e.startTime instanceof Date ? e.startTime : e.startTime.toDate()
     const today = new Date()
-    return eventDate.toDateString() === today.toDateString()
+    const matchesParentAccess = !isParent || !e.group || myChildrenGroups.includes(e.group)
+    return eventDate.toDateString() === today.toDateString() && matchesParentAccess
   })
 
   const handleEdit = (event: Event) => {

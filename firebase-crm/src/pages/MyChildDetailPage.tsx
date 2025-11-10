@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, Navigate } from 'react-router-dom'
 import { ArrowLeft, User, CreditCard, BookOpen, Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudentsByParent } from '@/hooks/useStudents'
@@ -8,13 +8,18 @@ import { formatDate, formatCurrency } from '@/utils/formatters'
 
 export default function MyChildDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const { user } = useAuth()
+  const { user, userData, isParent } = useAuth()
   const { students, loading: studentsLoading } = useStudentsByParent(user?.uid || '')
   const { payments, loading: paymentsLoading } = usePayments()
   const { homework, loading: homeworkLoading } = useHomeworkByStudent(id || '')
 
   // Get the specific student
   const student = students.find(s => s.id === id)
+
+  // 🔒 SECURITY: Only parents can access child detail pages
+  if (userData && !isParent) {
+    return <Navigate to="/" replace />
+  }
 
   if (studentsLoading || paymentsLoading || homeworkLoading) {
     return (

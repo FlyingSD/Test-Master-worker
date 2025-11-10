@@ -1,4 +1,5 @@
 import { Users, CreditCard, BookOpen, AlertCircle, CheckCircle, Calendar } from 'lucide-react'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudentsByParent } from '@/hooks/useStudents'
 import { usePayments } from '@/hooks/usePayments'
@@ -8,10 +9,15 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 
 export default function MyChildrenPage() {
-  const { user } = useAuth()
+  const { user, userData, isParent } = useAuth()
   const { students, loading: studentsLoading } = useStudentsByParent(user?.uid || '')
   const { payments, loading: paymentsLoading } = usePayments()
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null)
+
+  // 🔒 SECURITY: Only parents can access their children's page
+  if (userData && !isParent) {
+    return <Navigate to="/" replace />
+  }
 
   if (studentsLoading || paymentsLoading) {
     return (

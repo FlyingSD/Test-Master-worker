@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Users, CreditCard, Calendar, AlertCircle, CheckCircle, Clock } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudentsByParent } from '@/hooks/useStudents'
@@ -8,9 +9,14 @@ import { formatDate, formatCurrency } from '@/utils/formatters'
 import { Link } from 'react-router-dom'
 
 export default function ParentDashboardPage() {
-  const { user } = useAuth()
+  const { user, userData, isParent } = useAuth()
   const { students, loading: studentsLoading } = useStudentsByParent(user?.uid || '')
   const { payments, loading: paymentsLoading } = usePayments()
+
+  // 🔒 SECURITY: Only parents should access parent dashboard
+  if (userData && !isParent) {
+    return <Navigate to="/" replace />
+  }
 
   if (studentsLoading || paymentsLoading) {
     return (
