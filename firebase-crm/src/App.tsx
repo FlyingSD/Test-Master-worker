@@ -11,11 +11,9 @@ import ReportsPage from '@/pages/ReportsPage'
 import AdminPanelPage from '@/pages/AdminPanelPage'
 import ParentsPage from '@/pages/ParentsPage'
 import InventoryPage from '@/pages/InventoryPage'
-
-// Placeholder pages (will be created later)
-const ExpensesPage = () => <div className="p-6">Разходи страница - в разработка</div>
-const AttendancePage = () => <div className="p-6">Присъствия страница - в разработка</div>
-const SettingsPage = () => <div className="p-6">Настройки страница - в разработка</div>
+import ExpensesPage from '@/pages/ExpensesPage'
+import SettingsPage from '@/pages/SettingsPage'
+import AttendancePage from '@/pages/AttendancePage'
 
 export default function App() {
   const { user, loading } = useAuth()
