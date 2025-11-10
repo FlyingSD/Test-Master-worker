@@ -3,8 +3,10 @@ import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, Phone, Mail, Video
 import { useParents, useDeleteParent, useUploadVideoToParent, useDeleteVideoFromParent } from '@/hooks/useParents'
 import { useStudents } from '@/hooks/useStudents'
 import { exportParentsToExcel } from '@/utils/excelExport'
+import { usePagination } from '@/hooks/usePagination'
 import { Parent } from '@/types'
 import ParentModal from '@/components/ParentModal'
+import Pagination from '@/components/Pagination'
 
 export default function ParentsPage() {
   const { parents, loading } = useParents()
@@ -29,6 +31,16 @@ export default function ParentsPage() {
       parent.email?.toLowerCase().includes(term)
     )
   })
+
+  // Pagination
+  const {
+    paginatedItems: paginatedParents,
+    currentPage,
+    totalPages,
+    goToPage,
+    itemsPerPage,
+    totalItems,
+  } = usePagination(filteredParents, 20)
 
   // Stats
   const parentsWithMultipleChildren = parents.filter((p) => p.studentIds.length > 1).length
@@ -222,7 +234,7 @@ export default function ParentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredParents.map((parent) => (
+                {paginatedParents.map((parent) => (
                   <tr key={parent.id}>
                     <td>
                       <div className="flex items-center gap-3">
@@ -325,6 +337,15 @@ export default function ParentsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalItems}
+          />
         )}
       </div>
 

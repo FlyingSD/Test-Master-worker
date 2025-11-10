@@ -4,8 +4,10 @@ import { useInvoices, useDeleteInvoice, useInvoiceStats, useMarkInvoicePaid } fr
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { exportInvoicesToExcel } from '@/utils/excelExport'
 import { generateInvoicePDF } from '@/utils/pdfGenerator'
+import { usePagination } from '@/hooks/usePagination'
 import { Invoice } from '@/types'
 import InvoiceModal from '@/components/InvoiceModal'
+import Pagination from '@/components/Pagination'
 
 export default function InvoicesPage() {
   const { invoices, loading } = useInvoices()
@@ -31,6 +33,16 @@ export default function InvoicesPage() {
 
     return matchesSearch && matchesStatus
   })
+
+  // Pagination
+  const {
+    paginatedItems: paginatedInvoices,
+    currentPage,
+    totalPages,
+    goToPage,
+    itemsPerPage,
+    totalItems,
+  } = usePagination(filteredInvoices, 20)
 
   const handleEdit = (invoice: Invoice) => {
     setEditingInvoice(invoice)
@@ -310,7 +322,7 @@ export default function InvoicesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredInvoices.map((invoice) => (
+                {paginatedInvoices.map((invoice) => (
                   <tr key={invoice.id}>
                     <td>
                       <p className="font-bold text-primary">{invoice.invoiceNumber}</p>
@@ -377,6 +389,15 @@ export default function InvoicesPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalItems}
+          />
         )}
       </div>
 
