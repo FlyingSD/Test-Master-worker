@@ -32,12 +32,33 @@ const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
 
 /**
  * Hook to get all students with real-time updates
- * 🔒 SECURITY FIX: Now filters students by role with strict RBAC
- * - Admins see ALL students
- * - Teachers see ONLY students in their assigned groups
- * - Parents see ONLY their children (based on userData.studentIds)
- *   - Handles batching for parents with 10+ children (Firestore 'in' query limit)
- *   - Prevents parents from accessing other students even if they know the IDs
+ *
+ * @description Fetches students with role-based access control and real-time synchronization.
+ * Implements server-side filtering for parents and client-side filtering for teachers.
+ *
+ * @returns {{students: Student[], loading: boolean, error: Error | null}} Object containing:
+ *   - students: Array of student records visible to the current user
+ *   - loading: True while fetching data
+ *   - error: Error object if fetch fails, null otherwise
+ *
+ * @security
+ * - **Admins**: See ALL students
+ * - **Teachers**: See ONLY students in their assigned groups (client-side filter)
+ * - **Parents**: See ONLY their children via userData.studentIds (server-side filter)
+ *   - Implements batching for 10+ children (Firestore 'in' query limit)
+ *   - Prevents data leakage even if parent knows other student IDs
+ *
+ * @example
+ * ```tsx
+ * function StudentsList() {
+ *   const { students, loading, error } = useStudents()
+ *
+ *   if (loading) return <Spinner />
+ *   if (error) return <Error message={error.message} />
+ *
+ *   return students.map(student => <StudentCard key={student.id} {...student} />)
+ * }
+ * ```
  */
 export function useStudents() {
   const { userData, isAdmin, isTeacher, isParent } = useAuth()
@@ -158,6 +179,23 @@ export function useStudents() {
 
 /**
  * Hook to get a single student by ID
+ *
+ * @description Fetches a single student record using React Query for caching and automatic refetching.
+ *
+ * @param {string} studentId - The unique identifier of the student
+ * @returns {UseQueryResult<Student>} React Query result object with student data
+ *
+ * @example
+ * ```tsx
+ * function StudentProfile({ id }: { id: string }) {
+ *   const { data: student, isLoading } = useStudent(id)
+ *
+ *   if (isLoading) return <Spinner />
+ *   if (!student) return <NotFound />
+ *
+ *   return <Profile name={student.name} group={student.group} />
+ * }
+ * ```
  */
 export function useStudent(studentId: string) {
   return useQuery({
@@ -180,7 +218,23 @@ export function useStudent(studentId: string) {
 }
 
 /**
- * Hook to get students by parent ID
+ * Hook to get students by parent ID with real-time updates
+ *
+ * @description Fetches all students linked to a specific parent with live synchronization.
+ *
+ * @param {string} parentId - The unique identifier of the parent
+ * @returns {{students: Student[], loading: boolean}} Object containing:
+ *   - students: Array of students belonging to this parent
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function ParentStudents({ parentId }: { parentId: string }) {
+ *   const { students, loading } = useStudentsByParent(parentId)
+ *
+ *   return loading ? <Spinner /> : students.map(s => <StudentCard {...s} />)
+ * }
+ * ```
  */
 export function useStudentsByParent(parentId: string) {
   const [students, setStudents] = useState<Student[]>([])
@@ -219,7 +273,30 @@ export function useStudentsByParent(parentId: string) {
 
 /**
  * Hook to add a new student
- * 🔒 SECURITY FIX: Now populates createdBy field for ownership tracking
+ *
+ * @description Creates a new student record with automatic timestamp and ownership tracking.
+ * Shows success/error toasts and invalidates the students query cache.
+ *
+ * @returns {UseMutationResult} React Query mutation object with:
+ *   - mutate/mutateAsync: Function to trigger student creation
+ *   - isPending: True while request is in progress
+ *   - isSuccess/isError: Status flags
+ *
+ * @security Populates createdBy field with current user.uid for ownership tracking
+ *
+ * @example
+ * ```tsx
+ * function AddStudentForm() {
+ *   const addStudent = useAddStudent()
+ *
+ *   const handleSubmit = async (data: StudentFormValues) => {
+ *     await addStudent.mutateAsync(data)
+ *     onClose()
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} loading={addStudent.isPending} />
+ * }
+ * ```
  */
 export function useAddStudent() {
   const queryClient = useQueryClient()
@@ -256,10 +333,32 @@ export function useAddStudent() {
 
 /**
  * Hook to update a student
- * 🔒 SECURITY FIX: Now validates group ownership before update
- * - Admins can update any student
- * - Teachers can only update students in their assigned groups
- * - Parents cannot update students
+ *
+ * @description Updates an existing student record with security validation and denormalized data sync.
+ *
+ * @returns {UseMutationResult} React Query mutation object
+ *
+ * @security
+ * - **Admins**: Can update any student
+ * - **Teachers**: Can only update students in their assigned groups
+ * - **Parents**: Cannot update students
+ *
+ * @sideEffects
+ * - Syncs denormalized studentName across related collections if name changed
+ * - Invalidates students and individual student query caches
+ *
+ * @example
+ * ```tsx
+ * function EditStudentForm({ student }: { student: Student }) {
+ *   const updateStudent = useUpdateStudent()
+ *
+ *   const handleSubmit = async (data: Partial<StudentFormValues>) => {
+ *     await updateStudent.mutateAsync({ id: student.id, data })
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} disabled={updateStudent.isPending} />
+ * }
+ * ```
  */
 export function useUpdateStudent() {
   const queryClient = useQueryClient()
@@ -305,10 +404,32 @@ export function useUpdateStudent() {
 
 /**
  * Hook to delete a student
- * 🔒 SECURITY FIX: Now validates ownership before deletion
- * - Admins can delete any student
- * - Teachers can only delete students THEY created
- * - Parents cannot delete students
+ *
+ * @description Permanently deletes a student record after ownership validation.
+ *
+ * @returns {UseMutationResult} React Query mutation object
+ *
+ * @security
+ * - **Admins**: Can delete any student
+ * - **Teachers**: Can only delete students THEY created (checks createdBy field)
+ * - **Parents**: Cannot delete students
+ *
+ * @warning This is a destructive operation and cannot be undone
+ *
+ * @example
+ * ```tsx
+ * function DeleteStudentButton({ studentId }: { studentId: string }) {
+ *   const deleteStudent = useDeleteStudent()
+ *
+ *   const handleDelete = () => {
+ *     if (confirm('Are you sure?')) {
+ *       deleteStudent.mutate(studentId)
+ *     }
+ *   }
+ *
+ *   return <Button onClick={handleDelete} disabled={deleteStudent.isPending} />
+ * }
+ * ```
  */
 export function useDeleteStudent() {
   const queryClient = useQueryClient()
@@ -340,6 +461,20 @@ export function useDeleteStudent() {
 
 /**
  * Hook to get active students count
+ *
+ * @description Calculates the number of students with 'active' status.
+ * Uses the useStudents hook internally, so it respects RBAC filtering.
+ *
+ * @returns {number} Count of active students visible to current user
+ *
+ * @example
+ * ```tsx
+ * function Dashboard() {
+ *   const activeCount = useActiveStudentsCount()
+ *
+ *   return <StatCard title="Active Students" value={activeCount} />
+ * }
+ * ```
  */
 export function useActiveStudentsCount() {
   const { students } = useStudents()
@@ -348,6 +483,27 @@ export function useActiveStudentsCount() {
 
 /**
  * Hook to search students by name
+ *
+ * @description Filters students by name using case-insensitive search.
+ * Uses the useStudents hook internally, so it respects RBAC filtering.
+ *
+ * @param {string} searchTerm - The search query (case-insensitive)
+ * @returns {{students: Student[], loading: boolean}} Filtered students and loading state
+ *
+ * @example
+ * ```tsx
+ * function StudentSearch() {
+ *   const [query, setQuery] = useState('')
+ *   const { students, loading } = useSearchStudents(query)
+ *
+ *   return (
+ *     <>
+ *       <SearchInput value={query} onChange={setQuery} />
+ *       {loading ? <Spinner /> : students.map(s => <StudentCard {...s} />)}
+ *     </>
+ *   )
+ * }
+ * ```
  */
 export function useSearchStudents(searchTerm: string) {
   const { students, loading } = useStudents()
@@ -361,7 +517,29 @@ export function useSearchStudents(searchTerm: string) {
 
 /**
  * Hook to bulk add students (for CSV import)
- * 🔒 SECURITY FIX: Now uses actual user ID for createdBy field
+ *
+ * @description Creates multiple student records in a single operation.
+ * Useful for CSV imports or batch student registration.
+ *
+ * @returns {UseMutationResult} React Query mutation object
+ *
+ * @security Each student record is stamped with current user.uid as createdBy
+ *
+ * @performance Uses Promise.all for parallel writes to Firestore
+ *
+ * @example
+ * ```tsx
+ * function CSVImport() {
+ *   const bulkAdd = useBulkAddStudents()
+ *
+ *   const handleImport = async (csvData: Array<Omit<Student, 'id' | 'createdAt' | 'createdBy'>>) => {
+ *     await bulkAdd.mutateAsync(csvData)
+ *     toast.success(`Imported ${csvData.length} students`)
+ *   }
+ *
+ *   return <CSVUploader onParse={handleImport} />
+ * }
+ * ```
  */
 export function useBulkAddStudents() {
   const queryClient = useQueryClient()

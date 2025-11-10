@@ -30,11 +30,32 @@ const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
 
 /**
  * Hook to get all payments with real-time updates
- * 🔒 SECURITY FIX: Now filters payments by role (PoLP)
- * - Admins see ALL payments
- * - Teachers see ONLY payments for students in their assigned groups
- * - Parents see ONLY payments for THEIR children (userData.studentIds)
- * - Batches queries for 10+ students (Firestore 'in' operator limit)
+ *
+ * @description Fetches payment records with role-based access control and real-time synchronization.
+ * Implements server-side filtering for parents and batch queries for scalability.
+ *
+ * @returns {{payments: Payment[], loading: boolean, error: Error | null}} Object containing:
+ *   - payments: Array of payment records visible to the current user
+ *   - loading: True while fetching data
+ *   - error: Error object if fetch fails, null otherwise
+ *
+ * @security Implements Principle of Least Privilege (PoLP)
+ * - **Admins**: See ALL payments
+ * - **Teachers**: See ONLY payments for students in their assigned groups
+ * - **Parents**: See ONLY payments for THEIR children (userData.studentIds)
+ *   - Server-side filtering with batching for 10+ children
+ *
+ * @example
+ * ```tsx
+ * function PaymentsList() {
+ *   const { payments, loading, error } = usePayments()
+ *
+ *   if (loading) return <Spinner />
+ *   if (error) return <Error message={error.message} />
+ *
+ *   return payments.map(p => <PaymentCard key={p.id} {...p} />)
+ * }
+ * ```
  */
 export function usePayments() {
   const { userData, isAdmin, isTeacher, isParent } = useAuth()
