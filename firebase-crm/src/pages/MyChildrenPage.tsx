@@ -2,7 +2,7 @@ import { Users, CreditCard, BookOpen, AlertCircle, CheckCircle, Calendar } from 
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudentsByParent } from '@/hooks/useStudents'
-import { usePayments } from '@/hooks/usePayments'
+import { usePaymentsByParent } from '@/hooks/usePayments'
 import { useHomeworkByStudent } from '@/hooks/useHomework'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { Link } from 'react-router-dom'
@@ -11,7 +11,12 @@ import { useState } from 'react'
 export default function MyChildrenPage() {
   const { user, userData, isParent } = useAuth()
   const { students, loading: studentsLoading } = useStudentsByParent(user?.uid || '')
-  const { payments, loading: paymentsLoading } = usePayments()
+
+  // 🔒 SECURITY FIX: Use specialized hook that only loads THIS parent's payments (server-side filtered)
+  // BEFORE: usePayments() loaded ALL families' payments ❌ PRIVACY VIOLATION!
+  // AFTER: usePaymentsByParent() loads only this parent's children's payments ✅
+  const { payments: myPayments, loading: paymentsLoading } = usePaymentsByParent(user?.uid || '')
+
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null)
 
   // 🔒 SECURITY: Only parents can access their children's page
@@ -30,9 +35,7 @@ export default function MyChildrenPage() {
     )
   }
 
-  // Filter payments for my children
-  const myStudentIds = students.map(s => s.id)
-  const myPayments = payments.filter(p => myStudentIds.includes(p.studentId))
+  // No need to manually filter - myPayments already filtered server-side ✅
 
   const today = new Date()
 

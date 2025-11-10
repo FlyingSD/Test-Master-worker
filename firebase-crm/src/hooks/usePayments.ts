@@ -239,6 +239,112 @@ export function usePaymentsByDateRange(startDate: Date, endDate: Date) {
 }
 
 /**
+ * 🔒 SECURITY FIX: Hook to get payments for parent's children only (server-side filtered)
+ * CRITICAL: Only downloads payment data for parent's children, not ALL payments
+ * This fixes the privacy/GDPR violation where parents could see other families' data
+ */
+export function usePaymentsByParent(parentId: string) {
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    if (!parentId) {
+      setPayments([])
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+
+    // First, we need to get the parent's students to know which studentIds to filter by
+    // We'll query students and then query payments for those students
+    const studentsQuery = query(
+      collection(db, 'students'),
+      where('parentId', '==', parentId)
+    )
+
+    // Get students first
+    const unsubscribeStudents = onSnapshot(
+      studentsQuery,
+      (studentsSnapshot) => {
+        const studentIds: string[] = []
+        studentsSnapshot.forEach((doc) => {
+          studentIds.push(doc.id)
+        })
+
+        if (studentIds.length === 0) {
+          setPayments([])
+          setLoading(false)
+          return
+        }
+
+        // 🔒 SECURITY: Only query payments for parent's children
+        // Firestore 'in' operator supports up to 10 items, so we need to batch
+        const batchSize = 10
+        const batches: string[][] = []
+
+        for (let i = 0; i < studentIds.length; i += batchSize) {
+          batches.push(studentIds.slice(i, i + batchSize))
+        }
+
+        // Subscribe to payments for all batches
+        const unsubscribePayments: (() => void)[] = []
+        const allPayments = new Map<string, Payment>()
+
+        batches.forEach((batch) => {
+          const paymentsQuery = query(
+            paymentsCollection,
+            where('studentId', 'in', batch),  // SERVER-SIDE FILTER ✅
+            orderBy('date', 'desc')
+          )
+
+          const unsubscribe = onSnapshot(
+            paymentsQuery,
+            (snapshot) => {
+              snapshot.forEach((doc) => {
+                allPayments.set(doc.id, {
+                  id: doc.id,
+                  ...doc.data(),
+                } as Payment)
+              })
+
+              // Convert map to array and set state
+              setPayments(Array.from(allPayments.values()))
+              setLoading(false)
+              setError(null)
+            },
+            (err) => {
+              console.error('Error fetching parent payments:', err)
+              setError(err as Error)
+              setLoading(false)
+            }
+          )
+
+          unsubscribePayments.push(unsubscribe)
+        })
+
+        // Cleanup function for payment subscriptions
+        return () => {
+          unsubscribePayments.forEach((unsub) => unsub())
+        }
+      },
+      (err) => {
+        console.error('Error fetching parent students:', err)
+        setError(err as Error)
+        setLoading(false)
+      }
+    )
+
+    return () => {
+      unsubscribeStudents()
+    }
+  }, [parentId])
+
+  return { payments, loading, error }
+}
+
+/**
  * Hook to bulk add payments (for bulk payment modal)
  */
 export function useBulkAddPayments() {
