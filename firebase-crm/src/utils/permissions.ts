@@ -36,10 +36,19 @@ export function isAdmin(role: UserRole): boolean {
 }
 
 /**
- * Check if user is teacher
+ * Check if user is teacher (NOT including admin)
+ * Use isTeacherOrAbove() if you want to include admin
  */
 export function isTeacher(role: UserRole): boolean {
   return role === 'teacher'
+}
+
+/**
+ * Check if user is teacher OR admin
+ * Use this for features accessible by both teachers and admins
+ */
+export function isTeacherOrAbove(role: UserRole): boolean {
+  return role === 'teacher' || role === 'admin'
 }
 
 /**

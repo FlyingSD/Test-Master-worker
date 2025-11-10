@@ -251,6 +251,7 @@ export function useStockTransactionsByItem(itemId: string) {
 
 /**
  * Hook to add a stock transaction and update inventory
+ * IMPORTANT: If it's a sale (OUT + student), automatically creates Payment record
  */
 export function useAddStockTransaction() {
   const queryClient = useQueryClient()
@@ -275,7 +276,7 @@ export function useAddStockTransaction() {
       }
 
       // Create transaction
-      const transactionData = {
+      const transactionData: any = {
         ...data,
         inventoryItemName: inventoryItem.name,
         totalPrice: data.quantity * data.pricePerUnit,
@@ -283,7 +284,47 @@ export function useAddStockTransaction() {
         createdAt: serverTimestamp(),
       }
 
-      await addDoc(stockTransactionsCollection, transactionData)
+      const transactionRef = await addDoc(stockTransactionsCollection, transactionData)
+
+      // 🔗 CRITICAL FIX: If selling to student, auto-create Payment record!
+      if (
+        data.type === 'OUT' &&
+        data.reason === 'Продажба на ученик' &&
+        data.relatedStudentId
+      ) {
+        // Get student name for payment record
+        const studentRef = doc(db, 'students', data.relatedStudentId)
+        const studentSnap = await getDoc(studentRef)
+
+        if (studentSnap.exists()) {
+          const student = studentSnap.data()
+
+          // Create linked payment automatically
+          const paymentData = {
+            studentId: data.relatedStudentId,
+            studentName: student.name,
+            amount: data.totalPrice,
+            article: inventoryItem.name, // Inventory item name
+            method: 'Кеш', // Default to cash, can be customized
+            date: serverTimestamp(),
+            notes: `Автоматично създадено от складова продажба: ${inventoryItem.name} x${data.quantity}`,
+            createdBy: userId,
+            createdAt: serverTimestamp(),
+          }
+
+          const paymentRef = await addDoc(collection(db, 'payments'), paymentData)
+
+          // Link payment to transaction
+          await updateDoc(transactionRef, {
+            relatedPaymentId: paymentRef.id
+          })
+
+          // Link transaction to payment (for reverse lookup)
+          await updateDoc(paymentRef, {
+            relatedStockTransactionId: transactionRef.id
+          })
+        }
+      }
 
       // Update inventory item stock
       const inventoryRef = doc(db, 'inventory', inventoryItem.id)
@@ -298,7 +339,8 @@ export function useAddStockTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['stockTransactions'] })
-      toast.success('Движението беше записано успешно!')
+      queryClient.invalidateQueries({ queryKey: ['payments'] }) // NEW: Invalidate payments too!
+      toast.success('Движението беше записано успешно! Плащането е създадено автоматично.')
     },
     onError: (error: Error) => {
       console.error('Error adding stock transaction:', error)

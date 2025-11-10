@@ -62,6 +62,7 @@ export interface Payment {
   date: Date | Timestamp // Дата на плащане
   notes?: string // Бележки
   receiptNumber?: string // Номер на фактура/документ
+  relatedStockTransactionId?: string // ID на складова транзакция (ако е продажба от склад)
   createdBy: string // User ID на този който го е добавил
   createdAt: Date | Timestamp
 }

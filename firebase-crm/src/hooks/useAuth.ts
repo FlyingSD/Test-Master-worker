@@ -176,9 +176,11 @@ export function useAuth() {
     }
   }
 
-  // Helper functions
+  // Helper functions for role checking
+  // IMPORTANT: Be explicit about role checks to avoid confusion
   const isAdmin = userData?.role === 'admin'
-  const isTeacher = userData?.role === 'teacher' || userData?.role === 'admin'
+  const isTeacher = userData?.role === 'teacher' // Teacher ONLY (not admin)
+  const isTeacherOrAbove = userData?.role === 'teacher' || userData?.role === 'admin'
   const isParent = userData?.role === 'parent'
 
   return {
@@ -191,6 +193,7 @@ export function useAuth() {
     signOut,
     isAdmin,
     isTeacher,
+    isTeacherOrAbove, // NEW: Use this for teacher OR admin access
     isParent,
   }
 }
