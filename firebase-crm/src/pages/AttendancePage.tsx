@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Calendar, Users, CheckCircle, XCircle, Clock, AlertCircle, Save, FileDown } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useStudents } from '@/hooks/useStudents'
 import { useAttendanceByDate, useBulkAddAttendance } from '@/hooks/useAttendance'
 import { formatDate } from '@/utils/formatters'
@@ -16,11 +18,17 @@ interface StudentAttendance {
 }
 
 export default function AttendancePage() {
+  const { userData } = useAuth()
   const { students } = useStudents()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [selectedGroup, setSelectedGroup] = useState<string>('all')
   const { attendance: existingAttendance } = useAttendanceByDate(selectedDate)
   const bulkAddAttendance = useBulkAddAttendance()
+
+  // 🔒 SECURITY: Only teachers and admins can mark attendance
+  if (userData?.role === 'parent') {
+    return <Navigate to="/" replace />
+  }
 
   // Get unique groups
   const groups = Array.from(new Set(students.map((s) => s.group).filter(Boolean)))

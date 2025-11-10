@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, Phone, Mail, Video, Upload, X, FileDown } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useParents, useDeleteParent, useUploadVideoToParent, useDeleteVideoFromParent } from '@/hooks/useParents'
 import { useStudents } from '@/hooks/useStudents'
 import { exportParentsToExcel } from '@/utils/excelExport'
@@ -9,6 +11,7 @@ import ParentModal from '@/components/ParentModal'
 import Pagination from '@/components/Pagination'
 
 export default function ParentsPage() {
+  const { userData } = useAuth()
   const { parents, loading } = useParents()
   const { students } = useStudents()
   const deleteParent = useDeleteParent()
@@ -20,6 +23,11 @@ export default function ParentsPage() {
   const [editingParent, setEditingParent] = useState<Parent | null>(null)
   const [viewingParent, setViewingParent] = useState<Parent | null>(null)
   const [uploadingVideoFor, setUploadingVideoFor] = useState<string | null>(null)
+
+  // 🔒 SECURITY: Only teachers and admins can view all parents (GDPR protection)
+  if (userData?.role === 'parent') {
+    return <Navigate to="/" replace />
+  }
 
   // Filter parents
   const filteredParents = parents.filter((parent) => {

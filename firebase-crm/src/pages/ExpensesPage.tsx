@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Plus, Search, Edit, Trash2, TrendingDown, DollarSign, Calendar, FileText, FileDown } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useExpenses, useDeleteExpense, useTotalExpenses } from '@/hooks/useExpenses'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { exportExpensesToExcel } from '@/utils/excelExport'
@@ -10,6 +12,13 @@ import Pagination from '@/components/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 
 export default function ExpensesPage() {
+  const { userData } = useAuth()
+
+  // 🔒 SECURITY: Only teachers and admins can view business expenses
+  if (userData?.role === 'parent') {
+    return <Navigate to="/" replace />
+  }
+
   const { expenses, loading } = useExpenses()
   const deleteExpense = useDeleteExpense()
   const totalExpenses = useTotalExpenses()

@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Plus, Search, Edit, Trash2, TrendingUp, TrendingDown, AlertTriangle, Package, DollarSign, History } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useInventory, useDeleteInventoryItem, useInventoryStats, useLowStockItems } from '@/hooks/useInventory'
 import { formatCurrency } from '@/utils/formatters'
 import { InventoryItem } from '@/types'
@@ -7,6 +9,13 @@ import InventoryModal from '@/components/InventoryModal'
 import StockTransactionModal from '@/components/StockTransactionModal'
 
 export default function InventoryPage() {
+  const { userData } = useAuth()
+
+  // 🔒 SECURITY: Only teachers and admins can manage inventory
+  if (userData?.role === 'parent') {
+    return <Navigate to="/" replace />
+  }
+
   const { inventory, loading } = useInventory()
   const deleteItem = useDeleteInventoryItem()
   const stats = useInventoryStats()

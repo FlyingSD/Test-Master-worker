@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react'
+import { Navigate } from 'react-router-dom'
 import { AlertTriangle, AlertCircle, Info, RefreshCw, CheckCircle, FileText } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useStudents } from '@/hooks/useStudents'
 import { usePayments } from '@/hooks/usePayments'
 import { useExpenses } from '@/hooks/useExpenses'
 import { checkDataConsistency, DataIssue } from '@/utils/errorMessages'
 
 export default function ErrorDashboardPage() {
+  const { userData } = useAuth()
+
+  // 🔒 SECURITY: Only teachers and admins can view error dashboard
+  if (userData?.role === 'parent') {
+    return <Navigate to="/" replace />
+  }
+
   const { students, loading: studentsLoading } = useStudents()
   const { payments, loading: paymentsLoading } = usePayments()
   const { expenses, loading: expensesLoading } = useExpenses()

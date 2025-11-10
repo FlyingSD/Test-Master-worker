@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Save, Settings, Building2, Globe, Bell, Palette, Shield } from 'lucide-react'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -7,7 +8,7 @@ import { SystemSettings } from '@/types'
 import toast from 'react-hot-toast'
 
 export default function SettingsPage() {
-  const { user } = useAuth()
+  const { user, userData } = useAuth()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -23,6 +24,11 @@ export default function SettingsPage() {
     smsNotifications: false,
     theme: 'light',
   })
+
+  // 🔒 SECURITY: Only admins can access system settings
+  if (userData?.role !== 'admin') {
+    return <Navigate to="/" replace />
+  }
 
   useEffect(() => {
     loadSettings()

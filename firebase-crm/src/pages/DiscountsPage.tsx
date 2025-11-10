@@ -1,11 +1,20 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Plus, Search, Edit, Trash2, Percent, Tag } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useDiscounts, useDeleteDiscount } from '@/hooks/useDiscounts'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import DiscountModal from '@/components/DiscountModal'
 import { Discount } from '@/types'
 
 export default function DiscountsPage() {
+  const { userData } = useAuth()
+
+  // 🔒 SECURITY: Only teachers and admins can manage discounts
+  if (userData?.role === 'parent') {
+    return <Navigate to="/" replace />
+  }
+
   const { discounts, loading } = useDiscounts()
   const deleteDiscount = useDeleteDiscount()
 

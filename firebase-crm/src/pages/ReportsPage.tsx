@@ -1,15 +1,23 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { FileText, TrendingUp, TrendingDown, Calendar, Download } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { usePayments } from '@/hooks/usePayments'
 import { useExpenses } from '@/hooks/useExpenses'
 import { formatCurrency } from '@/utils/formatters'
 
 export default function ReportsPage() {
+  const { userData } = useAuth()
   const { payments } = usePayments()
   const { expenses } = useExpenses()
 
   const currentYear = new Date().getFullYear()
   const [selectedYear, setSelectedYear] = useState(currentYear)
+
+  // 🔒 SECURITY: Only teachers and admins can view financial reports
+  if (userData?.role === 'parent') {
+    return <Navigate to="/" replace />
+  }
 
   // Calculate monthly data
   const monthlyData = []

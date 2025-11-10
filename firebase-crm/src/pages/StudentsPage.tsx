@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, FileDown, Upload } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import { useStudents, useDeleteStudent } from '@/hooks/useStudents'
 import { formatDate, formatCurrency, getStatusColor, getStatusText } from '@/utils/formatters'
 import { exportStudentsToExcel } from '@/utils/excelExport'
@@ -10,6 +12,7 @@ import Pagination from '@/components/Pagination'
 import { Student } from '@/types'
 
 export default function StudentsPage() {
+  const { userData } = useAuth()
   const { students, loading } = useStudents()
   const deleteStudent = useDeleteStudent()
 
@@ -18,6 +21,11 @@ export default function StudentsPage() {
   const [isCSVModalOpen, setIsCSVModalOpen] = useState(false)
   const [editingStudent, setEditingStudent] = useState<Student | null>(null)
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all')
+
+  // 🔒 SECURITY: Only teachers and admins can view all students
+  if (userData?.role === 'parent') {
+    return <Navigate to="/" replace />
+  }
 
   // Filter students
   const filteredStudents = students.filter((student) => {
