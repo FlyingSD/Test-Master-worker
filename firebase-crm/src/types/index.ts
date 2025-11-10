@@ -26,6 +26,7 @@ export interface Student {
   studyType: 'Групово' | 'Индивидуално' // Тип обучение
   parentId: string // ID на родителя
   notes?: string // Бележки
+  createdBy: string // User ID на създателя (за ownership validation)
   createdAt: Date | Timestamp
   updatedAt?: Date | Timestamp
 }
@@ -427,7 +428,7 @@ export interface UserProfile extends User {
 }
 
 // Form values for creating/editing
-export type StudentFormValues = Omit<Student, 'id' | 'createdAt' | 'updatedAt'>
+export type StudentFormValues = Omit<Student, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
 export type ParentFormValues = Omit<Parent, 'id' | 'createdAt' | 'updatedAt' | 'studentIds'>
 export type PaymentFormValues = Omit<Payment, 'id' | 'createdAt' | 'createdBy'>
 export type ExpenseFormValues = Omit<Expense, 'id' | 'createdAt' | 'createdBy'>

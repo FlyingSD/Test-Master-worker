@@ -156,18 +156,25 @@ export function useStudentsByParent(parentId: string) {
 
 /**
  * Hook to add a new student
+ * 🔒 SECURITY FIX: Now populates createdBy field for ownership tracking
  */
 export function useAddStudent() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
     mutationFn: async (studentData: StudentFormValues) => {
+      if (!user) {
+        throw new Error('Не сте влезли в системата')
+      }
+
       // Convert dueDate to Timestamp if it's a Date
       const data = {
         ...studentData,
         dueDate: studentData.dueDate instanceof Date
           ? Timestamp.fromDate(studentData.dueDate)
           : studentData.dueDate,
+        createdBy: user.uid, // 🔒 SECURITY: Track who created this student
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       }
@@ -188,13 +195,43 @@ export function useAddStudent() {
 
 /**
  * Hook to update a student
+ * 🔒 SECURITY FIX: Now validates group ownership before update
+ * - Admins can update any student
+ * - Teachers can only update students in their assigned groups
+ * - Parents cannot update students
  */
 export function useUpdateStudent() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<StudentFormValues> }) => {
-      const docRef = doc(db, 'students', id)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch student first to check group ownership
+      const docRef = doc(db, COLLECTIONS.STUDENTS, id)
+      const studentSnap = await getDoc(docRef)
+
+      if (!studentSnap.exists()) {
+        throw new Error('Ученикът не е намерен')
+      }
+
+      const student = studentSnap.data() as Student
+
+      // 🔒 SECURITY: Group ownership validation
+      if (!isAdmin) {
+        // Teachers can only update students in their assigned groups
+        if (userData.role === 'teacher') {
+          if (!userData.assignedGroups || !userData.assignedGroups.includes(student.group)) {
+            throw new Error('Нямате права да променяте този ученик')
+          }
+        } else {
+          // Parents and other roles cannot update students
+          throw new Error('Нямате права да променяте ученици')
+        }
+      }
 
       // Convert dueDate to Timestamp if it's a Date
       const updateData = {
@@ -291,18 +328,24 @@ export function useSearchStudents(searchTerm: string) {
 
 /**
  * Hook to bulk add students (for CSV import)
+ * 🔒 SECURITY FIX: Now uses actual user ID for createdBy field
  */
 export function useBulkAddStudents() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
     mutationFn: async (students: Array<Omit<Student, 'id' | 'createdAt' | 'createdBy'>>) => {
+      if (!user) {
+        throw new Error('Не сте влезли в системата')
+      }
+
       const promises = students.map((studentData) => {
         const data = {
           ...studentData,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
-          createdBy: 'admin', // TODO: get from auth context
+          createdBy: user.uid, // 🔒 SECURITY: Track who imported these students
         }
         return addDoc(studentsCollection, data)
       })

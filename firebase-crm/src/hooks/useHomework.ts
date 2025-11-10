@@ -172,13 +172,37 @@ export function useAddHomework() {
 
 /**
  * Hook to update homework
+ * 🔒 SECURITY FIX: Now validates ownership before update
+ * - Admins can update any homework
+ * - Teachers can only update homework THEY created
+ * - Parents cannot update homework
  */
 export function useUpdateHomework() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<HomeworkFormValues> }) => {
-      const docRef = doc(db, 'homework', id)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch homework first to check ownership
+      const docRef = doc(db, COLLECTIONS.HOMEWORK, id)
+      const homeworkSnap = await getDoc(docRef)
+
+      if (!homeworkSnap.exists()) {
+        throw new Error('Домашното не е намерено')
+      }
+
+      const homework = homeworkSnap.data() as Homework
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        if (homework.createdBy !== userData.id) {
+          throw new Error('Нямате права да променяте това домашно')
+        }
+      }
 
       // Convert dates to Timestamp
       const updateData: any = { ...data }

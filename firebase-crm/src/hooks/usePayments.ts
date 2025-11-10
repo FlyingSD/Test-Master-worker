@@ -162,13 +162,38 @@ export function useAddPayment() {
 
 /**
  * Hook to update a payment
+ * 🔒 SECURITY FIX: Now validates ownership before update
+ * - Admins can update any payment
+ * - Teachers can only update payments THEY created
+ * - Parents cannot update payments
  */
 export function useUpdatePayment() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<PaymentFormValues> }) => {
-      const docRef = doc(db, 'payments', id)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch payment first to check ownership
+      const docRef = doc(db, COLLECTIONS.PAYMENTS, id)
+      const paymentSnap = await getDoc(docRef)
+
+      if (!paymentSnap.exists()) {
+        throw new Error('Плащането не е намерено')
+      }
+
+      const payment = paymentSnap.data() as Payment
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        // Only admins OR payment creator can update
+        if (payment.createdBy !== userData.id) {
+          throw new Error('Нямате права да променяте това плащане')
+        }
+      }
 
       // Convert date to Timestamp if it's a Date
       const updateData = {

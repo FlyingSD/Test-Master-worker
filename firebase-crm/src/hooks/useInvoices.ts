@@ -188,13 +188,37 @@ export function useAddInvoice() {
 
 /**
  * Hook to update an invoice
+ * 🔒 SECURITY FIX: Now validates ownership before update
+ * - Admins can update any invoice
+ * - Teachers can only update invoices THEY created
+ * - Parents cannot update invoices
  */
 export function useUpdateInvoice() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<InvoiceFormValues> }) => {
-      const docRef = doc(db, 'invoices', id)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch invoice first to check ownership
+      const docRef = doc(db, COLLECTIONS.INVOICES, id)
+      const invoiceSnap = await getDoc(docRef)
+
+      if (!invoiceSnap.exists()) {
+        throw new Error('Документът не е намерен')
+      }
+
+      const invoice = invoiceSnap.data() as Invoice
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        if (invoice.createdBy !== userData.id) {
+          throw new Error('Нямате права да променяте този документ')
+        }
+      }
 
       // Recalculate totals if items changed
       let updateData: any = { ...data }

@@ -134,13 +134,36 @@ export function useAddInventoryItem() {
 
 /**
  * Hook to update an inventory item
+ * 🔒 SECURITY FIX: Now validates ownership before update
+ * - Admins can update any inventory item
+ * - Teachers can only update items THEY created
  */
 export function useUpdateInventoryItem() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<InventoryFormValues> }) => {
-      const docRef = doc(db, 'inventory', id)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch item first to check ownership
+      const docRef = doc(db, COLLECTIONS.INVENTORY, id)
+      const itemSnap = await getDoc(docRef)
+
+      if (!itemSnap.exists()) {
+        throw new Error('Артикулът не е намерен')
+      }
+
+      const item = itemSnap.data() as InventoryItem
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        if (item.createdBy !== userData.id) {
+          throw new Error('Нямате права да променяте този артикул')
+        }
+      }
 
       const updateData = {
         ...data,

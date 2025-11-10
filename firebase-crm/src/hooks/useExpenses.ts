@@ -63,12 +63,39 @@ export function useAddExpense() {
   })
 }
 
+/**
+ * Hook to update an expense
+ * 🔒 SECURITY FIX: Now validates ownership before update
+ * - Admins can update any expense
+ * - Teachers can only update expenses THEY created
+ */
 export function useUpdateExpense() {
   const queryClient = useQueryClient()
+  const { userData, isAdmin } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ExpenseFormValues> }) => {
-      const docRef = doc(db, 'expenses', id)
+      if (!userData) {
+        throw new Error('Не сте влезли в системата')
+      }
+
+      // 🔒 SECURITY: Fetch expense first to check ownership
+      const docRef = doc(db, COLLECTIONS.EXPENSES, id)
+      const expenseSnap = await getDoc(docRef)
+
+      if (!expenseSnap.exists()) {
+        throw new Error('Разходът не е намерен')
+      }
+
+      const expense = expenseSnap.data() as Expense
+
+      // 🔒 SECURITY: Ownership validation
+      if (!isAdmin) {
+        if (expense.createdBy !== userData.id) {
+          throw new Error('Нямате права да променяте този разход')
+        }
+      }
+
       const updateData = {
         ...data,
         date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
@@ -78,6 +105,10 @@ export function useUpdateExpense() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] })
       toast.success('Разходът беше обновен успешно!')
+    },
+    onError: (error: Error) => {
+      console.error('Error updating expense:', error)
+      toast.error('Грешка при обновяване на разход: ' + error.message)
     },
   })
 }
