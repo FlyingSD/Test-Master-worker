@@ -29,6 +29,26 @@ const invoicesCollection = collection(db, COLLECTIONS.INVOICES)
 
 /**
  * Hook to get all invoices with real-time updates
+ *
+ * @description Fetches all invoice records with real-time synchronization using Firestore onSnapshot.
+ * Orders invoices by creation date in descending order (newest first).
+ *
+ * @returns {{invoices: Invoice[], loading: boolean, error: Error | null}} Object containing:
+ *   - invoices: Array of all invoice records
+ *   - loading: True while fetching data
+ *   - error: Error object if fetch fails, null otherwise
+ *
+ * @example
+ * ```tsx
+ * function InvoicesList() {
+ *   const { invoices, loading, error } = useInvoices()
+ *
+ *   if (loading) return <Spinner />
+ *   if (error) return <Error message={error.message} />
+ *
+ *   return invoices.map(invoice => <InvoiceCard key={invoice.id} {...invoice} />)
+ * }
+ * ```
  */
 export function useInvoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -71,6 +91,28 @@ export function useInvoices() {
 
 /**
  * Hook to get a single invoice by ID
+ *
+ * @description Fetches a single invoice record by its unique ID using React Query.
+ * Provides caching and automatic refetching capabilities.
+ *
+ * @param {string} invoiceId - The unique identifier of the invoice to fetch
+ *
+ * @returns {UseQueryResult<Invoice>} React Query result object with:
+ *   - data: Invoice object if found
+ *   - isLoading: True while fetching
+ *   - error: Error object if fetch fails
+ *
+ * @example
+ * ```tsx
+ * function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
+ *   const { data: invoice, isLoading, error } = useInvoice(invoiceId)
+ *
+ *   if (isLoading) return <Spinner />
+ *   if (error || !invoice) return <NotFound />
+ *
+ *   return <InvoiceView {...invoice} />
+ * }
+ * ```
  */
 export function useInvoice(invoiceId: string) {
   return useQuery({
@@ -94,6 +136,26 @@ export function useInvoice(invoiceId: string) {
 
 /**
  * Hook to get invoices by parent ID
+ *
+ * @description Fetches all invoices for a specific parent with real-time updates.
+ * Orders invoices by creation date in descending order (newest first).
+ *
+ * @param {string} parentId - The unique identifier of the parent
+ *
+ * @returns {{invoices: Invoice[], loading: boolean}} Object containing:
+ *   - invoices: Array of invoices for the specified parent
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function ParentInvoices({ parentId }: { parentId: string }) {
+ *   const { invoices, loading } = useInvoicesByParent(parentId)
+ *
+ *   if (loading) return <Spinner />
+ *
+ *   return invoices.map(inv => <InvoiceRow key={inv.id} {...inv} />)
+ * }
+ * ```
  */
 export function useInvoicesByParent(parentId: string) {
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -150,6 +212,33 @@ export async function getNextInvoiceNumber(): Promise<string> {
 
 /**
  * Hook to add a new invoice
+ *
+ * @description Creates a new invoice with auto-generated invoice number and calculated totals.
+ * Automatically calculates subtotal, VAT amount, and total from line items.
+ *
+ * @returns {UseMutationResult} React Query mutation object with:
+ *   - mutate/mutateAsync: Function to trigger invoice creation
+ *   - isPending: True while request is in progress
+ *   - isSuccess/isError: Status flags
+ *
+ * @security Populates createdBy field with current user.uid for ownership tracking
+ *
+ * @note Invoice number is auto-generated sequentially (7-digit padded format)
+ *
+ * @example
+ * ```tsx
+ * function InvoiceForm() {
+ *   const addInvoice = useAddInvoice()
+ *
+ *   const handleSubmit = async (data: InvoiceFormValues) => {
+ *     await addInvoice.mutateAsync(data)
+ *     toast.success('Invoice created!')
+ *     onClose()
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} loading={addInvoice.isPending} />
+ * }
+ * ```
  */
 export function useAddInvoice() {
   const queryClient = useQueryClient()
@@ -293,6 +382,28 @@ export function useDeleteInvoice() {
 
 /**
  * Hook to mark invoice as paid
+ *
+ * @description Marks an invoice as paid with automatic timestamp and status update.
+ * Sets isPaid to true, records paidAt timestamp, and updates status to 'Издадена'.
+ *
+ * @param {string} invoiceId - The unique identifier of the invoice to mark as paid
+ *
+ * @returns {UseMutationResult} React Query mutation object
+ *
+ * @example
+ * ```tsx
+ * function InvoiceActions({ invoice }: { invoice: Invoice }) {
+ *   const markPaid = useMarkInvoicePaid()
+ *
+ *   const handleMarkPaid = async () => {
+ *     await markPaid.mutateAsync(invoice.id)
+ *     toast.success('Invoice marked as paid!')
+ *   }
+ *
+ *   if (invoice.isPaid) return null
+ *   return <Button onClick={handleMarkPaid}>Mark as Paid</Button>
+ * }
+ * ```
  */
 export function useMarkInvoicePaid() {
   const queryClient = useQueryClient()
@@ -321,6 +432,32 @@ export function useMarkInvoicePaid() {
 
 /**
  * Hook to get invoice statistics
+ *
+ * @description Calculates comprehensive invoice statistics including counts and revenue.
+ * Provides breakdowns for paid, unpaid, and cancelled invoices.
+ *
+ * @returns {object} Statistics object containing:
+ *   - totalInvoices: Total count of all invoices
+ *   - paidInvoices: Count of paid invoices
+ *   - unpaidInvoices: Count of unpaid invoices (excluding cancelled)
+ *   - totalRevenue: Sum of all paid invoice totals
+ *   - pendingRevenue: Sum of all unpaid invoice totals (excluding cancelled)
+ *
+ * @example
+ * ```tsx
+ * function InvoicesDashboard() {
+ *   const stats = useInvoiceStats()
+ *
+ *   return (
+ *     <div className="stats-grid">
+ *       <StatCard label="Total Revenue" value={`${stats.totalRevenue.toFixed(2)} BGN`} />
+ *       <StatCard label="Pending" value={`${stats.pendingRevenue.toFixed(2)} BGN`} />
+ *       <StatCard label="Paid" value={stats.paidInvoices} variant="success" />
+ *       <StatCard label="Unpaid" value={stats.unpaidInvoices} variant="warning" />
+ *     </div>
+ *   )
+ * }
+ * ```
  */
 export function useInvoiceStats() {
   const { invoices } = useInvoices()

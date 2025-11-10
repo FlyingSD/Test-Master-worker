@@ -129,6 +129,28 @@ export function useDiscounts() {
   return { discounts, loading, error }
 }
 
+/**
+ * Hook to get active discounts
+ *
+ * @description Filters discounts to show only active ones that haven't expired yet.
+ * Compares discount endDate with current date.
+ *
+ * @returns {Discount[]} Array of active and non-expired discount records
+ *
+ * @example
+ * ```tsx
+ * function ActiveDiscountsWidget() {
+ *   const activeDiscounts = useActiveDiscounts()
+ *
+ *   return (
+ *     <Card>
+ *       <h3>Active Discounts: {activeDiscounts.length}</h3>
+ *       {activeDiscounts.map(d => <DiscountBadge key={d.id} {...d} />)}
+ *     </Card>
+ *   )
+ * }
+ * ```
+ */
 export function useActiveDiscounts() {
   const { discounts } = useDiscounts()
   const now = new Date()
@@ -139,6 +161,29 @@ export function useActiveDiscounts() {
   })
 }
 
+/**
+ * Hook to get discounts by student ID
+ *
+ * @description Fetches all discounts for a specific student with real-time updates.
+ * Orders discounts by creation date in descending order (newest first).
+ *
+ * @param {string} studentId - The unique identifier of the student
+ *
+ * @returns {{discounts: Discount[], loading: boolean}} Object containing:
+ *   - discounts: Array of discounts for the specified student
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function StudentDiscounts({ studentId }: { studentId: string }) {
+ *   const { discounts, loading } = useDiscountsByStudent(studentId)
+ *
+ *   if (loading) return <Spinner />
+ *
+ *   return discounts.map(d => <DiscountCard key={d.id} {...d} />)
+ * }
+ * ```
+ */
 export function useDiscountsByStudent(studentId: string) {
   const [discounts, setDiscounts] = useState<Discount[]>([])
   const [loading, setLoading] = useState(true)
@@ -171,6 +216,34 @@ export function useDiscountsByStudent(studentId: string) {
   return { discounts, loading }
 }
 
+/**
+ * Hook to add a new discount
+ *
+ * @description Creates a new discount record with automatic timestamp conversion and ownership tracking.
+ * Converts startDate and endDate Date objects to Firestore Timestamps.
+ *
+ * @returns {UseMutationResult} React Query mutation object with:
+ *   - mutate/mutateAsync: Function to trigger discount creation
+ *   - isPending: True while request is in progress
+ *   - isSuccess/isError: Status flags
+ *
+ * @security Populates createdBy field with current user.uid for ownership tracking
+ *
+ * @example
+ * ```tsx
+ * function DiscountForm() {
+ *   const addDiscount = useAddDiscount()
+ *
+ *   const handleSubmit = async (data: DiscountFormValues) => {
+ *     await addDiscount.mutateAsync(data)
+ *     toast.success('Discount added!')
+ *     onClose()
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} loading={addDiscount.isPending} />
+ * }
+ * ```
+ */
 export function useAddDiscount() {
   const queryClient = useQueryClient()
   const { user } = useAuth()

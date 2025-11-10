@@ -130,6 +130,31 @@ export function useAttendance() {
 
 /**
  * Hook to get attendance records for a specific date
+ *
+ * @description Fetches all attendance records for a specific date with real-time updates.
+ * Uses date range query (start of day to end of day) for accurate filtering.
+ *
+ * @param {Date} date - The date to fetch attendance records for
+ *
+ * @returns {{attendance: Attendance[], loading: boolean}} Object containing:
+ *   - attendance: Array of attendance records for the specified date
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function DailyAttendance({ date }: { date: Date }) {
+ *   const { attendance, loading } = useAttendanceByDate(date)
+ *
+ *   if (loading) return <Spinner />
+ *
+ *   return (
+ *     <Card>
+ *       <h3>Attendance for {date.toLocaleDateString()}</h3>
+ *       {attendance.map(a => <AttendanceRow key={a.id} {...a} />)}
+ *     </Card>
+ *   )
+ * }
+ * ```
  */
 export function useAttendanceByDate(date: Date) {
   const [attendance, setAttendance] = useState<Attendance[]>([])
@@ -173,6 +198,26 @@ export function useAttendanceByDate(date: Date) {
 
 /**
  * Hook to get attendance records for a specific student
+ *
+ * @description Fetches all attendance records for a specific student with real-time updates.
+ * Orders records by date in descending order (newest first).
+ *
+ * @param {string} studentId - The unique identifier of the student
+ *
+ * @returns {{attendance: Attendance[], loading: boolean}} Object containing:
+ *   - attendance: Array of attendance records for the specified student
+ *   - loading: True while fetching data
+ *
+ * @example
+ * ```tsx
+ * function StudentAttendance({ studentId }: { studentId: string }) {
+ *   const { attendance, loading } = useAttendanceByStudent(studentId)
+ *
+ *   if (loading) return <Spinner />
+ *
+ *   return attendance.map(a => <AttendanceCard key={a.id} {...a} />)
+ * }
+ * ```
  */
 export function useAttendanceByStudent(studentId: string) {
   const [attendance, setAttendance] = useState<Attendance[]>([])
@@ -208,6 +253,30 @@ export function useAttendanceByStudent(studentId: string) {
 
 /**
  * Hook to add attendance record
+ *
+ * @description Creates a new attendance record with automatic timestamp conversion and ownership tracking.
+ * Converts date Date object to Firestore Timestamp.
+ *
+ * @returns {UseMutationResult} React Query mutation object with:
+ *   - mutate/mutateAsync: Function to trigger attendance creation
+ *   - isPending: True while request is in progress
+ *   - isSuccess/isError: Status flags
+ *
+ * @security Populates createdBy field with current user.uid for ownership tracking
+ *
+ * @example
+ * ```tsx
+ * function AttendanceForm() {
+ *   const addAttendance = useAddAttendance()
+ *
+ *   const handleSubmit = async (data: Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>) => {
+ *     await addAttendance.mutateAsync(data)
+ *     toast.success('Attendance recorded!')
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} loading={addAttendance.isPending} />
+ * }
+ * ```
  */
 export function useAddAttendance() {
   const queryClient = useQueryClient()
@@ -310,6 +379,35 @@ export function useDeleteAttendance() {
 
 /**
  * Hook to bulk add attendance for multiple students
+ *
+ * @description Creates multiple attendance records in a single operation.
+ * All records are processed in parallel using Promise.all for performance.
+ *
+ * @returns {UseMutationResult} React Query mutation object for bulk attendance creation
+ *
+ * @param {Array<Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>>} records - Array of attendance data to create
+ *
+ * @security Each record automatically gets createdBy field populated with current user.uid
+ *
+ * @example
+ * ```tsx
+ * function BulkAttendanceModal() {
+ *   const bulkAdd = useBulkAddAttendance()
+ *
+ *   const handleSubmit = async (studentIds: string[], date: Date, status: string) => {
+ *     const records = studentIds.map(id => ({
+ *       studentId: id,
+ *       date,
+ *       status,
+ *       notes: ''
+ *     }))
+ *
+ *     await bulkAdd.mutateAsync(records)
+ *   }
+ *
+ *   return <Form onSubmit={handleSubmit} />
+ * }
+ * ```
  */
 export function useBulkAddAttendance() {
   const queryClient = useQueryClient()
@@ -347,6 +445,35 @@ export function useBulkAddAttendance() {
 
 /**
  * Hook to calculate attendance statistics for a student
+ *
+ * @description Calculates comprehensive attendance statistics for a specific student.
+ * Includes total records, breakdowns by status, and attendance rate.
+ *
+ * @param {string} studentId - The unique identifier of the student
+ *
+ * @returns {object} Statistics object containing:
+ *   - total: Total number of attendance records
+ *   - present: Count of 'present' records
+ *   - absent: Count of 'absent' records
+ *   - late: Count of 'late' records
+ *   - excused: Count of 'excused' records
+ *   - attendanceRate: Percentage of present/late vs total (as string with 1 decimal)
+ *
+ * @example
+ * ```tsx
+ * function StudentAttendanceStats({ studentId }: { studentId: string }) {
+ *   const stats = useAttendanceStats(studentId)
+ *
+ *   return (
+ *     <div className="stats-grid">
+ *       <StatCard label="Total" value={stats.total} />
+ *       <StatCard label="Present" value={stats.present} variant="success" />
+ *       <StatCard label="Absent" value={stats.absent} variant="error" />
+ *       <StatCard label="Rate" value={`${stats.attendanceRate}%`} />
+ *     </div>
+ *   )
+ * }
+ * ```
  */
 export function useAttendanceStats(studentId: string) {
   const { attendance } = useAttendanceByStudent(studentId)
