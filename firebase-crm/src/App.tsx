@@ -8,6 +8,7 @@ import PaymentsPage from '@/pages/PaymentsPage'
 import EventsPage from '@/pages/EventsPage'
 import DiscountsPage from '@/pages/DiscountsPage'
 import ReportsPage from '@/pages/ReportsPage'
+import AdminPanelPage from '@/pages/AdminPanelPage'
 
 // Placeholder pages (will be created later)
 const ExpensesPage = () => <div className="p-6">Разходи страница - в разработка</div>
@@ -53,6 +54,7 @@ export default function App() {
           <Route path="discounts" element={<DiscountsPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="admin" element={<AdminPanelPage />} />
         </Route>
 
         {/* 404 */}

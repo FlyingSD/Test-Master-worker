@@ -167,6 +167,118 @@ export interface ActivityLog {
   timestamp: Date | Timestamp
 }
 
+// Permission types
+export type Permission =
+  | 'view_dashboard'
+  | 'view_students'
+  | 'create_students'
+  | 'edit_students'
+  | 'delete_students'
+  | 'view_payments'
+  | 'create_payments'
+  | 'edit_payments'
+  | 'delete_payments'
+  | 'view_expenses'
+  | 'create_expenses'
+  | 'edit_expenses'
+  | 'delete_expenses'
+  | 'view_events'
+  | 'create_events'
+  | 'edit_events'
+  | 'delete_events'
+  | 'view_discounts'
+  | 'create_discounts'
+  | 'edit_discounts'
+  | 'delete_discounts'
+  | 'view_reports'
+  | 'export_data'
+  | 'view_users'
+  | 'create_users'
+  | 'edit_users'
+  | 'delete_users'
+  | 'view_settings'
+  | 'edit_settings'
+  | 'view_audit_log'
+  | 'access_admin_panel'
+
+// Role permissions mapping
+export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
+  admin: [
+    'view_dashboard',
+    'view_students',
+    'create_students',
+    'edit_students',
+    'delete_students',
+    'view_payments',
+    'create_payments',
+    'edit_payments',
+    'delete_payments',
+    'view_expenses',
+    'create_expenses',
+    'edit_expenses',
+    'delete_expenses',
+    'view_events',
+    'create_events',
+    'edit_events',
+    'delete_events',
+    'view_discounts',
+    'create_discounts',
+    'edit_discounts',
+    'delete_discounts',
+    'view_reports',
+    'export_data',
+    'view_users',
+    'create_users',
+    'edit_users',
+    'delete_users',
+    'view_settings',
+    'edit_settings',
+    'view_audit_log',
+    'access_admin_panel',
+  ],
+  teacher: [
+    'view_dashboard',
+    'view_students',
+    'edit_students', // Може да редактира САМО своите групи
+    'view_payments',
+    'create_payments',
+    'view_events',
+    'create_events',
+    'edit_events',
+    'view_discounts', // Read-only
+  ],
+  parent: [
+    'view_dashboard', // Персонален dashboard
+    'view_students', // САМО своите деца
+    'view_payments', // САМО за своите деца
+    'view_events', // Read-only
+  ],
+}
+
+// System Settings interface
+export interface SystemSettings {
+  id: string
+  schoolName: string
+  schoolEmail: string
+  schoolPhone: string
+  schoolAddress: string
+  currency: 'BGN' | 'EUR'
+  timezone: string
+  language: 'bg' | 'en'
+  emailNotifications: boolean
+  smsNotifications: boolean
+  theme: 'light' | 'dark'
+  updatedBy: string
+  updatedAt: Date | Timestamp
+}
+
+// User with extended info (for admin panel)
+export interface UserProfile extends User {
+  isActive: boolean
+  assignedGroups?: string[] // За учители - кои групи преподават
+  studentIds?: string[] // За родители - кои са децата им
+}
+
 // Form values for creating/editing
 export type StudentFormValues = Omit<Student, 'id' | 'createdAt' | 'updatedAt'>
 export type ParentFormValues = Omit<Parent, 'id' | 'createdAt' | 'updatedAt' | 'studentIds'>
@@ -174,3 +286,4 @@ export type PaymentFormValues = Omit<Payment, 'id' | 'createdAt' | 'createdBy' |
 export type ExpenseFormValues = Omit<Expense, 'id' | 'createdAt' | 'createdBy'>
 export type EventFormValues = Omit<Event, 'id' | 'createdAt' | 'createdBy'>
 export type DiscountFormValues = Omit<Discount, 'id' | 'createdAt' | 'createdBy' | 'studentName'>
+export type UserFormValues = Omit<UserProfile, 'id' | 'createdAt' | 'lastLogin'>

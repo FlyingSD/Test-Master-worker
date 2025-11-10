@@ -10,8 +10,10 @@ import {
   Menu,
   X,
   LogOut,
+  Shield,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
 
 // Main navigation items
 const mainNavigation = [
@@ -21,6 +23,11 @@ const mainNavigation = [
   { name: 'Події', href: '/events', icon: Calendar },
   { name: 'Отстъпки', href: '/discounts', icon: Percent },
   { name: 'Репорти', href: '/reports', icon: FileText },
+]
+
+// Admin-only navigation
+const adminNavigation = [
+  { name: '👑 Admin Panel', href: '/admin', icon: Shield, adminOnly: true },
 ]
 
 // Mobile bottom nav (most used)
@@ -36,6 +43,13 @@ export default function Layout() {
   const { userData, signOut } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
+
+  // Combine navigation based on user role
+  const userRole = userData?.role || 'parent'
+  const navigation = [
+    ...mainNavigation,
+    ...(isAdmin(userRole) ? adminNavigation : []),
+  ]
 
   const handleSignOut = async () => {
     await signOut()
@@ -78,7 +92,7 @@ export default function Layout() {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin h-[calc(100vh-180px)]">
-          {mainNavigation.map((item) => (
+          {navigation.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
@@ -108,7 +122,12 @@ export default function Layout() {
               <p className="text-sm font-medium text-gray-900 truncate">
                 {userData?.name || 'User'}
               </p>
-              <p className="text-xs text-gray-500 truncate">{userData?.email}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-gray-500 truncate">{userData?.email}</p>
+                <span className={`badge text-xs ${getRoleBadgeColor(userRole)}`}>
+                  {getRoleDisplayName(userRole)}
+                </span>
+              </div>
             </div>
           </div>
           <button
