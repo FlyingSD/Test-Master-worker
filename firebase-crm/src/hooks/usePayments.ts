@@ -237,3 +237,39 @@ export function usePaymentsByDateRange(startDate: Date, endDate: Date) {
 
   return { payments: filteredPayments }
 }
+
+/**
+ * Hook to bulk add payments (for bulk payment modal)
+ */
+export function useBulkAddPayments() {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: async (
+      payments: Array<Omit<Payment, 'id' | 'createdAt' | 'createdBy'>>
+    ) => {
+      const promises = payments.map((paymentData) => {
+        const data = {
+          ...paymentData,
+          date: paymentData.date instanceof Date
+            ? Timestamp.fromDate(paymentData.date)
+            : paymentData.date,
+          createdBy: user?.uid || 'admin',
+          createdAt: serverTimestamp(),
+        }
+        return addDoc(paymentsCollection, data)
+      })
+
+      await Promise.all(promises)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      toast.success('Плащанията бяха добавени успешно!')
+    },
+    onError: (error: Error) => {
+      console.error('Error bulk adding payments:', error)
+      toast.error('Грешка при добавяне на плащания: ' + error.message)
+    },
+  })
+}

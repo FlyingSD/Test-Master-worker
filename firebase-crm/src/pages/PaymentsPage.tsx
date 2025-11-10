@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Plus, Search, Edit, Trash2, CreditCard, TrendingUp, Calendar, FileDown } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, CreditCard, TrendingUp, Calendar, FileDown, Users } from 'lucide-react'
 import { usePayments, useDeletePayment } from '@/hooks/usePayments'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { exportPaymentsToExcel } from '@/utils/excelExport'
 import PaymentModal from '@/components/PaymentModal'
+import BulkPaymentModal from '@/components/BulkPaymentModal'
 import { Payment } from '@/types'
 
 export default function PaymentsPage() {
@@ -12,6 +13,7 @@ export default function PaymentsPage() {
 
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false)
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null)
   const [filterMethod, setFilterMethod] = useState<string>('all')
   const [filterArticle, setFilterArticle] = useState<string>('all')
@@ -77,6 +79,13 @@ export default function PaymentsPage() {
           >
             <FileDown className="w-5 h-5" />
             Експорт Excel
+          </button>
+          <button
+            onClick={() => setIsBulkModalOpen(true)}
+            className="btn btn-ghost"
+          >
+            <Users className="w-5 h-5" />
+            Групово плащане
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
@@ -280,6 +289,13 @@ export default function PaymentsPage() {
         <PaymentModal
           payment={editingPayment}
           onClose={handleCloseModal}
+        />
+      )}
+
+      {/* Bulk Payment Modal */}
+      {isBulkModalOpen && (
+        <BulkPaymentModal
+          onClose={() => setIsBulkModalOpen(false)}
         />
       )}
     </div>

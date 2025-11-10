@@ -232,3 +232,34 @@ export function useSearchStudents(searchTerm: string) {
 
   return { students: filteredStudents, loading }
 }
+
+/**
+ * Hook to bulk add students (for CSV import)
+ */
+export function useBulkAddStudents() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (students: Array<Omit<Student, 'id' | 'createdAt' | 'createdBy'>>) => {
+      const promises = students.map((studentData) => {
+        const data = {
+          ...studentData,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          createdBy: 'admin', // TODO: get from auth context
+        }
+        return addDoc(studentsCollection, data)
+      })
+
+      await Promise.all(promises)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+      toast.success('Учениците бяха импортирани успешно!')
+    },
+    onError: (error: Error) => {
+      console.error('Error bulk adding students:', error)
+      toast.error('Грешка при импортиране на ученици: ' + error.message)
+    },
+  })
+}

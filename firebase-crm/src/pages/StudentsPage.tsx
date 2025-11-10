@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, FileDown } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, FileDown, Upload } from 'lucide-react'
 import { useStudents, useDeleteStudent } from '@/hooks/useStudents'
 import { formatDate, formatCurrency, getStatusColor, getStatusText } from '@/utils/formatters'
 import { exportStudentsToExcel } from '@/utils/excelExport'
 import StudentModal from '@/components/StudentModal'
+import CSVImportModal from '@/components/CSVImportModal'
 import { Student } from '@/types'
 
 export default function StudentsPage() {
@@ -12,6 +13,7 @@ export default function StudentsPage() {
 
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCSVModalOpen, setIsCSVModalOpen] = useState(false)
   const [editingStudent, setEditingStudent] = useState<Student | null>(null)
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all')
 
@@ -75,6 +77,13 @@ export default function StudentsPage() {
           >
             <FileDown className="w-5 h-5" />
             Експорт Excel
+          </button>
+          <button
+            onClick={() => setIsCSVModalOpen(true)}
+            className="btn btn-ghost"
+          >
+            <Upload className="w-5 h-5" />
+            CSV Import
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
@@ -277,6 +286,13 @@ export default function StudentsPage() {
         <StudentModal
           student={editingStudent}
           onClose={handleCloseModal}
+        />
+      )}
+
+      {/* CSV Import Modal */}
+      {isCSVModalOpen && (
+        <CSVImportModal
+          onClose={() => setIsCSVModalOpen(false)}
         />
       )}
     </div>
