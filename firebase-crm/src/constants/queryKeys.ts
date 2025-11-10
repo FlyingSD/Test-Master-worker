@@ -26,6 +26,11 @@ export const QUERY_KEYS = {
   paymentsByStudent: (studentId: string) => ['payments', 'byStudent', studentId] as const,
   paymentsByParent: (parentId: string) => ['payments', 'byParent', parentId] as const,
 
+  // Payment Plans
+  paymentPlans: ['paymentPlans'] as const,
+  paymentPlan: (id: string) => ['paymentPlan', id] as const,
+  paymentPlansByStudent: (studentId: string) => ['paymentPlans', 'byStudent', studentId] as const,
+
   // Expenses
   expenses: ['expenses'] as const,
   expense: (id: string) => ['expense', id] as const,

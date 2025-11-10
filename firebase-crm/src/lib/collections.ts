@@ -19,6 +19,7 @@ export const COLLECTIONS = {
 
   // Financial
   PAYMENTS: 'payments',
+  PAYMENT_PLANS: 'paymentPlans',
   EXPENSES: 'expenses',
   INVOICES: 'invoices',
   DISCOUNTS: 'discounts',

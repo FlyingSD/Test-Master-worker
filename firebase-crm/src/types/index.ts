@@ -248,6 +248,35 @@ export interface InvoiceItem {
   inventoryItemId?: string // ID на артикул от склада (опционално)
 }
 
+// Payment Plan interface - За разсрочено плащане (вноски)
+export interface PaymentPlan {
+  id: string
+  studentId: string
+  studentName: string // Денормализирано
+  totalAmount: number // Обща сума в BGN
+  numberOfInstallments: number // Брой вноски
+  frequency: 'weekly' | 'monthly' | 'custom' // Честота на вноските
+  startDate: Date | Timestamp // Дата на първата вноска
+  installments: Installment[] // Списък от вноски
+  status: 'active' | 'completed' | 'cancelled' // Статус на плана
+  description?: string // Описание (напр. "План за заплащане на такси")
+  notes?: string // Бележки
+  createdBy: string
+  createdAt: Date | Timestamp
+  updatedAt?: Date | Timestamp
+}
+
+// Installment interface - Вноска от payment plan
+export interface Installment {
+  installmentNumber: number // Номер на вноската (1, 2, 3...)
+  dueDate: Date | Timestamp // Падеж на вноската
+  amount: number // Сума в BGN
+  status: 'pending' | 'paid' | 'overdue' // Статус на вноската
+  paidDate?: Date | Timestamp // Кога е платена
+  relatedPaymentId?: string // ID на свързано плащане
+  notes?: string // Бележки
+}
+
 // Report interface
 export interface Report {
   id: string
