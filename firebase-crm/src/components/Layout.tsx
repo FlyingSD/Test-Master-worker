@@ -13,35 +13,48 @@ import {
   Shield,
   Package,
   AlertTriangle,
+  TrendingDown,
+  Settings,
+  UserCheck,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
 
-// Main navigation items
-const mainNavigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Ученици', href: '/students', icon: Users },
-  { name: 'Родители', href: '/parents', icon: Users },
-  { name: 'Плащания', href: '/payments', icon: CreditCard },
-  { name: 'Склад', href: '/inventory', icon: Package },
-  { name: 'Події', href: '/events', icon: Calendar },
-  { name: 'Отстъпки', href: '/discounts', icon: Percent },
-  { name: 'Репорти', href: '/reports', icon: FileText },
-  { name: '⚠️ Грешки', href: '/errors', icon: AlertTriangle },
+// Navigation item type
+interface NavItem {
+  name: string
+  href: string
+  icon: any
+  roles: string[]
+}
+
+// Main navigation items (Admin & Teacher)
+const mainNavigation: NavItem[] = [
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['admin', 'teacher'] },
+  { name: 'Ученици', href: '/students', icon: Users, roles: ['admin', 'teacher'] },
+  { name: 'Родители', href: '/parents', icon: Users, roles: ['admin', 'teacher'] },
+  { name: 'Плащания', href: '/payments', icon: CreditCard, roles: ['admin', 'teacher', 'parent'] },
+  { name: 'Разходи', href: '/expenses', icon: TrendingDown, roles: ['admin', 'teacher'] },
+  { name: 'Склад', href: '/inventory', icon: Package, roles: ['admin', 'teacher'] },
+  { name: 'Присъствия', href: '/attendance', icon: UserCheck, roles: ['admin', 'teacher'] },
+  { name: 'Події', href: '/events', icon: Calendar, roles: ['admin', 'teacher', 'parent'] },
+  { name: 'Отстъпки', href: '/discounts', icon: Percent, roles: ['admin', 'teacher'] },
+  { name: 'Репорти', href: '/reports', icon: FileText, roles: ['admin', 'teacher'] },
+  { name: 'Настройки', href: '/settings', icon: Settings, roles: ['admin'] },
+  { name: '⚠️ Грешки', href: '/errors', icon: AlertTriangle, roles: ['admin', 'teacher'] },
+]
+
+// Parent-specific navigation
+const parentNavigation: NavItem[] = [
+  { name: 'Начало', href: '/', icon: LayoutDashboard, roles: ['parent'] },
+  { name: 'Моите деца', href: '/my-children', icon: Users, roles: ['parent'] },
+  { name: 'Плащания', href: '/payments', icon: CreditCard, roles: ['parent'] },
+  { name: 'Події', href: '/events', icon: Calendar, roles: ['parent'] },
 ]
 
 // Admin-only navigation
-const adminNavigation = [
-  { name: '👑 Admin Panel', href: '/admin', icon: Shield, adminOnly: true },
-]
-
-// Mobile bottom nav (most used)
-const mobileNavigation = [
-  { name: 'Начало', href: '/', icon: LayoutDashboard },
-  { name: 'Ученици', href: '/students', icon: Users },
-  { name: 'Плащания', href: '/payments', icon: CreditCard },
-  { name: 'Події', href: '/events', icon: Calendar },
-  { name: 'Още', href: '/more', icon: Menu },
+const adminNavigation: NavItem[] = [
+  { name: '👑 Admin Panel', href: '/admin', icon: Shield, roles: ['admin'] },
 ]
 
 export default function Layout() {
@@ -49,12 +62,48 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
 
-  // Combine navigation based on user role
+  // Get user role
   const userRole = userData?.role || 'parent'
-  const navigation = [
-    ...mainNavigation,
-    ...(isAdmin(userRole) ? adminNavigation : []),
-  ]
+
+  // Filter navigation based on user role
+  const getNavigation = () => {
+    if (userRole === 'parent') {
+      return parentNavigation
+    }
+
+    // For admin and teacher, combine main navigation with admin navigation if applicable
+    const nav = mainNavigation.filter(item => item.roles.includes(userRole))
+
+    if (isAdmin(userRole)) {
+      return [...nav, ...adminNavigation]
+    }
+
+    return nav
+  }
+
+  const navigation = getNavigation()
+
+  // Mobile navigation also filtered by role
+  const getMobileNavigation = () => {
+    if (userRole === 'parent') {
+      return [
+        { name: 'Начало', href: '/', icon: LayoutDashboard },
+        { name: 'Деца', href: '/my-children', icon: Users },
+        { name: 'Плащания', href: '/payments', icon: CreditCard },
+        { name: 'Події', href: '/events', icon: Calendar },
+      ]
+    }
+
+    return [
+      { name: 'Начало', href: '/', icon: LayoutDashboard },
+      { name: 'Ученици', href: '/students', icon: Users },
+      { name: 'Плащания', href: '/payments', icon: CreditCard },
+      { name: 'Події', href: '/events', icon: Calendar },
+      { name: 'Още', href: '/more', icon: Menu },
+    ]
+  }
+
+  const mobileNavigation = getMobileNavigation()
 
   const handleSignOut = async () => {
     await signOut()
@@ -170,7 +219,7 @@ export default function Layout() {
 
       {/* Mobile Bottom Navigation */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-inset-bottom">
-        <div className="grid grid-cols-5 h-16">
+        <div className={`grid h-16 ${mobileNavigation.length === 4 ? 'grid-cols-4' : 'grid-cols-5'}`}>
           {mobileNavigation.map((item) => {
             const isActive = location.pathname === item.href ||
               (item.href === '/more' && !mobileNavigation.slice(0, 4).some(nav => nav.href === location.pathname))

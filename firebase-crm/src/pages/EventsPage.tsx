@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, Search, Edit, Trash2, Calendar as CalendarIcon, Clock, MapPin, Briefcase } from 'lucide-react'
 import { useEvents, useDeleteEvent } from '@/hooks/useEvents'
+import { useAuth } from '@/hooks/useAuth'
 import { formatDate } from '@/utils/formatters'
 import EventModal from '@/components/EventModal'
 import { Event } from '@/types'
@@ -8,6 +9,7 @@ import { Event } from '@/types'
 export default function EventsPage() {
   const { events, loading } = useEvents()
   const deleteEvent = useDeleteEvent()
+  const { isParent } = useAuth()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -81,15 +83,19 @@ export default function EventsPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Події</h1>
-          <p className="text-gray-600 mt-1">Управление на уроци и събития</p>
+          <p className="text-gray-600 mt-1">
+            {isParent ? 'Преглед на уроци и събития' : 'Управление на уроци и събития'}
+          </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary"
-        >
-          <Plus className="w-5 h-5" />
-          Добави събитие
-        </button>
+        {!isParent && (
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-primary"
+          >
+            <Plus className="w-5 h-5" />
+            Добави събитие
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -215,7 +221,7 @@ export default function EventsPage() {
                   <th>Дата и час</th>
                   <th>Група/Локация</th>
                   <th>Бизнес описание</th>
-                  <th>Действия</th>
+                  {!isParent && <th>Действия</th>}
                 </tr>
               </thead>
               <tbody>
@@ -289,24 +295,26 @@ export default function EventsPage() {
                           <span className="text-gray-400 text-sm">-</span>
                         )}
                       </td>
-                      <td>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleEdit(event)}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                            title="Редактиране"
-                          >
-                            <Edit className="w-4 h-4 text-gray-600" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(event.id, event.title)}
-                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Изтриване"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                          </button>
-                        </div>
-                      </td>
+                      {!isParent && (
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleEdit(event)}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                              title="Редактиране"
+                            >
+                              <Edit className="w-4 h-4 text-gray-600" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(event.id, event.title)}
+                              className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Изтриване"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600" />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   )
                 })}

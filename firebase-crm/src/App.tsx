@@ -4,6 +4,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import LoginPage from '@/pages/LoginPage'
 import Layout from '@/components/Layout'
 import DashboardPage from '@/pages/DashboardPage'
+import ParentDashboardPage from '@/pages/ParentDashboardPage'
 import StudentsPage from '@/pages/StudentsPage'
 import PaymentsPage from '@/pages/PaymentsPage'
 import EventsPage from '@/pages/EventsPage'
@@ -16,9 +17,11 @@ import ExpensesPage from '@/pages/ExpensesPage'
 import SettingsPage from '@/pages/SettingsPage'
 import AttendancePage from '@/pages/AttendancePage'
 import ErrorDashboardPage from '@/pages/ErrorDashboardPage'
+import MyChildrenPage from '@/pages/MyChildrenPage'
+import MyChildDetailPage from '@/pages/MyChildDetailPage'
 
 export default function App() {
-  const { user, loading } = useAuth()
+  const { user, loading, isParent } = useAuth()
 
   if (loading) {
     return (
@@ -46,7 +49,9 @@ export default function App() {
             path="/"
             element={user ? <Layout /> : <Navigate to="/login" replace />}
           >
-            <Route index element={<DashboardPage />} />
+            <Route index element={isParent ? <ParentDashboardPage /> : <DashboardPage />} />
+            <Route path="my-children" element={<MyChildrenPage />} />
+            <Route path="my-children/:id" element={<MyChildDetailPage />} />
             <Route path="students" element={<StudentsPage />} />
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="expenses" element={<ExpensesPage />} />

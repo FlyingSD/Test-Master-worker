@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Plus, Search, Edit, Trash2, CreditCard, TrendingUp, Calendar, FileDown, Users } from 'lucide-react'
 import { usePayments, useDeletePayment } from '@/hooks/usePayments'
+import { useAuth } from '@/hooks/useAuth'
+import { useStudentsByParent } from '@/hooks/useStudents'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { exportPaymentsToExcel } from '@/utils/excelExport'
 import { usePagination } from '@/hooks/usePagination'
@@ -13,6 +15,8 @@ import { Payment } from '@/types'
 export default function PaymentsPage() {
   const { payments, loading } = usePayments()
   const deletePayment = useDeletePayment()
+  const { user, isParent } = useAuth()
+  const { students: myChildren } = useStudentsByParent(user?.uid || '')
 
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -23,8 +27,15 @@ export default function PaymentsPage() {
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
 
-  // Filter payments
+  // For parents: get list of their children's IDs
+  const myChildrenIds = isParent ? myChildren.map(s => s.id) : []
+
+  // Filter payments (including parent-specific filtering)
   const filteredPayments = payments.filter((payment) => {
+    // If parent, only show payments for their children
+    if (isParent && !myChildrenIds.includes(payment.studentId)) {
+      return false
+    }
     const matchesSearch = payment.studentName.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesMethod = filterMethod === 'all' || payment.method === filterMethod
     const matchesArticle = filterArticle === 'all' || payment.article === filterArticle
@@ -112,20 +123,24 @@ export default function PaymentsPage() {
             <FileDown className="w-5 h-5" />
             Експорт Excel
           </button>
-          <button
-            onClick={() => setIsBulkModalOpen(true)}
-            className="btn btn-ghost"
-          >
-            <Users className="w-5 h-5" />
-            Групово плащане
-          </button>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="btn btn-primary"
-          >
-            <Plus className="w-5 h-5" />
-            Добави плащане
-          </button>
+          {!isParent && (
+            <>
+              <button
+                onClick={() => setIsBulkModalOpen(true)}
+                className="btn btn-ghost"
+              >
+                <Users className="w-5 h-5" />
+                Групово плащане
+              </button>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="btn btn-primary"
+              >
+                <Plus className="w-5 h-5" />
+                Добави плащане
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -257,7 +272,7 @@ export default function PaymentsPage() {
                   <th>Артикул</th>
                   <th>Метод</th>
                   <th>Бележки</th>
-                  <th>Действия</th>
+                  {!isParent && <th>Действия</th>}
                 </tr>
               </thead>
               <tbody>
@@ -300,24 +315,26 @@ export default function PaymentsPage() {
                         {payment.notes || '-'}
                       </p>
                     </td>
-                    <td>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEdit(payment)}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                          title="Редактиране"
-                        >
-                          <Edit className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(payment.id, payment.studentName)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Изтриване"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </button>
-                      </div>
-                    </td>
+                    {!isParent && (
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEdit(payment)}
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="Редактиране"
+                          >
+                            <Edit className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(payment.id, payment.studentName)}
+                            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Изтриване"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
