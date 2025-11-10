@@ -26,10 +26,11 @@ const homeworkCollection = collection(db, COLLECTIONS.HOMEWORK)
 
 /**
  * Hook to get all homework with real-time updates
- * 🔒 SECURITY FIX: Now filters homework by role
+ * 🔒 SECURITY FIX: Now filters homework by role (PoLP)
  * - Admins see ALL homework
  * - Teachers see ONLY homework they created (ownership-based filtering)
- * - Parents should use useHomeworkByStudent() for their children
+ * - Parents see ONLY homework for THEIR children (userData.studentIds)
+ * - Batches queries for 10+ students (Firestore 'in' operator limit)
  *
  * NOTE: For teachers, we filter by ownership (createdBy) rather than by group,
  * because homework is created by specific teachers
@@ -47,14 +48,60 @@ export function useHomework() {
       return
     }
 
-    // 🔒 SECURITY: Parents should use useHomeworkByStudent() instead
-    if (isParent) {
-      setHomework([])
-      setLoading(false)
-      return
-    }
-
     setLoading(true)
+
+    // 🔒 SECURITY: Parents can only see homework for THEIR children (PoLP)
+    // Uses userData.studentIds for server-side filtering
+    if (isParent) {
+      const studentIds = userData.studentIds || []
+
+      // Handle parents with no children assigned
+      if (studentIds.length === 0) {
+        setHomework([])
+        setLoading(false)
+        return
+      }
+
+      // Batch studentIds for Firestore 'in' operator (max 10 items)
+      const batchSize = 10
+      const batches: string[][] = []
+      for (let i = 0; i < studentIds.length; i += batchSize) {
+        batches.push(studentIds.slice(i, i + batchSize))
+      }
+
+      const unsubscribeHomework: (() => void)[] = []
+      const allHomework = new Map<string, Homework>()
+
+      batches.forEach((batch) => {
+        const homeworkQuery = query(
+          homeworkCollection,
+          where('studentId', 'in', batch),
+          orderBy('dueDate', 'desc')
+        )
+
+        const unsubscribe = onSnapshot(
+          homeworkQuery,
+          (snapshot) => {
+            snapshot.forEach((doc) => {
+              allHomework.set(doc.id, { id: doc.id, ...doc.data() } as Homework)
+            })
+            setHomework(Array.from(allHomework.values()))
+            setLoading(false)
+            setError(null)
+          },
+          (err) => {
+            console.error('Error fetching parent homework:', err)
+            setError(err as Error)
+            setLoading(false)
+            toast.error(ERROR_MESSAGES.LOAD_HOMEWORK_ERROR)
+          }
+        )
+
+        unsubscribeHomework.push(unsubscribe)
+      })
+
+      return () => unsubscribeHomework.forEach((unsub) => unsub())
+    }
 
     // Real-time listener
     const q = query(homeworkCollection, orderBy('dueDate', 'desc'))

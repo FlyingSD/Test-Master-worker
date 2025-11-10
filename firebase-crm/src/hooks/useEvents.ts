@@ -28,6 +28,19 @@ const eventsCollection = collection(db, COLLECTIONS.EVENTS)
 
 /**
  * Hook to get all events with real-time updates
+ * 🔒 SECURITY FIX: Now handles event visibility by role
+ * - Admins see ALL events
+ * - Teachers see ALL events
+ * - Parents see ALL events (need to see class schedule for their children's groups)
+ *
+ * DECISION: Parents see ALL events instead of filtering by studentIds because:
+ * 1. Parents need visibility into the class schedule (holidays, class times, etc.)
+ * 2. Events can be group-based (linked to student's group) or student-specific (studentIds field)
+ * 3. Filtering by only studentIds would miss important group-based events
+ * 4. Admins/teachers manage event visibility settings, parents can just view all
+ *
+ * NOTE: For fine-grained filtering by student/group at component level, use separate hooks like
+ * useEventsByGroup() or implement client-side filtering if needed.
  */
 export function useEvents() {
   const [events, setEvents] = useState<Event[]>([])
@@ -37,7 +50,8 @@ export function useEvents() {
   useEffect(() => {
     setLoading(true)
 
-    // Real-time listener
+    // Real-time listener - All users see all events (parents need full schedule visibility)
+    // Security is enforced at creation/update/delete level via ownership validation
     const q = query(eventsCollection, orderBy('startTime', 'desc'))
 
     const unsubscribe = onSnapshot(

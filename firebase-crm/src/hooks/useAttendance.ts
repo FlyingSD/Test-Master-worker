@@ -25,25 +25,105 @@ const attendanceCollection = collection(db, COLLECTIONS.ATTENDANCE)
 
 /**
  * Hook to get all attendance records with real-time updates
+ * 🔒 SECURITY FIX: Now filters attendance by role (PoLP)
+ * - Admins see ALL attendance records
+ * - Teachers see ALL attendance records (for their assigned groups)
+ * - Parents see ONLY attendance for THEIR children (userData.studentIds)
+ * - Batches queries for 10+ students (Firestore 'in' operator limit)
  */
 export function useAttendance() {
+  const { userData, isAdmin, isTeacher, isParent } = useAuth()
   const [attendance, setAttendance] = useState<Attendance[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    const q = query(attendanceCollection, orderBy('date', 'desc'))
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const attendanceData: Attendance[] = []
-      snapshot.forEach((doc) => {
-        attendanceData.push({ id: doc.id, ...doc.data() } as Attendance)
-      })
-      setAttendance(attendanceData)
+    if (!userData) {
+      setAttendance([])
       setLoading(false)
-    })
-    return () => unsubscribe()
-  }, [])
+      return
+    }
 
-  return { attendance, loading }
+    setLoading(true)
+
+    // 🔒 SECURITY: Parents can only see attendance for THEIR children (PoLP)
+    // Uses userData.studentIds for server-side filtering
+    if (isParent) {
+      const studentIds = userData.studentIds || []
+
+      // Handle parents with no children assigned
+      if (studentIds.length === 0) {
+        setAttendance([])
+        setLoading(false)
+        return
+      }
+
+      // Batch studentIds for Firestore 'in' operator (max 10 items)
+      const batchSize = 10
+      const batches: string[][] = []
+      for (let i = 0; i < studentIds.length; i += batchSize) {
+        batches.push(studentIds.slice(i, i + batchSize))
+      }
+
+      const unsubscribeAttendance: (() => void)[] = []
+      const allAttendance = new Map<string, Attendance>()
+
+      batches.forEach((batch) => {
+        const attendanceQuery = query(
+          attendanceCollection,
+          where('studentId', 'in', batch),
+          orderBy('date', 'desc')
+        )
+
+        const unsubscribe = onSnapshot(
+          attendanceQuery,
+          (snapshot) => {
+            snapshot.forEach((doc) => {
+              allAttendance.set(doc.id, { id: doc.id, ...doc.data() } as Attendance)
+            })
+            setAttendance(Array.from(allAttendance.values()))
+            setLoading(false)
+            setError(null)
+          },
+          (err) => {
+            console.error('Error fetching parent attendance:', err)
+            setError(err as Error)
+            setLoading(false)
+            toast.error(ERROR_MESSAGES.LOAD_ATTENDANCE_ERROR)
+          }
+        )
+
+        unsubscribeAttendance.push(unsubscribe)
+      })
+
+      return () => unsubscribeAttendance.forEach((unsub) => unsub())
+    }
+
+    // 🔒 SECURITY: Admins and teachers see all attendance records
+    const q = query(attendanceCollection, orderBy('date', 'desc'))
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const attendanceData: Attendance[] = []
+        snapshot.forEach((doc) => {
+          attendanceData.push({ id: doc.id, ...doc.data() } as Attendance)
+        })
+        setAttendance(attendanceData)
+        setLoading(false)
+        setError(null)
+      },
+      (err) => {
+        console.error('Error fetching attendance:', err)
+        setError(err as Error)
+        setLoading(false)
+        toast.error(ERROR_MESSAGES.LOAD_ATTENDANCE_ERROR)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [userData, isAdmin, isTeacher, isParent])
+
+  return { attendance, loading, error }
 }
 
 /**

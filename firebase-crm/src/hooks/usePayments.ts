@@ -27,10 +27,11 @@ const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
 
 /**
  * Hook to get all payments with real-time updates
- * 🔒 SECURITY FIX: Now filters payments by role
+ * 🔒 SECURITY FIX: Now filters payments by role (PoLP)
  * - Admins see ALL payments
  * - Teachers see ONLY payments for students in their assigned groups
- * - Parents should use usePaymentsByParent() instead
+ * - Parents see ONLY payments for THEIR children (userData.studentIds)
+ * - Batches queries for 10+ students (Firestore 'in' operator limit)
  */
 export function usePayments() {
   const { userData, isAdmin, isTeacher, isParent } = useAuth()
@@ -45,14 +46,60 @@ export function usePayments() {
       return
     }
 
-    // 🔒 SECURITY: Parents should use usePaymentsByParent() instead
-    if (isParent) {
-      setPayments([])
-      setLoading(false)
-      return
-    }
-
     setLoading(true)
+
+    // 🔒 SECURITY: Parents can only see payments for THEIR children (PoLP)
+    // Uses userData.studentIds for server-side filtering
+    if (isParent) {
+      const studentIds = userData.studentIds || []
+
+      // Handle parents with no children assigned
+      if (studentIds.length === 0) {
+        setPayments([])
+        setLoading(false)
+        return
+      }
+
+      // Batch studentIds for Firestore 'in' operator (max 10 items)
+      const batchSize = 10
+      const batches: string[][] = []
+      for (let i = 0; i < studentIds.length; i += batchSize) {
+        batches.push(studentIds.slice(i, i + batchSize))
+      }
+
+      const unsubscribePayments: (() => void)[] = []
+      const allPayments = new Map<string, Payment>()
+
+      batches.forEach((batch) => {
+        const paymentsQuery = query(
+          paymentsCollection,
+          where('studentId', 'in', batch),
+          orderBy('date', 'desc')
+        )
+
+        const unsubscribe = onSnapshot(
+          paymentsQuery,
+          (snapshot) => {
+            snapshot.forEach((doc) => {
+              allPayments.set(doc.id, { id: doc.id, ...doc.data() } as Payment)
+            })
+            setPayments(Array.from(allPayments.values()))
+            setLoading(false)
+            setError(null)
+          },
+          (err) => {
+            console.error('Error fetching parent payments:', err)
+            setError(err as Error)
+            setLoading(false)
+            toast.error(ERROR_MESSAGES.LOAD_PAYMENTS_ERROR)
+          }
+        )
+
+        unsubscribePayments.push(unsubscribe)
+      })
+
+      return () => unsubscribePayments.forEach((unsub) => unsub())
+    }
 
     // For teachers, we need to first get their students, then filter payments
     if (isTeacher && userData.assignedGroups && userData.assignedGroups.length > 0) {

@@ -23,24 +23,108 @@ import { validateDocumentOwnership } from '@/utils/security'
 
 const discountsCollection = collection(db, COLLECTIONS.DISCOUNTS)
 
+/**
+ * Hook to get all discounts with real-time updates
+ * 🔒 SECURITY FIX: Now filters discounts by role (PoLP)
+ * - Admins see ALL discounts
+ * - Teachers see ALL discounts (they manage them)
+ * - Parents see ONLY discounts for THEIR children (userData.studentIds)
+ * - Batches queries for 10+ students (Firestore 'in' operator limit)
+ */
 export function useDiscounts() {
+  const { userData, isAdmin, isTeacher, isParent } = useAuth()
   const [discounts, setDiscounts] = useState<Discount[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    const q = query(discountsCollection, orderBy('createdAt', 'desc'))
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const discountsData: Discount[] = []
-      snapshot.forEach((doc) => {
-        discountsData.push({ id: doc.id, ...doc.data() } as Discount)
-      })
-      setDiscounts(discountsData)
+    if (!userData) {
+      setDiscounts([])
       setLoading(false)
-    })
-    return () => unsubscribe()
-  }, [])
+      return
+    }
 
-  return { discounts, loading }
+    setLoading(true)
+
+    // 🔒 SECURITY: Parents can only see discounts for THEIR children (PoLP)
+    // Uses userData.studentIds for server-side filtering
+    if (isParent) {
+      const studentIds = userData.studentIds || []
+
+      // Handle parents with no children assigned
+      if (studentIds.length === 0) {
+        setDiscounts([])
+        setLoading(false)
+        return
+      }
+
+      // Batch studentIds for Firestore 'in' operator (max 10 items)
+      const batchSize = 10
+      const batches: string[][] = []
+      for (let i = 0; i < studentIds.length; i += batchSize) {
+        batches.push(studentIds.slice(i, i + batchSize))
+      }
+
+      const unsubscribeDiscounts: (() => void)[] = []
+      const allDiscounts = new Map<string, Discount>()
+
+      batches.forEach((batch) => {
+        const discountsQuery = query(
+          discountsCollection,
+          where('studentId', 'in', batch),
+          orderBy('createdAt', 'desc')
+        )
+
+        const unsubscribe = onSnapshot(
+          discountsQuery,
+          (snapshot) => {
+            snapshot.forEach((doc) => {
+              allDiscounts.set(doc.id, { id: doc.id, ...doc.data() } as Discount)
+            })
+            setDiscounts(Array.from(allDiscounts.values()))
+            setLoading(false)
+            setError(null)
+          },
+          (err) => {
+            console.error('Error fetching parent discounts:', err)
+            setError(err as Error)
+            setLoading(false)
+            toast.error(ERROR_MESSAGES.LOAD_DISCOUNTS_ERROR || 'Error loading discounts')
+          }
+        )
+
+        unsubscribeDiscounts.push(unsubscribe)
+      })
+
+      return () => unsubscribeDiscounts.forEach((unsub) => unsub())
+    }
+
+    // For admins and teachers: get ALL discounts
+    const q = query(discountsCollection, orderBy('createdAt', 'desc'))
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const discountsData: Discount[] = []
+        snapshot.forEach((doc) => {
+          discountsData.push({ id: doc.id, ...doc.data() } as Discount)
+        })
+        setDiscounts(discountsData)
+        setLoading(false)
+        setError(null)
+      },
+      (err) => {
+        console.error('Error fetching discounts:', err)
+        setError(err as Error)
+        setLoading(false)
+        toast.error(ERROR_MESSAGES.LOAD_DISCOUNTS_ERROR || 'Error loading discounts')
+      }
+    )
+
+    return () => unsubscribe()
+  }, [userData, isAdmin, isTeacher, isParent])
+
+  return { discounts, loading, error }
 }
 
 export function useActiveDiscounts() {

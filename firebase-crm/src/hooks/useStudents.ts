@@ -13,6 +13,7 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
+  documentId,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Student, StudentFormValues } from '@/types'
@@ -28,10 +29,12 @@ const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
 
 /**
  * Hook to get all students with real-time updates
- * 🔒 SECURITY FIX: Now filters students by role
+ * 🔒 SECURITY FIX: Now filters students by role with strict RBAC
  * - Admins see ALL students
  * - Teachers see ONLY students in their assigned groups
- * - Parents should use useStudentsByParent() instead
+ * - Parents see ONLY their children (based on userData.studentIds)
+ *   - Handles batching for parents with 10+ children (Firestore 'in' query limit)
+ *   - Prevents parents from accessing other students even if they know the IDs
  */
 export function useStudents() {
   const { userData, isAdmin, isTeacher, isParent } = useAuth()
@@ -46,11 +49,66 @@ export function useStudents() {
       return
     }
 
-    // 🔒 SECURITY: Parents should use useStudentsByParent() instead
+    // 🔒 SECURITY: Parents can ONLY see THEIR children (based on userData.studentIds)
+    // This prevents parents from accessing other students even if they know the IDs
     if (isParent) {
-      setStudents([])
-      setLoading(false)
-      return
+      if (!userData.studentIds || userData.studentIds.length === 0) {
+        setStudents([])
+        setLoading(false)
+        return
+      }
+
+      setLoading(true)
+
+      // 🔒 SECURITY: Query students WHERE id IN userData.studentIds
+      // Firestore 'in' query limit is 10, so we need to batch if more studentIds exist
+      const studentIdBatches: string[][] = []
+      for (let i = 0; i < userData.studentIds.length; i += 10) {
+        studentIdBatches.push(userData.studentIds.slice(i, i + 10))
+      }
+
+      const unsubscribes: (() => void)[] = []
+      const allStudents: Student[] = []
+
+      studentIdBatches.forEach((batch) => {
+        const q = query(
+          studentsCollection,
+          where(documentId(), 'in', batch)
+        )
+
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            // Collect students from this batch
+            snapshot.forEach((doc) => {
+              const student = { id: doc.id, ...doc.data() } as Student
+              // Check if already in array (avoid duplicates across batches)
+              const existingIndex = allStudents.findIndex(s => s.id === student.id)
+              if (existingIndex >= 0) {
+                allStudents[existingIndex] = student
+              } else {
+                allStudents.push(student)
+              }
+            })
+
+            setStudents([...allStudents])
+            setLoading(false)
+            setError(null)
+          },
+          (err) => {
+            console.error('Error fetching students for parent:', err)
+            setError(err as Error)
+            setLoading(false)
+            toast.error(ERROR_MESSAGES.LOAD_STUDENTS_ERROR)
+          }
+        )
+
+        unsubscribes.push(unsubscribe)
+      })
+
+      return () => {
+        unsubscribes.forEach(unsub => unsub())
+      }
     }
 
     setLoading(true)
