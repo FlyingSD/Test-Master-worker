@@ -7,23 +7,47 @@ import {
   AlertCircle,
   CreditCard,
   Activity,
+  Plus,
+  UserPlus,
+  BookOpen,
+  CheckCircle,
+  Clock,
+  XCircle,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudents } from '@/hooks/useStudents'
 import { usePayments } from '@/hooks/usePayments'
 import { useExpenses } from '@/hooks/useExpenses'
 import { useTodayEvents } from '@/hooks/useEvents'
+import { useHomework } from '@/hooks/useHomework'
+import { useAttendance } from '@/hooks/useAttendance'
 import { formatCurrency, formatDate, isOverdue } from '@/utils/formatters'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import RevenueExpensesChart from '@/components/RevenueExpensesChart'
 import ExpensesByCategoryChart from '@/components/ExpensesByCategoryChart'
+import { useMemo, useState } from 'react'
+
+type ActivityItem = {
+  id: string
+  type: 'payment' | 'homework' | 'attendance'
+  title: string
+  subtitle: string
+  timestamp: Date
+  icon: any
+  color: string
+  bgColor: string
+}
 
 export default function DashboardPage() {
+  const navigate = useNavigate()
   const { isAdmin } = useAuth()
   const { students } = useStudents()
   const { payments } = usePayments()
   const { expenses } = useExpenses()
   const { events: todayEvents } = useTodayEvents()
+  const { homework } = useHomework()
+  const { attendance } = useAttendance()
+  const [activityFilter, setActivityFilter] = useState<'all' | 'payment' | 'homework' | 'attendance'>('all')
 
   // Calculate stats
   const activeStudents = students.filter((s) => s.status === 'active')
@@ -44,6 +68,120 @@ export default function DashboardPage() {
     const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
     return dueDate > now && dueDate <= weekLater
   })
+
+  // Recent Activity Feed - combines payments, homework, and attendance
+  const recentActivity = useMemo(() => {
+    const activities: ActivityItem[] = []
+
+    // Add payments
+    payments.slice(0, 10).forEach(payment => {
+      const paymentDate = payment.date instanceof Date ? payment.date : payment.date?.toDate?.()
+      if (paymentDate) {
+        activities.push({
+          id: `payment-${payment.id}`,
+          type: 'payment',
+          title: `${payment.studentName} - Плащане`,
+          subtitle: `${formatCurrency(payment.amount)} • ${payment.method}`,
+          timestamp: paymentDate,
+          icon: CreditCard,
+          color: 'text-green-600',
+          bgColor: 'bg-green-50'
+        })
+      }
+    })
+
+    // Add homework
+    homework.slice(0, 10).forEach(hw => {
+      const hwDate = hw.completedDate
+        ? (hw.completedDate instanceof Date ? hw.completedDate : hw.completedDate?.toDate?.())
+        : (hw.assignedDate instanceof Date ? hw.assignedDate : hw.assignedDate?.toDate?.())
+
+      if (hwDate) {
+        activities.push({
+          id: `homework-${hw.id}`,
+          type: 'homework',
+          title: `${hw.studentName} - ${hw.title}`,
+          subtitle: hw.status === 'completed'
+            ? `Завършено${hw.grade ? ` • Оценка: ${hw.grade}` : ''}`
+            : `Зададено • Краен срок: ${formatDate(hw.dueDate)}`,
+          timestamp: hwDate,
+          icon: BookOpen,
+          color: hw.status === 'completed' ? 'text-blue-600' : 'text-orange-600',
+          bgColor: hw.status === 'completed' ? 'bg-blue-50' : 'bg-orange-50'
+        })
+      }
+    })
+
+    // Add attendance
+    attendance.slice(0, 10).forEach(att => {
+      const attDate = att.date instanceof Date ? att.date : att.date?.toDate?.()
+      if (attDate) {
+        const statusConfig = {
+          present: { icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50', label: 'Присъствал' },
+          absent: { icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50', label: 'Отсъствал' },
+          late: { icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50', label: 'Закъснял' },
+          excused: { icon: CheckCircle, color: 'text-blue-600', bgColor: 'bg-blue-50', label: 'Извинено' }
+        }
+        const config = statusConfig[att.status]
+
+        activities.push({
+          id: `attendance-${att.id}`,
+          type: 'attendance',
+          title: `${att.studentName} - Присъствие`,
+          subtitle: `${config.label}${att.notes ? ` • ${att.notes}` : ''}`,
+          timestamp: attDate,
+          icon: config.icon,
+          color: config.color,
+          bgColor: config.bgColor
+        })
+      }
+    })
+
+    // Sort by timestamp descending
+    return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+  }, [payments, homework, attendance])
+
+  // Filter activities
+  const filteredActivities = useMemo(() => {
+    if (activityFilter === 'all') return recentActivity
+    return recentActivity.filter(a => a.type === activityFilter)
+  }, [recentActivity, activityFilter])
+
+  // Quick actions for admins/teachers
+  const quickActions = [
+    {
+      label: 'Добави ученик',
+      icon: UserPlus,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      hoverColor: 'hover:bg-blue-100',
+      onClick: () => navigate('/students')
+    },
+    {
+      label: 'Добави плащане',
+      icon: CreditCard,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      hoverColor: 'hover:bg-green-100',
+      onClick: () => navigate('/payments')
+    },
+    {
+      label: 'Добави домашно',
+      icon: BookOpen,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      hoverColor: 'hover:bg-purple-100',
+      onClick: () => navigate('/homework')
+    },
+    {
+      label: 'Добави събитие',
+      icon: Calendar,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      hoverColor: 'hover:bg-orange-100',
+      onClick: () => navigate('/events')
+    }
+  ]
 
   // Stats - admins see financial data, teachers see only operational data
   const stats = isAdmin ? [
@@ -92,6 +230,30 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mt-1">Добре дошли в Светлинки CRM</p>
       </div>
+
+      {/* Quick Actions */}
+      {(isAdmin || students.length > 0) && (
+        <div className="card bg-gradient-to-r from-primary/5 to-accent/5">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Бързи действия
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {quickActions.map((action) => (
+              <button
+                key={action.label}
+                onClick={action.onClick}
+                className={`flex items-center gap-3 p-4 ${action.bgColor} ${action.hoverColor} rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-md group`}
+              >
+                <div className={`p-2 bg-white rounded-lg ${action.color} group-hover:scale-110 transition-transform`}>
+                  <action.icon className="w-5 h-5" />
+                </div>
+                <span className="font-medium text-gray-900 text-sm">{action.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -239,50 +401,111 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Activity */}
+      {/* Enhanced Recent Activity Feed */}
       <div className="card">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <Activity className="w-5 h-5 text-blue-600" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <Activity className="w-5 h-5 text-blue-600" />
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Последна активност
+            </h2>
           </div>
-          <h2 className="text-lg font-semibold text-gray-900">
-            Последни плащания
-          </h2>
+
+          {/* Activity Filter */}
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => setActivityFilter('all')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                activityFilter === 'all'
+                  ? 'bg-primary text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Всички
+            </button>
+            <button
+              onClick={() => setActivityFilter('payment')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                activityFilter === 'payment'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Плащания
+            </button>
+            <button
+              onClick={() => setActivityFilter('homework')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                activityFilter === 'homework'
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Домашни
+            </button>
+            <button
+              onClick={() => setActivityFilter('attendance')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                activityFilter === 'attendance'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Присъствия
+            </button>
+          </div>
         </div>
+
         <div className="space-y-3">
-          {payments.length === 0 ? (
+          {filteredActivities.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>Няма плащания за показване</p>
+              <p>Няма активност за показване</p>
               <p className="text-sm mt-2">
-                Започнете като добавите ученици и плащания
+                Започнете като добавите ученици, плащания и домашни
               </p>
             </div>
           ) : (
             <div className="space-y-2">
-              {payments.slice(0, 5).map((payment) => (
-                <div
-                  key={payment.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">{payment.studentName}</p>
-                    <p className="text-sm text-gray-600">
-                      {formatDate(payment.date)} • {payment.method}
-                    </p>
+              {filteredActivities.slice(0, 10).map((activity) => {
+                const Icon = activity.icon
+                return (
+                  <div
+                    key={activity.id}
+                    className={`flex items-center gap-4 p-3 ${activity.bgColor} rounded-lg hover:shadow-sm transition-shadow`}
+                  >
+                    <div className={`p-2 bg-white rounded-lg ${activity.color}`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{activity.title}</p>
+                      <p className="text-sm text-gray-600 truncate">{activity.subtitle}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs text-gray-500">
+                        {activity.timestamp.toLocaleDateString('bg-BG', {
+                          day: 'numeric',
+                          month: 'short'
+                        })}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {activity.timestamp.toLocaleTimeString('bg-BG', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-lg font-bold text-green-600">
-                    {formatCurrency(payment.amount)}
+                )
+              })}
+              {recentActivity.length > 10 && (
+                <div className="text-center pt-3">
+                  <p className="text-sm text-gray-500">
+                    Показани {Math.min(10, filteredActivities.length)} от {recentActivity.length} активности
                   </p>
                 </div>
-              ))}
-              {payments.length > 5 && (
-                <Link
-                  to="/payments"
-                  className="block text-center text-primary hover:text-primary-hover text-sm font-medium pt-3"
-                >
-                  Виж всички плащания ({payments.length})
-                </Link>
               )}
             </div>
           )}
