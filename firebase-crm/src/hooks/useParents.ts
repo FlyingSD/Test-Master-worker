@@ -17,11 +17,13 @@ import {
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { db, storage } from '@/lib/firebase'
 import { Parent, ParentFormValues } from '@/types'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { COLLECTIONS } from '@/lib/collections'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 // Collection reference
-const parentsCollection = collection(db, 'parents')
+const parentsCollection = collection(db, COLLECTIONS.PARENTS)
 
 /**
  * Hook to get all parents with real-time updates
@@ -55,7 +57,7 @@ export function useParents() {
         console.error('Error fetching parents:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error('Грешка при зареждане на родители')
+        toast.error(ERROR_MESSAGES.LOAD_PARENTS_ERROR)
       }
     )
 
@@ -72,11 +74,11 @@ export function useParent(parentId: string) {
   return useQuery({
     queryKey: ['parent', parentId],
     queryFn: async () => {
-      const docRef = doc(db, 'parents', parentId)
+      const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
       const docSnap = await getDoc(docRef)
 
       if (!docSnap.exists()) {
-        throw new Error('Parent not found')
+        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
       }
 
       return {
@@ -147,11 +149,11 @@ export function useAddParent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parents'] })
-      toast.success('Родителят беше добавен успешно!')
+      toast.success(SUCCESS_MESSAGES.PARENT_ADDED)
     },
     onError: (error: Error) => {
       console.error('Error adding parent:', error)
-      toast.error('Грешка при добавяне на родител: ' + error.message)
+      toast.error(ERROR_MESSAGES.ADD_PARENT_ERROR)
     },
   })
 }
@@ -164,7 +166,7 @@ export function useUpdateParent() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ParentFormValues> }) => {
-      const docRef = doc(db, 'parents', id)
+      const docRef = doc(db, COLLECTIONS.PARENTS, id)
 
       const updateData = {
         ...data,
@@ -176,11 +178,11 @@ export function useUpdateParent() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['parents'] })
       queryClient.invalidateQueries({ queryKey: ['parent', variables.id] })
-      toast.success('Родителят беше обновен успешно!')
+      toast.success(SUCCESS_MESSAGES.PARENT_UPDATED)
     },
     onError: (error: Error) => {
       console.error('Error updating parent:', error)
-      toast.error('Грешка при обновяване на родител: ' + error.message)
+      toast.error(ERROR_MESSAGES.UPDATE_PARENT_ERROR)
     },
   })
 }
@@ -193,7 +195,7 @@ export function useDeleteParent() {
 
   return useMutation({
     mutationFn: async (parentId: string) => {
-      const docRef = doc(db, 'parents', parentId)
+      const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
 
       // Get parent data to delete videos from storage
       const parentSnap = await getDoc(docRef)
@@ -218,11 +220,11 @@ export function useDeleteParent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parents'] })
-      toast.success('Родителят беше изтрит успешно!')
+      toast.success(SUCCESS_MESSAGES.PARENT_DELETED)
     },
     onError: (error: Error) => {
       console.error('Error deleting parent:', error)
-      toast.error('Грешка при изтриване на родител: ' + error.message)
+      toast.error(ERROR_MESSAGES.DELETE_PARENT_ERROR)
     },
   })
 }
@@ -235,11 +237,11 @@ export function useAddStudentToParent() {
 
   return useMutation({
     mutationFn: async ({ parentId, studentId }: { parentId: string; studentId: string }) => {
-      const docRef = doc(db, 'parents', parentId)
+      const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
       const parentSnap = await getDoc(docRef)
 
       if (!parentSnap.exists()) {
-        throw new Error('Parent not found')
+        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
       }
 
       const parentData = parentSnap.data() as Parent
@@ -260,7 +262,7 @@ export function useAddStudentToParent() {
     },
     onError: (error: Error) => {
       console.error('Error adding student to parent:', error)
-      toast.error('Грешка при добавяне на ученик към родител')
+      toast.error(ERROR_MESSAGES.ADD_STUDENT_ERROR)
     },
   })
 }
@@ -273,11 +275,11 @@ export function useRemoveStudentFromParent() {
 
   return useMutation({
     mutationFn: async ({ parentId, studentId }: { parentId: string; studentId: string }) => {
-      const docRef = doc(db, 'parents', parentId)
+      const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
       const parentSnap = await getDoc(docRef)
 
       if (!parentSnap.exists()) {
-        throw new Error('Parent not found')
+        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
       }
 
       const parentData = parentSnap.data() as Parent
@@ -294,7 +296,7 @@ export function useRemoveStudentFromParent() {
     },
     onError: (error: Error) => {
       console.error('Error removing student from parent:', error)
-      toast.error('Грешка при премахване на ученик от родител')
+      toast.error(ERROR_MESSAGES.DELETE_STUDENT_ERROR)
     },
   })
 }
@@ -328,11 +330,11 @@ export function useUploadVideoToParent() {
       const downloadURL = await getDownloadURL(snapshot.ref)
 
       // Update parent document with video URL
-      const parentDocRef = doc(db, 'parents', parentId)
+      const parentDocRef = doc(db, COLLECTIONS.PARENTS, parentId)
       const parentSnap = await getDoc(parentDocRef)
 
       if (!parentSnap.exists()) {
-        throw new Error('Parent not found')
+        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
       }
 
       const parentData = parentSnap.data() as Parent
@@ -370,11 +372,11 @@ export function useDeleteVideoFromParent() {
       await deleteObject(videoRef)
 
       // Remove URL from parent document
-      const parentDocRef = doc(db, 'parents', parentId)
+      const parentDocRef = doc(db, COLLECTIONS.PARENTS, parentId)
       const parentSnap = await getDoc(parentDocRef)
 
       if (!parentSnap.exists()) {
-        throw new Error('Parent not found')
+        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
       }
 
       const parentData = parentSnap.data() as Parent

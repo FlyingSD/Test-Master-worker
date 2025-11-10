@@ -17,8 +17,10 @@ import { Attendance } from '@/types'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { COLLECTIONS } from '@/lib/collections'
 
-const attendanceCollection = collection(db, 'attendance')
+const attendanceCollection = collection(db, COLLECTIONS.ATTENDANCE)
 
 /**
  * Hook to get all attendance records with real-time updates
@@ -141,7 +143,7 @@ export function useAddAttendance() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] })
-      toast.success('Присъствието беше записано!')
+      toast.success(SUCCESS_MESSAGES.ATTENDANCE_ADDED)
     },
   })
 }
@@ -160,7 +162,7 @@ export function useUpdateAttendance() {
       id: string
       data: Partial<Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>>
     }) => {
-      const docRef = doc(db, 'attendance', id)
+      const docRef = doc(db, COLLECTIONS.ATTENDANCE, id)
       const updateData = {
         ...data,
         date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
@@ -169,7 +171,7 @@ export function useUpdateAttendance() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] })
-      toast.success('Присъствието беше обновено!')
+      toast.success(SUCCESS_MESSAGES.ATTENDANCE_UPDATED)
     },
   })
 }
@@ -182,11 +184,11 @@ export function useDeleteAttendance() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await deleteDoc(doc(db, 'attendance', id))
+      await deleteDoc(doc(db, COLLECTIONS.ATTENDANCE, id))
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] })
-      toast.success('Записът беше изтрит!')
+      toast.success(SUCCESS_MESSAGES.ATTENDANCE_DELETED)
     },
   })
 }
@@ -215,11 +217,11 @@ export function useBulkAddAttendance() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] })
-      toast.success('Присъствията бяха записани успешно!')
+      toast.success(SUCCESS_MESSAGES.BULK_ATTENDANCE_ADDED)
     },
     onError: (error) => {
       console.error('Error bulk adding attendance:', error)
-      toast.error('Грешка при записване на присъствия')
+      toast.error(ERROR_MESSAGES.BULK_ATTENDANCE_ERROR)
     },
   })
 }

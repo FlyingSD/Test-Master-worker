@@ -17,8 +17,10 @@ import { Discount, DiscountFormValues } from '@/types'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { COLLECTIONS } from '@/lib/collections'
 
-const discountsCollection = collection(db, 'discounts')
+const discountsCollection = collection(db, COLLECTIONS.DISCOUNTS)
 
 export function useDiscounts() {
   const [discounts, setDiscounts] = useState<Discount[]>([])
@@ -100,7 +102,7 @@ export function useAddDiscount() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['discounts'] })
-      toast.success('Отстъпката беше добавена успешно!')
+      toast.success(SUCCESS_MESSAGES.DISCOUNT_ADDED)
     },
   })
 }
@@ -110,7 +112,7 @@ export function useUpdateDiscount() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<DiscountFormValues> }) => {
-      const docRef = doc(db, 'discounts', id)
+      const docRef = doc(db, COLLECTIONS.DISCOUNTS, id)
       const updateData = {
         ...data,
         startDate: data.startDate instanceof Date ? Timestamp.fromDate(data.startDate) : data.startDate,
@@ -120,7 +122,7 @@ export function useUpdateDiscount() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['discounts'] })
-      toast.success('Отстъпката беше обновена успешно!')
+      toast.success(SUCCESS_MESSAGES.DISCOUNT_UPDATED)
     },
   })
 }
@@ -130,11 +132,11 @@ export function useDeleteDiscount() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await deleteDoc(doc(db, 'discounts', id))
+      await deleteDoc(doc(db, COLLECTIONS.DISCOUNTS, id))
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['discounts'] })
-      toast.success('Отстъпката беше изтрита успешно!')
+      toast.success(SUCCESS_MESSAGES.DISCOUNT_DELETED)
     },
   })
 }

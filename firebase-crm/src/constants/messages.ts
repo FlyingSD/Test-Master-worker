@@ -46,6 +46,11 @@ export const ERROR_MESSAGES = {
   LOAD_HOMEWORK_ERROR: 'Грешка при зареждане на домашни',
   LOAD_INVENTORY_ERROR: 'Грешка при зареждане на склада',
   LOAD_INVOICES_ERROR: 'Грешка при зареждане на фактури',
+  LOAD_PARENTS_ERROR: 'Грешка при зареждане на родители',
+  LOAD_EVENTS_ERROR: 'Грешка при зареждане на събития',
+  LOAD_DISCOUNTS_ERROR: 'Грешка при зареждане на отстъпки',
+  LOAD_ATTENDANCE_ERROR: 'Грешка при зареждане на присъствия',
+  LOAD_GRADES_ERROR: 'Грешка при зареждане на оценки',
   LOAD_DATA_ERROR: 'Грешка при зареждане на данни',
   LOAD_DOCUMENT_ERROR: 'Грешка при зареждане на документ',
 
@@ -75,9 +80,47 @@ export const ERROR_MESSAGES = {
   UPDATE_INVOICE_ERROR: 'Грешка при обновяване на документ',
   DELETE_INVOICE_ERROR: 'Грешка при изтриване на документ',
 
+  ADD_PARENT_ERROR: 'Грешка при добавяне на родител',
+  UPDATE_PARENT_ERROR: 'Грешка при обновяване на родител',
+  DELETE_PARENT_ERROR: 'Грешка при изтриване на родител',
+
+  ADD_EVENT_ERROR: 'Грешка при добавяне на събитие',
+  UPDATE_EVENT_ERROR: 'Грешка при обновяване на събитие',
+  DELETE_EVENT_ERROR: 'Грешка при изтриване на събитие',
+
+  ADD_DISCOUNT_ERROR: 'Грешка при добавяне на отстъпка',
+  UPDATE_DISCOUNT_ERROR: 'Грешка при обновяване на отстъпка',
+  DELETE_DISCOUNT_ERROR: 'Грешка при изтриване на отстъпка',
+
+  ADD_ATTENDANCE_ERROR: 'Грешка при добавяне на присъствие',
+  UPDATE_ATTENDANCE_ERROR: 'Грешка при обновяване на присъствие',
+  DELETE_ATTENDANCE_ERROR: 'Грешка при изтриване на присъствие',
+  BULK_ATTENDANCE_ERROR: 'Грешка при записване на присъствия',
+
+  ADD_GRADE_ERROR: 'Грешка при добавяне на оценка',
+  UPDATE_GRADE_ERROR: 'Грешка при обновяване на оценка',
+  DELETE_GRADE_ERROR: 'Грешка при изтриване на оценка',
+
+  // Authentication Errors
+  LOGIN_ERROR: 'Грешка при вход в системата',
+  LOGOUT_ERROR: 'Грешка при изход от системата',
+  REGISTER_ERROR: 'Грешка при регистрация',
+  INVALID_EMAIL: 'Невалиден имейл адрес',
+  INVALID_PASSWORD: 'Невалидна парола',
+  WEAK_PASSWORD: 'Паролата е твърде слаба (минимум 6 символа)',
+  EMAIL_IN_USE: 'Този имейл вече се използва',
+  WRONG_PASSWORD: 'Грешна парола',
+  USER_NOT_FOUND: 'Потребителят не е намерен',
+  TOO_MANY_REQUESTS: 'Твърде много опити. Моля опитайте по-късно',
+
   // Business Logic Errors
   INSUFFICIENT_STOCK: 'Недостатъчно количество на склад!',
   SYNC_DATA_ERROR: 'Грешка при синхронизиране на данните',
+  PARENT_NOT_FOUND: 'Родителят не е намерен',
+  EVENT_NOT_FOUND: 'Събитието не е намерено',
+  DISCOUNT_NOT_FOUND: 'Отстъпката не е намерена',
+  ATTENDANCE_NOT_FOUND: 'Присъствието не е намерено',
+  GRADE_NOT_FOUND: 'Оценката не е намерена',
 
   // Generic Fallback
   GENERIC_ERROR: 'Възникна грешка',
@@ -120,6 +163,37 @@ export const SUCCESS_MESSAGES = {
   INVOICE_UPDATED: 'Документът беше обновен успешно!',
   INVOICE_DELETED: 'Документът беше изтрит успешно!',
   INVOICE_MARKED_PAID: 'Документът беше маркиран като платен!',
+
+  // Parent Operations
+  PARENT_ADDED: 'Родителят беше добавен успешно!',
+  PARENT_UPDATED: 'Родителят беше обновен успешно!',
+  PARENT_DELETED: 'Родителят беше изтрит успешно!',
+
+  // Event Operations
+  EVENT_ADDED: 'Събитието беше добавено успешно!',
+  EVENT_UPDATED: 'Събитието беше обновено успешно!',
+  EVENT_DELETED: 'Събитието беше изтрито успешно!',
+
+  // Discount Operations
+  DISCOUNT_ADDED: 'Отстъпката беше добавена успешно!',
+  DISCOUNT_UPDATED: 'Отстъпката беше обновена успешно!',
+  DISCOUNT_DELETED: 'Отстъпката беше изтрита успешно!',
+
+  // Attendance Operations
+  ATTENDANCE_ADDED: 'Присъствието беше записано успешно!',
+  ATTENDANCE_UPDATED: 'Присъствието беше обновено успешно!',
+  ATTENDANCE_DELETED: 'Присъствието беше изтрито успешно!',
+  BULK_ATTENDANCE_ADDED: 'Присъствията бяха записани успешно!',
+
+  // Grade Operations
+  GRADE_ADDED: 'Оценката беше добавена успешно!',
+  GRADE_UPDATED: 'Оценката беше обновена успешно!',
+  GRADE_DELETED: 'Оценката беше изтрита успешно!',
+
+  // Authentication
+  LOGIN_SUCCESS: 'Успешен вход в системата',
+  LOGOUT_SUCCESS: 'Успешен изход от системата',
+  REGISTER_SUCCESS: 'Регистрацията беше успешна',
 
   // Data Sync
   DATA_SYNCED: (count: number) => `Обновени ${count} записа с новото име на ученика`,

@@ -19,9 +19,11 @@ import { Event, EventFormValues } from '@/types'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { COLLECTIONS } from '@/lib/collections'
 
 // Collection reference
-const eventsCollection = collection(db, 'events')
+const eventsCollection = collection(db, COLLECTIONS.EVENTS)
 
 /**
  * Hook to get all events with real-time updates
@@ -55,7 +57,7 @@ export function useEvents() {
         console.error('Error fetching events:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error('Грешка при зареждане на събития')
+        toast.error(ERROR_MESSAGES.LOAD_EVENTS_ERROR)
       }
     )
 
@@ -72,11 +74,11 @@ export function useEvent(eventId: string) {
   return useQuery({
     queryKey: ['event', eventId],
     queryFn: async () => {
-      const docRef = doc(db, 'events', eventId)
+      const docRef = doc(db, COLLECTIONS.EVENTS, eventId)
       const docSnap = await getDoc(docRef)
 
       if (!docSnap.exists()) {
-        throw new Error('Event not found')
+        throw new Error(ERROR_MESSAGES.EVENT_NOT_FOUND)
       }
 
       return {
@@ -161,11 +163,11 @@ export function useAddEvent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] })
-      toast.success('Събитието беше добавено успешно!')
+      toast.success(SUCCESS_MESSAGES.EVENT_ADDED)
     },
     onError: (error: Error) => {
       console.error('Error adding event:', error)
-      toast.error('Грешка при добавяне на събитие: ' + error.message)
+      toast.error(ERROR_MESSAGES.ADD_EVENT_ERROR)
     },
   })
 }
@@ -178,7 +180,7 @@ export function useUpdateEvent() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<EventFormValues> }) => {
-      const docRef = doc(db, 'events', id)
+      const docRef = doc(db, COLLECTIONS.EVENTS, id)
 
       // Convert dates to Timestamps
       const updateData = {
@@ -196,11 +198,11 @@ export function useUpdateEvent() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['events'] })
       queryClient.invalidateQueries({ queryKey: ['event', variables.id] })
-      toast.success('Събитието беше обновено успешно!')
+      toast.success(SUCCESS_MESSAGES.EVENT_UPDATED)
     },
     onError: (error: Error) => {
       console.error('Error updating event:', error)
-      toast.error('Грешка при обновяване на събитие: ' + error.message)
+      toast.error(ERROR_MESSAGES.UPDATE_EVENT_ERROR)
     },
   })
 }
@@ -213,16 +215,16 @@ export function useDeleteEvent() {
 
   return useMutation({
     mutationFn: async (eventId: string) => {
-      const docRef = doc(db, 'events', eventId)
+      const docRef = doc(db, COLLECTIONS.EVENTS, eventId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] })
-      toast.success('Събитието беше изтрито успешно!')
+      toast.success(SUCCESS_MESSAGES.EVENT_DELETED)
     },
     onError: (error: Error) => {
       console.error('Error deleting event:', error)
-      toast.error('Грешка при изтриване на събитие: ' + error.message)
+      toast.error(ERROR_MESSAGES.DELETE_EVENT_ERROR)
     },
   })
 }
