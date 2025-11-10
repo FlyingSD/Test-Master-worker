@@ -4,6 +4,7 @@ import { useAddStudent, useUpdateStudent } from '@/hooks/useStudents'
 import { Student, StudentFormValues } from '@/types'
 import { bgnToEur, eurToBgn } from '@/utils/formatters'
 import { Timestamp } from 'firebase/firestore'
+import { STUDENT_STATUS, STUDY_TYPES, STUDY_TYPE_OPTIONS, STUDENT_STATUS_LABELS, CURRENCY } from '@/constants/appConstants'
 
 interface StudentModalProps {
   student?: Student | null
@@ -20,8 +21,8 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
     fee: 0,
     feeEUR: 0,
     dueDate: new Date(),
-    status: 'active',
-    studyType: 'Групово',
+    status: STUDENT_STATUS.ACTIVE,
+    studyType: STUDY_TYPES.GROUP,
     parentId: '',
     notes: '',
   })
@@ -144,12 +145,15 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    studyType: e.target.value as 'Групово' | 'Индивидуално',
+                    studyType: e.target.value as typeof STUDY_TYPES[keyof typeof STUDY_TYPES],
                   })
                 }
               >
-                <option value="Групово">Групово</option>
-                <option value="Индивидуално">Индивидуално</option>
+                {STUDY_TYPE_OPTIONS.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -203,7 +207,7 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              💡 Промените в една валута автоматично обновяват другата (курс: 1 EUR = 1.95583 BGN)
+              💡 Промените в една валута автоматично обновяват другата (курс: 1 EUR = {CURRENCY.BGN_TO_EUR_RATE} BGN)
             </p>
           </div>
 
@@ -258,27 +262,27 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
                 <input
                   type="radio"
                   name="status"
-                  value="active"
-                  checked={formData.status === 'active'}
+                  value={STUDENT_STATUS.ACTIVE}
+                  checked={formData.status === STUDENT_STATUS.ACTIVE}
                   onChange={(e) =>
-                    setFormData({ ...formData, status: 'active' })
+                    setFormData({ ...formData, status: STUDENT_STATUS.ACTIVE })
                   }
                   className="w-4 h-4 text-primary"
                 />
-                <span className="text-gray-700">Активен</span>
+                <span className="text-gray-700">{STUDENT_STATUS_LABELS[STUDENT_STATUS.ACTIVE]}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="status"
-                  value="inactive"
-                  checked={formData.status === 'inactive'}
+                  value={STUDENT_STATUS.INACTIVE}
+                  checked={formData.status === STUDENT_STATUS.INACTIVE}
                   onChange={(e) =>
-                    setFormData({ ...formData, status: 'inactive' })
+                    setFormData({ ...formData, status: STUDENT_STATUS.INACTIVE })
                   }
                   className="w-4 h-4 text-primary"
                 />
-                <span className="text-gray-700">Неактивен</span>
+                <span className="text-gray-700">{STUDENT_STATUS_LABELS[STUDENT_STATUS.INACTIVE]}</span>
               </label>
             </div>
           </div>

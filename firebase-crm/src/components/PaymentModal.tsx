@@ -7,6 +7,7 @@ import { bgnToEur, eurToBgn } from '@/utils/formatters'
 import { Timestamp } from 'firebase/firestore'
 import ErrorAlert from '@/components/ErrorAlert'
 import { ValidationErrors, ErrorMessage } from '@/utils/errorMessages'
+import { PAYMENT_METHODS, PAYMENT_METHOD_OPTIONS } from '@/constants/appConstants'
 
 interface PaymentModalProps {
   payment?: Payment | null
@@ -24,7 +25,7 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
     amount: 0,
     amountEUR: 0,
     article: '',
-    method: 'Кеш',
+    method: PAYMENT_METHODS.CASH,
     date: new Date(),
     notes: '',
     receiptNumber: '',
@@ -315,7 +316,7 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
               Метод на плащане <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {['Кеш', 'ПОС', 'Банков път', 'Фактура'].map((method) => (
+              {PAYMENT_METHOD_OPTIONS.map((method) => (
                 <label
                   key={method}
                   className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
@@ -332,7 +333,7 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        method: e.target.value as 'Кеш' | 'ПОС' | 'Банков път' | 'Фактура',
+                        method: e.target.value as typeof PAYMENT_METHODS[keyof typeof PAYMENT_METHODS],
                       })
                     }
                     className="sr-only"

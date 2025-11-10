@@ -3,6 +3,7 @@ import { X, DollarSign, CheckCircle } from 'lucide-react'
 import { useStudents } from '@/hooks/useStudents'
 import { useBulkAddPayments } from '@/hooks/usePayments'
 import { formatCurrency } from '@/utils/formatters'
+import { PAYMENT_METHODS, STUDENT_STATUS } from '@/constants/appConstants'
 
 interface BulkPaymentModalProps {
   onClose: () => void
@@ -12,13 +13,13 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
   const { students } = useStudents()
   const bulkAddPayments = useBulkAddPayments()
 
-  const activeStudents = students.filter((s) => s.status === 'active')
+  const activeStudents = students.filter((s) => s.status === STUDENT_STATUS.ACTIVE)
 
   const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(new Set())
   const [amount, setAmount] = useState<number>(0)
   const [amountEUR, setAmountEUR] = useState<number>(0)
   const [item, setItem] = useState('Месечна такса')
-  const [method, setMethod] = useState<'Кеш' | 'ПОС' | 'Банков път'>('Кеш')
+  const [method, setMethod] = useState<typeof PAYMENT_METHODS[keyof typeof PAYMENT_METHODS]>(PAYMENT_METHODS.CASH)
   const [date, setDate] = useState(new Date())
   const [notes, setNotes] = useState('')
 
