@@ -51,8 +51,9 @@ export interface Parent {
   updatedAt?: Date | Timestamp
 }
 
-// Payment interface
-export interface Payment {
+// 🎯 Clean Code: Renamed from Payment to StudentPayment for clarity
+// StudentPayment interface - Payments made by students/parents for courses
+export interface StudentPayment {
   id: string
   studentId: string
   studentName: string // Денормализирано за по-бързи queries
@@ -68,6 +69,9 @@ export interface Payment {
   createdAt: Date | Timestamp
 }
 
+// @deprecated Use StudentPayment instead
+export type Payment = StudentPayment
+
 // Expense interface
 export interface Expense {
   id: string
@@ -80,8 +84,9 @@ export interface Expense {
   createdAt: Date | Timestamp
 }
 
-// Event interface (за уроци и събития)
-export interface Event {
+// 🎯 Clean Code: Renamed from Event to ClassEvent for clarity and to avoid conflicts with browser Event API
+// ClassEvent interface - Scheduled classes, lessons, and school events
+export interface ClassEvent {
   id: string
   title: string // Име на урока/събитието
   group?: string // Група (ако е урок)
@@ -97,6 +102,9 @@ export interface Event {
   createdBy: string
   createdAt: Date | Timestamp
 }
+
+// @deprecated Use ClassEvent instead (renamed to avoid conflict with browser Event API)
+export type Event = ClassEvent
 
 // Attendance interface
 export interface Attendance {
@@ -430,12 +438,17 @@ export interface UserProfile extends User {
 // Form values for creating/editing
 export type StudentFormValues = Omit<Student, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
 export type ParentFormValues = Omit<Parent, 'id' | 'createdAt' | 'updatedAt' | 'studentIds'>
-export type PaymentFormValues = Omit<Payment, 'id' | 'createdAt' | 'createdBy'>
+export type StudentPaymentFormValues = Omit<StudentPayment, 'id' | 'createdAt' | 'createdBy'>
 export type ExpenseFormValues = Omit<Expense, 'id' | 'createdAt' | 'createdBy'>
-export type EventFormValues = Omit<Event, 'id' | 'createdAt' | 'createdBy'>
+export type ClassEventFormValues = Omit<ClassEvent, 'id' | 'createdAt' | 'createdBy'>
 export type DiscountFormValues = Omit<Discount, 'id' | 'createdAt' | 'createdBy'>
 export type HomeworkFormValues = Omit<Homework, 'id' | 'createdAt' | 'createdBy' | 'updatedAt'>
 export type InventoryFormValues = Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
 export type StockTransactionFormValues = Omit<StockTransaction, 'id' | 'createdAt' | 'createdBy' | 'inventoryItemName'>
 export type InvoiceFormValues = Omit<Invoice, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
 export type UserFormValues = Omit<UserProfile, 'id' | 'createdAt' | 'lastLogin'>
+
+// @deprecated Use StudentPaymentFormValues instead
+export type PaymentFormValues = StudentPaymentFormValues
+// @deprecated Use ClassEventFormValues instead
+export type EventFormValues = ClassEventFormValues

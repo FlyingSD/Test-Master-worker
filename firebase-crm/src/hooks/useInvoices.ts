@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 
 // Collection reference
 const invoicesCollection = collection(db, COLLECTIONS.INVOICES)
@@ -56,7 +57,7 @@ export function useInvoices() {
         console.error('Error fetching invoices:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error('Грешка при зареждане на фактури')
+        toast.error(ERROR_MESSAGES.LOAD_INVOICES_ERROR)
       }
     )
 
@@ -177,11 +178,11 @@ export function useAddInvoice() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
-      toast.success('Документът беше създаден успешно!')
+      toast.success(SUCCESS_MESSAGES.INVOICE_ADDED)
     },
     onError: (error: Error) => {
       console.error('Error adding invoice:', error)
-      toast.error('Грешка при създаване на документ: ' + error.message)
+      toast.error(ERROR_MESSAGES.ADD_INVOICE_ERROR + ': ' + error.message)
     },
   })
 }
@@ -200,7 +201,7 @@ export function useUpdateInvoice() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<InvoiceFormValues> }) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch invoice first to check ownership
@@ -208,7 +209,7 @@ export function useUpdateInvoice() {
       const invoiceSnap = await getDoc(docRef)
 
       if (!invoiceSnap.exists()) {
-        throw new Error('Документът не е намерен')
+        throw new Error(ERROR_MESSAGES.INVOICE_NOT_FOUND)
       }
 
       const invoice = invoiceSnap.data() as Invoice
@@ -216,7 +217,7 @@ export function useUpdateInvoice() {
       // 🔒 SECURITY: Ownership validation
       if (!isAdmin) {
         if (invoice.createdBy !== userData.id) {
-          throw new Error('Нямате права да променяте този документ')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_INVOICE)
         }
       }
 
@@ -243,11 +244,11 @@ export function useUpdateInvoice() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
       queryClient.invalidateQueries({ queryKey: ['invoice', variables.id] })
-      toast.success('Документът беше обновен успешно!')
+      toast.success(SUCCESS_MESSAGES.INVOICE_UPDATED)
     },
     onError: (error: Error) => {
       console.error('Error updating invoice:', error)
-      toast.error('Грешка при обновяване на документ: ' + error.message)
+      toast.error(ERROR_MESSAGES.UPDATE_INVOICE_ERROR + ': ' + error.message)
     },
   })
 }
@@ -266,7 +267,7 @@ export function useDeleteInvoice() {
   return useMutation({
     mutationFn: async (invoiceId: string) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch invoice first to check ownership
@@ -274,7 +275,7 @@ export function useDeleteInvoice() {
       const invoiceSnap = await getDoc(docRef)
 
       if (!invoiceSnap.exists()) {
-        throw new Error('Документът не е намерен')
+        throw new Error(ERROR_MESSAGES.INVOICE_NOT_FOUND)
       }
 
       const invoice = invoiceSnap.data() as Invoice
@@ -283,7 +284,7 @@ export function useDeleteInvoice() {
       if (!isAdmin) {
         // Only admins OR invoice creator can delete
         if (invoice.createdBy !== userData.id) {
-          throw new Error('Нямате права да изтриете този документ')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_INVOICE)
         }
       }
 
@@ -292,11 +293,11 @@ export function useDeleteInvoice() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
-      toast.success('Документът беше изтрит успешно!')
+      toast.success(SUCCESS_MESSAGES.INVOICE_DELETED)
     },
     onError: (error: Error) => {
       console.error('Error deleting invoice:', error)
-      toast.error('Грешка при изтриване на документ: ' + error.message)
+      toast.error(ERROR_MESSAGES.DELETE_INVOICE_ERROR + ': ' + error.message)
     },
   })
 }
@@ -320,11 +321,11 @@ export function useMarkInvoicePaid() {
     onSuccess: (_, invoiceId) => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
       queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] })
-      toast.success('Документът беше маркиран като платен!')
+      toast.success(SUCCESS_MESSAGES.INVOICE_MARKED_PAID)
     },
     onError: (error: Error) => {
       console.error('Error marking invoice as paid:', error)
-      toast.error('Грешка: ' + error.message)
+      toast.error(ERROR_MESSAGES.GENERIC_ERROR + ': ' + error.message)
     },
   })
 }

@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 
 // Collection reference
 const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
@@ -128,7 +129,7 @@ export function usePayments() {
         console.error('Error fetching payments:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error('Грешка при зареждане на плащания')
+        toast.error(ERROR_MESSAGES.LOAD_PAYMENTS_ERROR)
       }
     )
 
@@ -149,7 +150,7 @@ export function usePayment(paymentId: string) {
       const docSnap = await getDoc(docRef)
 
       if (!docSnap.exists()) {
-        throw new Error('Payment not found')
+        throw new Error(ERROR_MESSAGES.PAYMENT_NOT_FOUND)
       }
 
       return {
@@ -223,11 +224,11 @@ export function useAddPayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payments'] })
-      toast.success('Плащането беше добавено успешно!')
+      toast.success(SUCCESS_MESSAGES.PAYMENT_ADDED)
     },
     onError: (error: Error) => {
       console.error('Error adding payment:', error)
-      toast.error('Грешка при добавяне на плащане: ' + error.message)
+      toast.error(ERROR_MESSAGES.ADD_PAYMENT_ERROR + ': ' + error.message)
     },
   })
 }
@@ -246,7 +247,7 @@ export function useUpdatePayment() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<PaymentFormValues> }) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch payment first to check ownership
@@ -254,7 +255,7 @@ export function useUpdatePayment() {
       const paymentSnap = await getDoc(docRef)
 
       if (!paymentSnap.exists()) {
-        throw new Error('Плащането не е намерено')
+        throw new Error(ERROR_MESSAGES.PAYMENT_NOT_FOUND)
       }
 
       const payment = paymentSnap.data() as Payment
@@ -263,7 +264,7 @@ export function useUpdatePayment() {
       if (!isAdmin) {
         // Only admins OR payment creator can update
         if (payment.createdBy !== userData.id) {
-          throw new Error('Нямате права да променяте това плащане')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_PAYMENT)
         }
       }
 
@@ -280,11 +281,11 @@ export function useUpdatePayment() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['payments'] })
       queryClient.invalidateQueries({ queryKey: ['payment', variables.id] })
-      toast.success('Плащането беше обновено успешно!')
+      toast.success(SUCCESS_MESSAGES.PAYMENT_UPDATED)
     },
     onError: (error: Error) => {
       console.error('Error updating payment:', error)
-      toast.error('Грешка при обновяване на плащане: ' + error.message)
+      toast.error(ERROR_MESSAGES.UPDATE_PAYMENT_ERROR + ': ' + error.message)
     },
   })
 }
@@ -303,7 +304,7 @@ export function useDeletePayment() {
   return useMutation({
     mutationFn: async (paymentId: string) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch payment first to check ownership
@@ -311,7 +312,7 @@ export function useDeletePayment() {
       const paymentSnap = await getDoc(docRef)
 
       if (!paymentSnap.exists()) {
-        throw new Error('Плащането не е намерено')
+        throw new Error(ERROR_MESSAGES.PAYMENT_NOT_FOUND)
       }
 
       const payment = paymentSnap.data() as Payment
@@ -320,7 +321,7 @@ export function useDeletePayment() {
       if (!isAdmin) {
         // Only admins OR payment creator can delete
         if (payment.createdBy !== userData.id) {
-          throw new Error('Нямате права да изтриете това плащане')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_PAYMENT)
         }
       }
 
@@ -329,11 +330,11 @@ export function useDeletePayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payments'] })
-      toast.success('Плащането беше изтрито успешно!')
+      toast.success(SUCCESS_MESSAGES.PAYMENT_DELETED)
     },
     onError: (error: Error) => {
       console.error('Error deleting payment:', error)
-      toast.error('Грешка при изтриване на плащане: ' + error.message)
+      toast.error(ERROR_MESSAGES.DELETE_PAYMENT_ERROR + ': ' + error.message)
     },
   })
 }
@@ -500,7 +501,7 @@ export function useBulkAddPayments() {
     },
     onError: (error: Error) => {
       console.error('Error bulk adding payments:', error)
-      toast.error('Грешка при добавяне на плащания: ' + error.message)
+      toast.error(ERROR_MESSAGES.ADD_PAYMENT_ERROR + ': ' + error.message)
     },
   })
 }

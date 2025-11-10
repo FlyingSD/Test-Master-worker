@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 
 const expensesCollection = collection(db, COLLECTIONS.EXPENSES)
 
@@ -58,7 +59,7 @@ export function useAddExpense() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] })
-      toast.success('Разходът беше добавен успешно!')
+      toast.success(SUCCESS_MESSAGES.EXPENSE_ADDED)
     },
   })
 }
@@ -76,7 +77,7 @@ export function useUpdateExpense() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ExpenseFormValues> }) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch expense first to check ownership
@@ -84,7 +85,7 @@ export function useUpdateExpense() {
       const expenseSnap = await getDoc(docRef)
 
       if (!expenseSnap.exists()) {
-        throw new Error('Разходът не е намерен')
+        throw new Error(ERROR_MESSAGES.EXPENSE_NOT_FOUND)
       }
 
       const expense = expenseSnap.data() as Expense
@@ -92,7 +93,7 @@ export function useUpdateExpense() {
       // 🔒 SECURITY: Ownership validation
       if (!isAdmin) {
         if (expense.createdBy !== userData.id) {
-          throw new Error('Нямате права да променяте този разход')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_EXPENSE)
         }
       }
 
@@ -104,11 +105,11 @@ export function useUpdateExpense() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] })
-      toast.success('Разходът беше обновен успешно!')
+      toast.success(SUCCESS_MESSAGES.EXPENSE_UPDATED)
     },
     onError: (error: Error) => {
       console.error('Error updating expense:', error)
-      toast.error('Грешка при обновяване на разход: ' + error.message)
+      toast.error(ERROR_MESSAGES.UPDATE_EXPENSE_ERROR + ': ' + error.message)
     },
   })
 }
@@ -126,7 +127,7 @@ export function useDeleteExpense() {
   return useMutation({
     mutationFn: async (id: string) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch expense first to check ownership
@@ -134,7 +135,7 @@ export function useDeleteExpense() {
       const expenseSnap = await getDoc(docRef)
 
       if (!expenseSnap.exists()) {
-        throw new Error('Разходът не е намерен')
+        throw new Error(ERROR_MESSAGES.EXPENSE_NOT_FOUND)
       }
 
       const expense = expenseSnap.data() as Expense
@@ -143,7 +144,7 @@ export function useDeleteExpense() {
       if (!isAdmin) {
         // Only admins OR expense creator can delete
         if (expense.createdBy !== userData.id) {
-          throw new Error('Нямате права да изтриете този разход')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_EXPENSE)
         }
       }
 
@@ -152,11 +153,11 @@ export function useDeleteExpense() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] })
-      toast.success('Разходът беше изтрит успешно!')
+      toast.success(SUCCESS_MESSAGES.EXPENSE_DELETED)
     },
     onError: (error: Error) => {
       console.error('Error deleting expense:', error)
-      toast.error('Грешка при изтриване на разход: ' + error.message)
+      toast.error(ERROR_MESSAGES.DELETE_EXPENSE_ERROR + ': ' + error.message)
     },
   })
 }

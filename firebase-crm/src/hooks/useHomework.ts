@@ -19,6 +19,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 
 // Collection reference
 const homeworkCollection = collection(db, COLLECTIONS.HOMEWORK)
@@ -83,7 +84,7 @@ export function useHomework() {
         console.error('Error fetching homework:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error('Грешка при зареждане на домашни')
+        toast.error(ERROR_MESSAGES.LOAD_HOMEWORK_ERROR)
       }
     )
 
@@ -161,11 +162,11 @@ export function useAddHomework() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['homework'] })
-      toast.success('Домашното беше добавено успешно!')
+      toast.success(SUCCESS_MESSAGES.HOMEWORK_ADDED)
     },
     onError: (error: Error) => {
       console.error('Error adding homework:', error)
-      toast.error('Грешка при добавяне на домашно: ' + error.message)
+      toast.error(ERROR_MESSAGES.ADD_HOMEWORK_ERROR)
     },
   })
 }
@@ -184,7 +185,7 @@ export function useUpdateHomework() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<HomeworkFormValues> }) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch homework first to check ownership
@@ -192,7 +193,7 @@ export function useUpdateHomework() {
       const homeworkSnap = await getDoc(docRef)
 
       if (!homeworkSnap.exists()) {
-        throw new Error('Домашното не е намерено')
+        throw new Error(ERROR_MESSAGES.HOMEWORK_NOT_FOUND)
       }
 
       const homework = homeworkSnap.data() as Homework
@@ -200,7 +201,7 @@ export function useUpdateHomework() {
       // 🔒 SECURITY: Ownership validation
       if (!isAdmin) {
         if (homework.createdBy !== userData.id) {
-          throw new Error('Нямате права да променяте това домашно')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_HOMEWORK)
         }
       }
 
@@ -223,11 +224,11 @@ export function useUpdateHomework() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['homework'] })
-      toast.success('Домашното беше обновено успешно!')
+      toast.success(SUCCESS_MESSAGES.HOMEWORK_UPDATED)
     },
     onError: (error: Error) => {
       console.error('Error updating homework:', error)
-      toast.error('Грешка при обновяване на домашно: ' + error.message)
+      toast.error(ERROR_MESSAGES.UPDATE_HOMEWORK_ERROR)
     },
   })
 }
@@ -246,7 +247,7 @@ export function useDeleteHomework() {
   return useMutation({
     mutationFn: async (homeworkId: string) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch homework first to check ownership
@@ -254,7 +255,7 @@ export function useDeleteHomework() {
       const homeworkSnap = await getDoc(docRef)
 
       if (!homeworkSnap.exists()) {
-        throw new Error('Домашното не е намерено')
+        throw new Error(ERROR_MESSAGES.HOMEWORK_NOT_FOUND)
       }
 
       const homework = homeworkSnap.data() as Homework
@@ -263,7 +264,7 @@ export function useDeleteHomework() {
       if (!isAdmin) {
         // Only admins OR homework creator can delete
         if (homework.createdBy !== userData.id) {
-          throw new Error('Нямате права да изтриете това домашно')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_HOMEWORK)
         }
       }
 
@@ -272,11 +273,11 @@ export function useDeleteHomework() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['homework'] })
-      toast.success('Домашното беше изтрито успешно!')
+      toast.success(SUCCESS_MESSAGES.HOMEWORK_DELETED)
     },
     onError: (error: Error) => {
       console.error('Error deleting homework:', error)
-      toast.error('Грешка при изтриване на домашно: ' + error.message)
+      toast.error(ERROR_MESSAGES.DELETE_HOMEWORK_ERROR)
     },
   })
 }

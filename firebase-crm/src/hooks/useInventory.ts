@@ -20,6 +20,8 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
+import { syncAllInventoryData } from './useDenormalizedSync'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 
 // Collection references
 const inventoryCollection = collection(db, COLLECTIONS.INVENTORY)
@@ -57,7 +59,7 @@ export function useInventory() {
         console.error('Error fetching inventory:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error('Грешка при зареждане на склада')
+        toast.error(ERROR_MESSAGES.LOAD_INVENTORY_ERROR)
       }
     )
 
@@ -123,11 +125,11 @@ export function useAddInventoryItem() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      toast.success('Артикулът беше добавен успешно!')
+      toast.success(SUCCESS_MESSAGES.INVENTORY_ADDED)
     },
     onError: (error: Error) => {
       console.error('Error adding inventory item:', error)
-      toast.error('Грешка при добавяне на артикул: ' + error.message)
+      toast.error(ERROR_MESSAGES.ADD_INVENTORY_ERROR + ': ' + error.message)
     },
   })
 }
@@ -145,7 +147,7 @@ export function useUpdateInventoryItem() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<InventoryFormValues> }) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch item first to check ownership
@@ -153,7 +155,7 @@ export function useUpdateInventoryItem() {
       const itemSnap = await getDoc(docRef)
 
       if (!itemSnap.exists()) {
-        throw new Error('Артикулът не е намерен')
+        throw new Error(ERROR_MESSAGES.INVENTORY_NOT_FOUND)
       }
 
       const item = itemSnap.data() as InventoryItem
@@ -161,7 +163,7 @@ export function useUpdateInventoryItem() {
       // 🔒 SECURITY: Ownership validation
       if (!isAdmin) {
         if (item.createdBy !== userData.id) {
-          throw new Error('Нямате права да променяте този артикул')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_INVENTORY)
         }
       }
 
@@ -171,15 +173,20 @@ export function useUpdateInventoryItem() {
       }
 
       await updateDoc(docRef, updateData)
+
+      // 🎯 SSOT: Sync denormalized data if name changed
+      if (data.name) {
+        await syncAllInventoryData(id, data.name)
+      }
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['inventoryItem', variables.id] })
-      toast.success('Артикулът беше обновен успешно!')
+      toast.success(SUCCESS_MESSAGES.INVENTORY_UPDATED)
     },
     onError: (error: Error) => {
       console.error('Error updating inventory item:', error)
-      toast.error('Грешка при обновяване на артикул: ' + error.message)
+      toast.error(ERROR_MESSAGES.UPDATE_INVENTORY_ERROR + ': ' + error.message)
     },
   })
 }
@@ -197,7 +204,7 @@ export function useDeleteInventoryItem() {
   return useMutation({
     mutationFn: async (itemId: string) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch inventory item first to check ownership
@@ -205,7 +212,7 @@ export function useDeleteInventoryItem() {
       const itemSnap = await getDoc(docRef)
 
       if (!itemSnap.exists()) {
-        throw new Error('Артикулът не е намерен')
+        throw new Error(ERROR_MESSAGES.INVENTORY_NOT_FOUND)
       }
 
       const item = itemSnap.data() as InventoryItem
@@ -214,7 +221,7 @@ export function useDeleteInventoryItem() {
       if (!isAdmin) {
         // Only admins OR item creator can delete
         if (item.createdBy !== userData.id) {
-          throw new Error('Нямате права да изтриете този артикул')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_INVENTORY)
         }
       }
 
@@ -223,11 +230,11 @@ export function useDeleteInventoryItem() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      toast.success('Артикулът беше изтрит успешно!')
+      toast.success(SUCCESS_MESSAGES.INVENTORY_DELETED)
     },
     onError: (error: Error) => {
       console.error('Error deleting inventory item:', error)
-      toast.error('Грешка при изтриване на артикул: ' + error.message)
+      toast.error(ERROR_MESSAGES.DELETE_INVENTORY_ERROR + ': ' + error.message)
     },
   })
 }
@@ -323,7 +330,7 @@ export function useAddStockTransaction() {
         : inventoryItem.currentStock - data.quantity
 
       if (newStock < 0) {
-        throw new Error('Недостатъчно количество на склад!')
+        throw new Error(ERROR_MESSAGES.INSUFFICIENT_STOCK)
       }
 
       // Create transaction
@@ -391,11 +398,11 @@ export function useAddStockTransaction() {
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['stockTransactions'] })
       queryClient.invalidateQueries({ queryKey: ['payments'] }) // NEW: Invalidate payments too!
-      toast.success('Движението беше записано успешно! Плащането е създадено автоматично.')
+      toast.success(SUCCESS_MESSAGES.STOCK_TRANSACTION_ADDED)
     },
     onError: (error: Error) => {
       console.error('Error adding stock transaction:', error)
-      toast.error('Грешка: ' + error.message)
+      toast.error(ERROR_MESSAGES.GENERIC_ERROR + ': ' + error.message)
     },
   })
 }

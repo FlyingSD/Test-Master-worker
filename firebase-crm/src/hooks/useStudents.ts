@@ -20,6 +20,8 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
+import { syncAllStudentData } from './useDenormalizedSync'
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 
 // Collection reference
 const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
@@ -83,7 +85,7 @@ export function useStudents() {
         console.error('Error fetching students:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error('Грешка при зареждане на ученици')
+        toast.error(ERROR_MESSAGES.LOAD_STUDENTS_ERROR)
       }
     )
 
@@ -165,7 +167,7 @@ export function useAddStudent() {
   return useMutation({
     mutationFn: async (studentData: StudentFormValues) => {
       if (!user) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // Convert dueDate to Timestamp if it's a Date
@@ -184,11 +186,11 @@ export function useAddStudent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] })
-      toast.success('Ученикът беше добавен успешно!')
+      toast.success(SUCCESS_MESSAGES.STUDENT_ADDED)
     },
     onError: (error: Error) => {
       console.error('Error adding student:', error)
-      toast.error('Грешка при добавяне на ученик: ' + error.message)
+      toast.error(ERROR_MESSAGES.ADD_STUDENT_ERROR + ': ' + error.message)
     },
   })
 }
@@ -207,7 +209,7 @@ export function useUpdateStudent() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<StudentFormValues> }) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch student first to check group ownership
@@ -215,7 +217,7 @@ export function useUpdateStudent() {
       const studentSnap = await getDoc(docRef)
 
       if (!studentSnap.exists()) {
-        throw new Error('Ученикът не е намерен')
+        throw new Error(ERROR_MESSAGES.STUDENT_NOT_FOUND)
       }
 
       const student = studentSnap.data() as Student
@@ -225,11 +227,11 @@ export function useUpdateStudent() {
         // Teachers can only update students in their assigned groups
         if (userData.role === 'teacher') {
           if (!userData.assignedGroups || !userData.assignedGroups.includes(student.group)) {
-            throw new Error('Нямате права да променяте този ученик')
+            throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_STUDENT)
           }
         } else {
           // Parents and other roles cannot update students
-          throw new Error('Нямате права да променяте ученици')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_STUDENTS)
         }
       }
 
@@ -243,15 +245,20 @@ export function useUpdateStudent() {
       }
 
       await updateDoc(docRef, updateData)
+
+      // 🎯 SSOT: Sync denormalized data if name changed
+      if (data.name) {
+        await syncAllStudentData(id, data.name)
+      }
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['students'] })
       queryClient.invalidateQueries({ queryKey: ['student', variables.id] })
-      toast.success('Ученикът беше обновен успешно!')
+      toast.success(SUCCESS_MESSAGES.STUDENT_UPDATED)
     },
     onError: (error: Error) => {
       console.error('Error updating student:', error)
-      toast.error('Грешка при обновяване на ученик: ' + error.message)
+      toast.error(ERROR_MESSAGES.UPDATE_STUDENT_ERROR + ': ' + error.message)
     },
   })
 }
@@ -270,7 +277,7 @@ export function useDeleteStudent() {
   return useMutation({
     mutationFn: async (studentId: string) => {
       if (!userData) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch student first to check ownership
@@ -278,7 +285,7 @@ export function useDeleteStudent() {
       const studentSnap = await getDoc(docRef)
 
       if (!studentSnap.exists()) {
-        throw new Error('Ученикът не е намерен')
+        throw new Error(ERROR_MESSAGES.STUDENT_NOT_FOUND)
       }
 
       const student = studentSnap.data() as Student
@@ -287,7 +294,7 @@ export function useDeleteStudent() {
       if (!isAdmin) {
         // Only admins OR student creator can delete
         if (student.createdBy !== userData.id) {
-          throw new Error('Нямате права да изтриете този ученик')
+          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_STUDENT)
         }
       }
 
@@ -296,11 +303,11 @@ export function useDeleteStudent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] })
-      toast.success('Ученикът беше изтрит успешно!')
+      toast.success(SUCCESS_MESSAGES.STUDENT_DELETED)
     },
     onError: (error: Error) => {
       console.error('Error deleting student:', error)
-      toast.error('Грешка при изтриване на ученик: ' + error.message)
+      toast.error(ERROR_MESSAGES.DELETE_STUDENT_ERROR + ': ' + error.message)
     },
   })
 }
@@ -337,7 +344,7 @@ export function useBulkAddStudents() {
   return useMutation({
     mutationFn: async (students: Array<Omit<Student, 'id' | 'createdAt' | 'createdBy'>>) => {
       if (!user) {
-        throw new Error('Не сте влезли в системата')
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
       const promises = students.map((studentData) => {
@@ -354,11 +361,11 @@ export function useBulkAddStudents() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] })
-      toast.success('Учениците бяха импортирани успешно!')
+      toast.success(SUCCESS_MESSAGES.STUDENTS_IMPORTED)
     },
     onError: (error: Error) => {
       console.error('Error bulk adding students:', error)
-      toast.error('Грешка при импортиране на ученици: ' + error.message)
+      toast.error(ERROR_MESSAGES.IMPORT_STUDENTS_ERROR + ': ' + error.message)
     },
   })
 }
