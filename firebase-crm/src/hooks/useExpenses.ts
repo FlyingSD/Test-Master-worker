@@ -20,6 +20,7 @@ import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentOwnership } from '@/utils/security'
+import { toTimestamp } from '@/utils/date'
 
 const expensesCollection = collection(db, COLLECTIONS.EXPENSES)
 
@@ -51,7 +52,7 @@ export function useAddExpense() {
     mutationFn: async (data: ExpenseFormValues) => {
       const expense = {
         ...data,
-        date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
+        date: toTimestamp(data.date),
         createdBy: user?.uid || 'unknown',
         createdAt: serverTimestamp(),
       }
@@ -84,9 +85,9 @@ export function useUpdateExpense() {
       // 🔒 SECURITY: Validate ownership using centralized utility
       await validateDocumentOwnership(COLLECTIONS.EXPENSES, id, userData, ERROR_MESSAGES.EXPENSE_NOT_FOUND)
 
-      const updateData = {
-        ...data,
-        date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
+      const updateData: any = { ...data }
+      if (updateData.date) {
+        updateData.date = toTimestamp(updateData.date)
       }
       const docRef = doc(db, COLLECTIONS.EXPENSES, id)
       await updateDoc(docRef, updateData)

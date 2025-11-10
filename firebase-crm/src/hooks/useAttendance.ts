@@ -20,6 +20,7 @@ import { useAuth } from './useAuth'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
 import { validateDocumentOwnership } from '@/utils/security'
+import { toTimestamp } from '@/utils/date'
 
 const attendanceCollection = collection(db, COLLECTIONS.ATTENDANCE)
 
@@ -215,7 +216,7 @@ export function useAddAttendance() {
     mutationFn: async (data: Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>) => {
       const attendanceData = {
         ...data,
-        date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
+        date: toTimestamp(data.date),
         createdBy: user?.uid || 'unknown',
         createdAt: serverTimestamp(),
       }
@@ -258,9 +259,9 @@ export function useUpdateAttendance() {
       )
 
       const docRef = doc(db, COLLECTIONS.ATTENDANCE, id)
-      const updateData = {
-        ...data,
-        date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
+      const updateData: any = { ...data }
+      if (updateData.date) {
+        updateData.date = toTimestamp(updateData.date)
       }
       await updateDoc(docRef, updateData)
     },
@@ -316,7 +317,7 @@ export function useBulkAddAttendance() {
       const promises = records.map((data) => {
         const attendanceData = {
           ...data,
-          date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
+          date: toTimestamp(data.date),
           createdBy: user?.uid || 'unknown',
           createdAt: serverTimestamp(),
         }

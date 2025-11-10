@@ -20,6 +20,7 @@ import { useAuth } from './useAuth'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
 import { validateDocumentOwnership } from '@/utils/security'
+import { toTimestamp } from '@/utils/date'
 
 const discountsCollection = collection(db, COLLECTIONS.DISCOUNTS)
 
@@ -177,8 +178,8 @@ export function useAddDiscount() {
     mutationFn: async (data: DiscountFormValues) => {
       const discount = {
         ...data,
-        startDate: data.startDate instanceof Date ? Timestamp.fromDate(data.startDate) : data.startDate,
-        endDate: data.endDate instanceof Date ? Timestamp.fromDate(data.endDate) : data.endDate,
+        startDate: toTimestamp(data.startDate),
+        endDate: toTimestamp(data.endDate),
         createdBy: user?.uid || 'unknown',
         createdAt: serverTimestamp(),
       }
@@ -212,11 +213,15 @@ export function useUpdateDiscount() {
       )
 
       const docRef = doc(db, COLLECTIONS.DISCOUNTS, id)
-      const updateData = {
+      const updateData: any = {
         ...data,
-        startDate: data.startDate instanceof Date ? Timestamp.fromDate(data.startDate) : data.startDate,
-        endDate: data.endDate instanceof Date ? Timestamp.fromDate(data.endDate) : data.endDate,
         updatedAt: serverTimestamp(),
+      }
+      if (updateData.startDate) {
+        updateData.startDate = toTimestamp(updateData.startDate)
+      }
+      if (updateData.endDate) {
+        updateData.endDate = toTimestamp(updateData.endDate)
       }
       await updateDoc(docRef, updateData)
     },

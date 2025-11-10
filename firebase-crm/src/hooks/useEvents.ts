@@ -22,6 +22,7 @@ import { useAuth } from './useAuth'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { COLLECTIONS } from '@/lib/collections'
 import { validateDocumentOwnership } from '@/utils/security'
+import { toTimestamp } from '@/utils/date'
 
 // Collection reference
 const eventsCollection = collection(db, COLLECTIONS.EVENTS)
@@ -163,12 +164,8 @@ export function useAddEvent() {
       // Convert dates to Timestamps
       const data = {
         ...eventData,
-        startTime: eventData.startTime instanceof Date
-          ? Timestamp.fromDate(eventData.startTime)
-          : eventData.startTime,
-        endTime: eventData.endTime instanceof Date
-          ? Timestamp.fromDate(eventData.endTime)
-          : eventData.endTime,
+        startTime: toTimestamp(eventData.startTime),
+        endTime: toTimestamp(eventData.endTime),
         createdBy: user?.uid || 'unknown',
         createdAt: serverTimestamp(),
       }
@@ -212,14 +209,12 @@ export function useUpdateEvent() {
       const docRef = doc(db, COLLECTIONS.EVENTS, id)
 
       // Convert dates to Timestamps
-      const updateData = {
-        ...data,
-        startTime: data.startTime instanceof Date
-          ? Timestamp.fromDate(data.startTime)
-          : data.startTime,
-        endTime: data.endTime instanceof Date
-          ? Timestamp.fromDate(data.endTime)
-          : data.endTime,
+      const updateData: any = { ...data }
+      if (updateData.startTime) {
+        updateData.startTime = toTimestamp(updateData.startTime)
+      }
+      if (updateData.endTime) {
+        updateData.endTime = toTimestamp(updateData.endTime)
       }
 
       await updateDoc(docRef, updateData)

@@ -22,6 +22,7 @@ import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentOwnership } from '@/utils/security'
+import { toTimestamp } from '@/utils/date'
 
 // Collection reference
 const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
@@ -260,9 +261,7 @@ export function useAddPayment() {
       // Convert date to Timestamp if it's a Date
       const data = {
         ...paymentData,
-        date: paymentData.date instanceof Date
-          ? Timestamp.fromDate(paymentData.date)
-          : paymentData.date,
+        date: toTimestamp(paymentData.date),
         createdBy: user?.uid || 'unknown',
         createdAt: serverTimestamp(),
       }
@@ -302,11 +301,9 @@ export function useUpdatePayment() {
       await validateDocumentOwnership(COLLECTIONS.PAYMENTS, id, userData, ERROR_MESSAGES.PAYMENT_NOT_FOUND)
 
       // Convert date to Timestamp if it's a Date
-      const updateData = {
-        ...data,
-        date: data.date instanceof Date
-          ? Timestamp.fromDate(data.date)
-          : data.date,
+      const updateData: any = { ...data }
+      if (updateData.date) {
+        updateData.date = toTimestamp(updateData.date)
       }
 
       const docRef = doc(db, COLLECTIONS.PAYMENTS, id)
@@ -504,9 +501,7 @@ export function useBulkAddPayments() {
       const promises = payments.map((paymentData) => {
         const data = {
           ...paymentData,
-          date: paymentData.date instanceof Date
-            ? Timestamp.fromDate(paymentData.date)
-            : paymentData.date,
+          date: toTimestamp(paymentData.date),
           createdBy: user?.uid || 'admin',
           createdAt: serverTimestamp(),
         }

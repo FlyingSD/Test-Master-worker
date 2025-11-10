@@ -21,6 +21,7 @@ import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentOwnership } from '@/utils/security'
+import { toTimestamp } from '@/utils/date'
 
 // Collection reference
 const homeworkCollection = collection(db, COLLECTIONS.HOMEWORK)
@@ -191,16 +192,10 @@ export function useAddHomework() {
       // Convert dates to Timestamp
       const data = {
         ...homeworkData,
-        assignedDate: homeworkData.assignedDate instanceof Date
-          ? Timestamp.fromDate(homeworkData.assignedDate)
-          : homeworkData.assignedDate,
-        dueDate: homeworkData.dueDate instanceof Date
-          ? Timestamp.fromDate(homeworkData.dueDate)
-          : homeworkData.dueDate,
+        assignedDate: toTimestamp(homeworkData.assignedDate),
+        dueDate: toTimestamp(homeworkData.dueDate),
         completedDate: homeworkData.completedDate
-          ? homeworkData.completedDate instanceof Date
-            ? Timestamp.fromDate(homeworkData.completedDate)
-            : homeworkData.completedDate
+          ? toTimestamp(homeworkData.completedDate)
           : undefined,
         createdAt: serverTimestamp(),
       }
@@ -247,14 +242,14 @@ export function useUpdateHomework() {
       // Convert dates to Timestamp
       const updateData: any = { ...data }
 
-      if (updateData.assignedDate instanceof Date) {
-        updateData.assignedDate = Timestamp.fromDate(updateData.assignedDate)
+      if (updateData.assignedDate) {
+        updateData.assignedDate = toTimestamp(updateData.assignedDate)
       }
-      if (updateData.dueDate instanceof Date) {
-        updateData.dueDate = Timestamp.fromDate(updateData.dueDate)
+      if (updateData.dueDate) {
+        updateData.dueDate = toTimestamp(updateData.dueDate)
       }
-      if (updateData.completedDate instanceof Date) {
-        updateData.completedDate = Timestamp.fromDate(updateData.completedDate)
+      if (updateData.completedDate) {
+        updateData.completedDate = toTimestamp(updateData.completedDate)
       }
 
       updateData.updatedAt = serverTimestamp()

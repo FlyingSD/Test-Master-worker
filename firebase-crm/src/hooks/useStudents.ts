@@ -24,6 +24,7 @@ import { COLLECTIONS } from '@/lib/collections'
 import { syncAllStudentData } from './useDenormalizedSync'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentGroupAccess, validateDocumentOwnership } from '@/utils/security'
+import { toTimestamp } from '@/utils/date'
 
 // Collection reference
 const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
@@ -232,9 +233,7 @@ export function useAddStudent() {
       // Convert dueDate to Timestamp if it's a Date
       const data = {
         ...studentData,
-        dueDate: studentData.dueDate instanceof Date
-          ? Timestamp.fromDate(studentData.dueDate)
-          : studentData.dueDate,
+        dueDate: toTimestamp(studentData.dueDate),
         createdBy: user.uid, // 🔒 SECURITY: Track who created this student
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -275,12 +274,12 @@ export function useUpdateStudent() {
       await validateDocumentGroupAccess(COLLECTIONS.STUDENTS, id, userData, ERROR_MESSAGES.STUDENT_NOT_FOUND)
 
       // Convert dueDate to Timestamp if it's a Date
-      const updateData = {
+      const updateData: any = {
         ...data,
-        dueDate: data.dueDate instanceof Date
-          ? Timestamp.fromDate(data.dueDate)
-          : data.dueDate,
         updatedAt: serverTimestamp(),
+      }
+      if (updateData.dueDate) {
+        updateData.dueDate = toTimestamp(updateData.dueDate)
       }
 
       const docRef = doc(db, COLLECTIONS.STUDENTS, id)
