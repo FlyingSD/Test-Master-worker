@@ -21,6 +21,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { validateDocumentOwnership } from '@/utils/security'
 
 // Collection reference
 const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
@@ -297,23 +298,8 @@ export function useUpdatePayment() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch payment first to check ownership
-      const docRef = doc(db, COLLECTIONS.PAYMENTS, id)
-      const paymentSnap = await getDoc(docRef)
-
-      if (!paymentSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.PAYMENT_NOT_FOUND)
-      }
-
-      const payment = paymentSnap.data() as Payment
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        // Only admins OR payment creator can update
-        if (payment.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_PAYMENT)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership using centralized utility
+      await validateDocumentOwnership(COLLECTIONS.PAYMENTS, id, userData, ERROR_MESSAGES.PAYMENT_NOT_FOUND)
 
       // Convert date to Timestamp if it's a Date
       const updateData = {
@@ -323,6 +309,7 @@ export function useUpdatePayment() {
           : data.date,
       }
 
+      const docRef = doc(db, COLLECTIONS.PAYMENTS, id)
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
@@ -354,25 +341,11 @@ export function useDeletePayment() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch payment first to check ownership
-      const docRef = doc(db, COLLECTIONS.PAYMENTS, paymentId)
-      const paymentSnap = await getDoc(docRef)
-
-      if (!paymentSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.PAYMENT_NOT_FOUND)
-      }
-
-      const payment = paymentSnap.data() as Payment
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        // Only admins OR payment creator can delete
-        if (payment.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_PAYMENT)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership using centralized utility
+      await validateDocumentOwnership(COLLECTIONS.PAYMENTS, paymentId, userData, ERROR_MESSAGES.PAYMENT_NOT_FOUND)
 
       // Delete payment
+      const docRef = doc(db, COLLECTIONS.PAYMENTS, paymentId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {

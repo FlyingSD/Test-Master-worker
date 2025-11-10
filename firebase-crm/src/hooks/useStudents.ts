@@ -23,6 +23,7 @@ import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { syncAllStudentData } from './useDenormalizedSync'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { validateDocumentGroupAccess, validateDocumentOwnership } from '@/utils/security'
 
 // Collection reference
 const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
@@ -270,28 +271,8 @@ export function useUpdateStudent() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch student first to check group ownership
-      const docRef = doc(db, COLLECTIONS.STUDENTS, id)
-      const studentSnap = await getDoc(docRef)
-
-      if (!studentSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.STUDENT_NOT_FOUND)
-      }
-
-      const student = studentSnap.data() as Student
-
-      // 🔒 SECURITY: Group ownership validation
-      if (!isAdmin) {
-        // Teachers can only update students in their assigned groups
-        if (userData.role === 'teacher') {
-          if (!userData.assignedGroups || !userData.assignedGroups.includes(student.group)) {
-            throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_STUDENT)
-          }
-        } else {
-          // Parents and other roles cannot update students
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_STUDENTS)
-        }
-      }
+      // 🔒 SECURITY: Validate group access using centralized utility
+      await validateDocumentGroupAccess(COLLECTIONS.STUDENTS, id, userData, ERROR_MESSAGES.STUDENT_NOT_FOUND)
 
       // Convert dueDate to Timestamp if it's a Date
       const updateData = {
@@ -302,6 +283,7 @@ export function useUpdateStudent() {
         updatedAt: serverTimestamp(),
       }
 
+      const docRef = doc(db, COLLECTIONS.STUDENTS, id)
       await updateDoc(docRef, updateData)
 
       // 🎯 SSOT: Sync denormalized data if name changed
@@ -338,25 +320,11 @@ export function useDeleteStudent() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch student first to check ownership
-      const docRef = doc(db, COLLECTIONS.STUDENTS, studentId)
-      const studentSnap = await getDoc(docRef)
-
-      if (!studentSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.STUDENT_NOT_FOUND)
-      }
-
-      const student = studentSnap.data() as Student
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        // Only admins OR student creator can delete
-        if (student.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_STUDENT)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership using centralized utility
+      await validateDocumentOwnership(COLLECTIONS.STUDENTS, studentId, userData, ERROR_MESSAGES.STUDENT_NOT_FOUND)
 
       // Delete student
+      const docRef = doc(db, COLLECTIONS.STUDENTS, studentId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {

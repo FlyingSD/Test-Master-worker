@@ -19,6 +19,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { validateDocumentOwnership } from '@/utils/security'
 
 const expensesCollection = collection(db, COLLECTIONS.EXPENSES)
 
@@ -80,27 +81,14 @@ export function useUpdateExpense() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch expense first to check ownership
-      const docRef = doc(db, COLLECTIONS.EXPENSES, id)
-      const expenseSnap = await getDoc(docRef)
-
-      if (!expenseSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.EXPENSE_NOT_FOUND)
-      }
-
-      const expense = expenseSnap.data() as Expense
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        if (expense.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_EXPENSE)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership using centralized utility
+      await validateDocumentOwnership(COLLECTIONS.EXPENSES, id, userData, ERROR_MESSAGES.EXPENSE_NOT_FOUND)
 
       const updateData = {
         ...data,
         date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
       }
+      const docRef = doc(db, COLLECTIONS.EXPENSES, id)
       await updateDoc(docRef, updateData)
     },
     onSuccess: () => {
@@ -130,25 +118,11 @@ export function useDeleteExpense() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch expense first to check ownership
-      const docRef = doc(db, COLLECTIONS.EXPENSES, id)
-      const expenseSnap = await getDoc(docRef)
-
-      if (!expenseSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.EXPENSE_NOT_FOUND)
-      }
-
-      const expense = expenseSnap.data() as Expense
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        // Only admins OR expense creator can delete
-        if (expense.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_EXPENSE)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership using centralized utility
+      await validateDocumentOwnership(COLLECTIONS.EXPENSES, id, userData, ERROR_MESSAGES.EXPENSE_NOT_FOUND)
 
       // Delete expense
+      const docRef = doc(db, COLLECTIONS.EXPENSES, id)
       await deleteDoc(docRef)
     },
     onSuccess: () => {

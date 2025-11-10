@@ -20,6 +20,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { validateDocumentOwnership } from '@/utils/security'
 
 // Collection reference
 const homeworkCollection = collection(db, COLLECTIONS.HOMEWORK)
@@ -227,7 +228,7 @@ export function useAddHomework() {
  */
 export function useUpdateHomework() {
   const queryClient = useQueryClient()
-  const { userData, isAdmin } = useAuth()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<HomeworkFormValues> }) => {
@@ -235,22 +236,13 @@ export function useUpdateHomework() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch homework first to check ownership
-      const docRef = doc(db, COLLECTIONS.HOMEWORK, id)
-      const homeworkSnap = await getDoc(docRef)
-
-      if (!homeworkSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.HOMEWORK_NOT_FOUND)
-      }
-
-      const homework = homeworkSnap.data() as Homework
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        if (homework.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_HOMEWORK)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership before update
+      await validateDocumentOwnership(
+        COLLECTIONS.HOMEWORK,
+        id,
+        userData,
+        ERROR_MESSAGES.HOMEWORK_NOT_FOUND
+      )
 
       // Convert dates to Timestamp
       const updateData: any = { ...data }
@@ -267,6 +259,7 @@ export function useUpdateHomework() {
 
       updateData.updatedAt = serverTimestamp()
 
+      const docRef = doc(db, COLLECTIONS.HOMEWORK, id)
       await updateDoc(docRef, updateData)
     },
     onSuccess: () => {
@@ -289,7 +282,7 @@ export function useUpdateHomework() {
  */
 export function useDeleteHomework() {
   const queryClient = useQueryClient()
-  const { userData, isAdmin } = useAuth()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async (homeworkId: string) => {
@@ -297,25 +290,16 @@ export function useDeleteHomework() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch homework first to check ownership
-      const docRef = doc(db, COLLECTIONS.HOMEWORK, homeworkId)
-      const homeworkSnap = await getDoc(docRef)
-
-      if (!homeworkSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.HOMEWORK_NOT_FOUND)
-      }
-
-      const homework = homeworkSnap.data() as Homework
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        // Only admins OR homework creator can delete
-        if (homework.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_HOMEWORK)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership before deletion
+      await validateDocumentOwnership(
+        COLLECTIONS.HOMEWORK,
+        homeworkId,
+        userData,
+        ERROR_MESSAGES.HOMEWORK_NOT_FOUND
+      )
 
       // Delete homework
+      const docRef = doc(db, COLLECTIONS.HOMEWORK, homeworkId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {

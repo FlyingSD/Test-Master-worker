@@ -21,6 +21,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { validateDocumentOwnership } from '@/utils/security'
 
 // Collection reference
 const invoicesCollection = collection(db, COLLECTIONS.INVOICES)
@@ -196,7 +197,7 @@ export function useAddInvoice() {
  */
 export function useUpdateInvoice() {
   const queryClient = useQueryClient()
-  const { userData, isAdmin } = useAuth()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<InvoiceFormValues> }) => {
@@ -204,22 +205,13 @@ export function useUpdateInvoice() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch invoice first to check ownership
-      const docRef = doc(db, COLLECTIONS.INVOICES, id)
-      const invoiceSnap = await getDoc(docRef)
-
-      if (!invoiceSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.INVOICE_NOT_FOUND)
-      }
-
-      const invoice = invoiceSnap.data() as Invoice
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        if (invoice.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_INVOICE)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership before update
+      await validateDocumentOwnership(
+        COLLECTIONS.INVOICES,
+        id,
+        userData,
+        ERROR_MESSAGES.INVOICE_NOT_FOUND
+      )
 
       // Recalculate totals if items changed
       let updateData: any = { ...data }
@@ -239,6 +231,7 @@ export function useUpdateInvoice() {
 
       updateData.updatedAt = serverTimestamp()
 
+      const docRef = doc(db, COLLECTIONS.INVOICES, id)
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
@@ -262,7 +255,7 @@ export function useUpdateInvoice() {
  */
 export function useDeleteInvoice() {
   const queryClient = useQueryClient()
-  const { userData, isAdmin } = useAuth()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async (invoiceId: string) => {
@@ -270,25 +263,16 @@ export function useDeleteInvoice() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch invoice first to check ownership
-      const docRef = doc(db, COLLECTIONS.INVOICES, invoiceId)
-      const invoiceSnap = await getDoc(docRef)
-
-      if (!invoiceSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.INVOICE_NOT_FOUND)
-      }
-
-      const invoice = invoiceSnap.data() as Invoice
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        // Only admins OR invoice creator can delete
-        if (invoice.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_INVOICE)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership before deletion
+      await validateDocumentOwnership(
+        COLLECTIONS.INVOICES,
+        invoiceId,
+        userData,
+        ERROR_MESSAGES.INVOICE_NOT_FOUND
+      )
 
       // Delete invoice
+      const docRef = doc(db, COLLECTIONS.INVOICES, invoiceId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {

@@ -22,6 +22,7 @@ import { useAuth } from './useAuth'
 import { COLLECTIONS } from '@/lib/collections'
 import { syncAllInventoryData } from './useDenormalizedSync'
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
+import { validateDocumentOwnership } from '@/utils/security'
 
 // Collection references
 const inventoryCollection = collection(db, COLLECTIONS.INVENTORY)
@@ -142,7 +143,7 @@ export function useAddInventoryItem() {
  */
 export function useUpdateInventoryItem() {
   const queryClient = useQueryClient()
-  const { userData, isAdmin } = useAuth()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<InventoryFormValues> }) => {
@@ -150,28 +151,20 @@ export function useUpdateInventoryItem() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch item first to check ownership
-      const docRef = doc(db, COLLECTIONS.INVENTORY, id)
-      const itemSnap = await getDoc(docRef)
-
-      if (!itemSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.INVENTORY_NOT_FOUND)
-      }
-
-      const item = itemSnap.data() as InventoryItem
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        if (item.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_EDIT_INVENTORY)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership before update
+      await validateDocumentOwnership(
+        COLLECTIONS.INVENTORY,
+        id,
+        userData,
+        ERROR_MESSAGES.INVENTORY_NOT_FOUND
+      )
 
       const updateData = {
         ...data,
         updatedAt: serverTimestamp(),
       }
 
+      const docRef = doc(db, COLLECTIONS.INVENTORY, id)
       await updateDoc(docRef, updateData)
 
       // 🎯 SSOT: Sync denormalized data if name changed
@@ -199,7 +192,7 @@ export function useUpdateInventoryItem() {
  */
 export function useDeleteInventoryItem() {
   const queryClient = useQueryClient()
-  const { userData, isAdmin } = useAuth()
+  const { userData } = useAuth()
 
   return useMutation({
     mutationFn: async (itemId: string) => {
@@ -207,25 +200,16 @@ export function useDeleteInventoryItem() {
         throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
       }
 
-      // 🔒 SECURITY: Fetch inventory item first to check ownership
-      const docRef = doc(db, COLLECTIONS.INVENTORY, itemId)
-      const itemSnap = await getDoc(docRef)
-
-      if (!itemSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.INVENTORY_NOT_FOUND)
-      }
-
-      const item = itemSnap.data() as InventoryItem
-
-      // 🔒 SECURITY: Ownership validation
-      if (!isAdmin) {
-        // Only admins OR item creator can delete
-        if (item.createdBy !== userData.id) {
-          throw new Error(ERROR_MESSAGES.NO_PERMISSION_DELETE_INVENTORY)
-        }
-      }
+      // 🔒 SECURITY: Validate ownership before deletion
+      await validateDocumentOwnership(
+        COLLECTIONS.INVENTORY,
+        itemId,
+        userData,
+        ERROR_MESSAGES.INVENTORY_NOT_FOUND
+      )
 
       // Delete inventory item
+      const docRef = doc(db, COLLECTIONS.INVENTORY, itemId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {
