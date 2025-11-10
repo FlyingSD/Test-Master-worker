@@ -166,6 +166,26 @@
     animation: scaleIn 0.2s ease-out;
   }
 
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.6s ease-out;
+  }
+
+  /* Stagger animations for lists */
+  .stagger-fade-in > * {
+    animation: fadeIn 0.4s ease-out backwards;
+  }
+
+  .stagger-fade-in > *:nth-child(1) { animation-delay: 0.05s; }
+  .stagger-fade-in > *:nth-child(2) { animation-delay: 0.1s; }
+  .stagger-fade-in > *:nth-child(3) { animation-delay: 0.15s; }
+  .stagger-fade-in > *:nth-child(4) { animation-delay: 0.2s; }
+  .stagger-fade-in > *:nth-child(5) { animation-delay: 0.25s; }
+  .stagger-fade-in > *:nth-child(6) { animation-delay: 0.3s; }
+
   /* Mobile Touch Optimizations */
   .touch-manipulation {
     touch-action: manipulation;
@@ -212,4 +232,156 @@
   * {
     -webkit-overflow-scrolling: touch;
   }
+
+  /* Mobile-optimized modals */
+  .modal-content {
+    @apply max-h-[90vh] overflow-y-auto;
+  }
+
+  /* Responsive cards */
+  .card {
+    @apply p-4;
+  }
+
+  /* Better input sizing */
+  .input {
+    @apply text-base; /* Prevents zoom on iOS */
+  }
+
+  /* Responsive tables */
+  .table th,
+  .table td {
+    @apply px-3 py-2 text-xs;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Extra small screens */
+  .btn {
+    @apply text-sm;
+  }
+
+  /* Compact cards */
+  .card {
+    @apply p-3 rounded-lg;
+  }
+
+  /* Stack layout helpers */
+  .mobile-stack {
+    @apply flex-col;
+  }
+
+  /* Full width on mobile */
+  .mobile-full {
+    @apply w-full;
+  }
+
+  /* Hide on mobile */
+  .mobile-hide {
+    @apply hidden;
+  }
+
+  /* Smaller text on mobile */
+  h1 {
+    @apply text-2xl;
+  }
+
+  h2 {
+    @apply text-xl;
+  }
+
+  /* Compact stat cards */
+  .stat-card {
+    @apply gap-2;
+  }
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Shimmer effect for loading skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%);
+  background-size: 1000px 100%;
 }

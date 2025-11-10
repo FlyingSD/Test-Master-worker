@@ -7,6 +7,7 @@ import { usePagination } from '@/hooks/usePagination'
 import PaymentModal from '@/components/PaymentModal'
 import BulkPaymentModal from '@/components/BulkPaymentModal'
 import Pagination from '@/components/Pagination'
+import DateRangePicker from '@/components/DateRangePicker'
 import { Payment } from '@/types'
 
 export default function PaymentsPage() {
@@ -19,6 +20,8 @@ export default function PaymentsPage() {
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null)
   const [filterMethod, setFilterMethod] = useState<string>('all')
   const [filterArticle, setFilterArticle] = useState<string>('all')
+  const [startDate, setStartDate] = useState<Date | null>(null)
+  const [endDate, setEndDate] = useState<Date | null>(null)
 
   // Filter payments
   const filteredPayments = payments.filter((payment) => {
@@ -26,7 +29,19 @@ export default function PaymentsPage() {
     const matchesMethod = filterMethod === 'all' || payment.method === filterMethod
     const matchesArticle = filterArticle === 'all' || payment.article === filterArticle
 
-    return matchesSearch && matchesMethod && matchesArticle
+    // Date range filter
+    let matchesDateRange = true
+    if (startDate || endDate) {
+      const paymentDate = payment.date instanceof Date ? payment.date : payment.date.toDate()
+      if (startDate && paymentDate < startDate) matchesDateRange = false
+      if (endDate) {
+        const endOfDay = new Date(endDate)
+        endOfDay.setHours(23, 59, 59, 999)
+        if (paymentDate > endOfDay) matchesDateRange = false
+      }
+    }
+
+    return matchesSearch && matchesMethod && matchesArticle && matchesDateRange
   })
 
   // Pagination
@@ -62,6 +77,11 @@ export default function PaymentsPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingPayment(null)
+  }
+
+  const handleClearDateFilter = () => {
+    setStartDate(null)
+    setEndDate(null)
   }
 
   if (loading) {
@@ -190,6 +210,15 @@ export default function PaymentsPage() {
             <option value="Учебна тетрадка">Учебна тетрадка</option>
             <option value="Други">Други</option>
           </select>
+
+          {/* Date Range Filter */}
+          <DateRangePicker
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={setStartDate}
+            onEndDateChange={setEndDate}
+            onClear={handleClearDateFilter}
+          />
         </div>
       </div>
 

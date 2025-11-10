@@ -7,6 +7,7 @@ import { usePagination } from '@/hooks/usePagination'
 import { Expense } from '@/types'
 import ExpenseModal from '@/components/ExpenseModal'
 import Pagination from '@/components/Pagination'
+import DateRangePicker from '@/components/DateRangePicker'
 
 export default function ExpensesPage() {
   const { expenses, loading } = useExpenses()
@@ -17,6 +18,8 @@ export default function ExpensesPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
+  const [startDate, setStartDate] = useState<Date | null>(null)
+  const [endDate, setEndDate] = useState<Date | null>(null)
 
   // Get unique categories from expenses
   const categories = Array.from(new Set(expenses.map((exp) => exp.category)))
@@ -27,7 +30,19 @@ export default function ExpensesPage() {
       expense.receiptNumber?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = categoryFilter === 'all' || expense.category === categoryFilter
 
-    return matchesSearch && matchesCategory
+    // Date range filter
+    let matchesDateRange = true
+    if (startDate || endDate) {
+      const expenseDate = expense.date instanceof Date ? expense.date : expense.date.toDate()
+      if (startDate && expenseDate < startDate) matchesDateRange = false
+      if (endDate) {
+        const endOfDay = new Date(endDate)
+        endOfDay.setHours(23, 59, 59, 999)
+        if (expenseDate > endOfDay) matchesDateRange = false
+      }
+    }
+
+    return matchesSearch && matchesCategory && matchesDateRange
   })
 
   // Pagination
@@ -63,6 +78,11 @@ export default function ExpensesPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingExpense(null)
+  }
+
+  const handleClearDateFilter = () => {
+    setStartDate(null)
+    setEndDate(null)
   }
 
   const getCategoryColor = (category: string) => {
@@ -216,6 +236,15 @@ export default function ExpensesPage() {
               </button>
             ))}
           </div>
+
+          {/* Date Range Filter */}
+          <DateRangePicker
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={setStartDate}
+            onEndDateChange={setEndDate}
+            onClear={handleClearDateFilter}
+          />
         </div>
       </div>
 
