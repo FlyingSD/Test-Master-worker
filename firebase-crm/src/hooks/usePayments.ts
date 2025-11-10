@@ -26,16 +26,88 @@ const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
 
 /**
  * Hook to get all payments with real-time updates
+ * 🔒 SECURITY FIX: Now filters payments by role
+ * - Admins see ALL payments
+ * - Teachers see ONLY payments for students in their assigned groups
+ * - Parents should use usePaymentsByParent() instead
  */
 export function usePayments() {
+  const { userData, isAdmin, isTeacher, isParent } = useAuth()
   const [payments, setPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
+    if (!userData) {
+      setPayments([])
+      setLoading(false)
+      return
+    }
+
+    // 🔒 SECURITY: Parents should use usePaymentsByParent() instead
+    if (isParent) {
+      setPayments([])
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
 
-    // Real-time listener
+    // For teachers, we need to first get their students, then filter payments
+    if (isTeacher && userData.assignedGroups && userData.assignedGroups.length > 0) {
+      // Get students in teacher's assigned groups
+      const studentsQuery = query(
+        collection(db, COLLECTIONS.STUDENTS),
+        where('group', 'in', userData.assignedGroups)
+      )
+
+      const unsubscribeStudents = onSnapshot(studentsQuery, (studentsSnapshot) => {
+        const studentIds: string[] = []
+        studentsSnapshot.forEach((doc) => studentIds.push(doc.id))
+
+        if (studentIds.length === 0) {
+          setPayments([])
+          setLoading(false)
+          return
+        }
+
+        // Now get payments for those students only
+        // Since Firestore 'in' is limited to 10 items, batch the queries
+        const batchSize = 10
+        const batches: string[][] = []
+        for (let i = 0; i < studentIds.length; i += batchSize) {
+          batches.push(studentIds.slice(i, i + batchSize))
+        }
+
+        const unsubscribePayments: (() => void)[] = []
+        const allPayments = new Map<string, Payment>()
+
+        batches.forEach((batch) => {
+          const paymentsQuery = query(
+            paymentsCollection,
+            where('studentId', 'in', batch),
+            orderBy('date', 'desc')
+          )
+
+          const unsubscribe = onSnapshot(paymentsQuery, (snapshot) => {
+            snapshot.forEach((doc) => {
+              allPayments.set(doc.id, { id: doc.id, ...doc.data() } as Payment)
+            })
+            setPayments(Array.from(allPayments.values()))
+            setLoading(false)
+            setError(null)
+          })
+
+          unsubscribePayments.push(unsubscribe)
+        })
+
+        return () => unsubscribePayments.forEach((unsub) => unsub())
+      })
+
+      return () => unsubscribeStudents()
+    }
+
+    // For admins: get ALL payments
     const q = query(paymentsCollection, orderBy('date', 'desc'))
 
     const unsubscribe = onSnapshot(
@@ -61,7 +133,7 @@ export function usePayments() {
     )
 
     return () => unsubscribe()
-  }, [])
+  }, [userData, isAdmin, isTeacher, isParent])
 
   return { payments, loading, error }
 }
