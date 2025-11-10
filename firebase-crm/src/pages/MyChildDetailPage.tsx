@@ -1,12 +1,15 @@
+import { useState, useMemo } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
-import { ArrowLeft, User, CreditCard, BookOpen, Calendar, CheckCircle, Clock, AlertCircle, AlertTriangle, Printer } from 'lucide-react'
+import { ArrowLeft, User, CreditCard, BookOpen, Calendar, CheckCircle, Clock, AlertCircle, AlertTriangle, Printer, Filter } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudentsByParent } from '@/hooks/useStudents'
 import { usePayments } from '@/hooks/usePayments'
 import { useHomeworkByStudent } from '@/hooks/useHomework'
 import { formatDate, formatCurrency } from '@/utils/formatters'
-import { getDueDateStatus } from '@/utils/date'
+import { getDueDateStatus, subtractDays } from '@/utils/date'
 import { generatePaymentReceipt } from '@/utils/pdfGenerator'
+
+type PaymentPeriod = 'all' | '3months' | '6months' | '1year'
 
 export default function MyChildDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -14,6 +17,7 @@ export default function MyChildDetailPage() {
   const { students, loading: studentsLoading } = useStudentsByParent(user?.uid || '')
   const { payments, loading: paymentsLoading } = usePayments()
   const { homework, loading: homeworkLoading } = useHomeworkByStudent(id || '')
+  const [paymentPeriod, setPaymentPeriod] = useState<PaymentPeriod>('all')
 
   // Get the specific student
   const student = students.find(s => s.id === id)
@@ -53,16 +57,43 @@ export default function MyChildDetailPage() {
     )
   }
 
-  // Filter payments for this student
-  const studentPayments = payments
-    .filter(p => p.studentId === student.id)
-    .sort((a, b) => {
-      const dateA = a.date instanceof Date ? a.date : a.date?.toDate?.() || new Date(0)
-      const dateB = b.date instanceof Date ? b.date : b.date?.toDate?.() || new Date(0)
-      return dateB.getTime() - dateA.getTime()
-    })
+  // Filter payments for this student with date filtering
+  const studentPayments = useMemo(() => {
+    const today = new Date()
+    let cutoffDate: Date | null = null
 
-  const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0)
+    // Calculate cutoff date based on selected period
+    if (paymentPeriod === '3months') {
+      cutoffDate = subtractDays(today, 90)
+    } else if (paymentPeriod === '6months') {
+      cutoffDate = subtractDays(today, 180)
+    } else if (paymentPeriod === '1year') {
+      cutoffDate = subtractDays(today, 365)
+    }
+
+    return payments
+      .filter(p => {
+        if (p.studentId !== student.id) return false
+
+        // If filtering by period, check date
+        if (cutoffDate) {
+          const paymentDate = p.date instanceof Date ? p.date : p.date?.toDate?.()
+          if (!paymentDate) return false
+          return paymentDate >= cutoffDate
+        }
+
+        return true
+      })
+      .sort((a, b) => {
+        const dateA = a.date instanceof Date ? a.date : a.date?.toDate?.() || new Date(0)
+        const dateB = b.date instanceof Date ? b.date : b.date?.toDate?.() || new Date(0)
+        return dateB.getTime() - dateA.getTime()
+      })
+  }, [payments, student.id, paymentPeriod])
+
+  const totalPaid = useMemo(() => {
+    return studentPayments.reduce((sum, p) => sum + p.amount, 0)
+  }, [studentPayments])
 
   // Categorize homework
   const today = new Date()
@@ -359,14 +390,32 @@ export default function MyChildDetailPage() {
 
       {/* Payment History */}
       <div className="card">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <CreditCard className="w-6 h-6 text-primary" />
             <h2 className="text-xl font-bold text-gray-900">История на плащанията</h2>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-gray-600">Общо платено</p>
-            <p className="text-2xl font-bold text-green-600">{formatCurrency(totalPaid)}</p>
+
+          <div className="flex items-center gap-4">
+            {/* Period Filter */}
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-gray-500" />
+              <select
+                value={paymentPeriod}
+                onChange={(e) => setPaymentPeriod(e.target.value as PaymentPeriod)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+              >
+                <option value="all">Всички</option>
+                <option value="3months">Последните 3 месеца</option>
+                <option value="6months">Последните 6 месеца</option>
+                <option value="1year">Последната година</option>
+              </select>
+            </div>
+
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Общо платено</p>
+              <p className="text-2xl font-bold text-green-600">{formatCurrency(totalPaid)}</p>
+            </div>
           </div>
         </div>
 
