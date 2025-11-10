@@ -19,6 +19,7 @@ import AttendancePage from '@/pages/AttendancePage'
 import ErrorDashboardPage from '@/pages/ErrorDashboardPage'
 import MyChildrenPage from '@/pages/MyChildrenPage'
 import MyChildDetailPage from '@/pages/MyChildDetailPage'
+import HomeworkPage from '@/pages/HomeworkPage'
 
 export default function App() {
   const { user, loading, isParent } = useAuth()
@@ -53,6 +54,7 @@ export default function App() {
             <Route path="my-children" element={<MyChildrenPage />} />
             <Route path="my-children/:id" element={<MyChildDetailPage />} />
             <Route path="students" element={<StudentsPage />} />
+            <Route path="homework" element={<HomeworkPage />} />
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="expenses" element={<ExpensesPage />} />
             <Route path="events" element={<EventsPage />} />

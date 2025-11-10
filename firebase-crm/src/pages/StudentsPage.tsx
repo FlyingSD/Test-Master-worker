@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, FileDown, Upload } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, FileDown, Upload, BookOpen } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudents, useDeleteStudent } from '@/hooks/useStudents'
 import { formatDate, formatCurrency, getStatusColor, getStatusText } from '@/utils/formatters'
@@ -8,6 +8,7 @@ import { exportStudentsToExcel } from '@/utils/excelExport'
 import { usePagination } from '@/hooks/usePagination'
 import StudentModal from '@/components/StudentModal'
 import CSVImportModal from '@/components/CSVImportModal'
+import HomeworkModal from '@/components/HomeworkModal'
 import Pagination from '@/components/Pagination'
 import { Student } from '@/types'
 
@@ -19,7 +20,9 @@ export default function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isCSVModalOpen, setIsCSVModalOpen] = useState(false)
+  const [isHomeworkModalOpen, setIsHomeworkModalOpen] = useState(false)
   const [editingStudent, setEditingStudent] = useState<Student | null>(null)
+  const [selectedStudentForHomework, setSelectedStudentForHomework] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all')
 
   // 🔒 SECURITY: Only teachers and admins can view all students
@@ -66,6 +69,16 @@ export default function StudentsPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingStudent(null)
+  }
+
+  const handleViewHomework = (studentId: string) => {
+    setSelectedStudentForHomework(studentId)
+    setIsHomeworkModalOpen(true)
+  }
+
+  const handleCloseHomeworkModal = () => {
+    setIsHomeworkModalOpen(false)
+    setSelectedStudentForHomework(null)
   }
 
   if (loading) {
@@ -279,6 +292,13 @@ export default function StudentsPage() {
                     <td>
                       <div className="flex items-center gap-2">
                         <button
+                          onClick={() => handleViewHomework(student.id)}
+                          className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Домашни"
+                        >
+                          <BookOpen className="w-4 h-4 text-blue-600" />
+                        </button>
+                        <button
                           onClick={() => handleEdit(student)}
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           title="Редактиране"
@@ -324,6 +344,14 @@ export default function StudentsPage() {
       {isCSVModalOpen && (
         <CSVImportModal
           onClose={() => setIsCSVModalOpen(false)}
+        />
+      )}
+
+      {/* Homework Modal */}
+      {isHomeworkModalOpen && selectedStudentForHomework && (
+        <HomeworkModal
+          studentId={selectedStudentForHomework}
+          onClose={handleCloseHomeworkModal}
         />
       )}
     </div>

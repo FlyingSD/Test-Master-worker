@@ -16,6 +16,7 @@ import {
   TrendingDown,
   Settings,
   UserCheck,
+  BookOpen,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
@@ -32,6 +33,7 @@ interface NavItem {
 const mainNavigation: NavItem[] = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['admin', 'teacher'] },
   { name: 'Ученици', href: '/students', icon: Users, roles: ['admin', 'teacher'] },
+  { name: 'Домашни', href: '/homework', icon: BookOpen, roles: ['admin', 'teacher'] },
   { name: 'Родители', href: '/parents', icon: Users, roles: ['admin', 'teacher'] },
   { name: 'Плащания', href: '/payments', icon: CreditCard, roles: ['admin', 'teacher', 'parent'] },
   { name: 'Разходи', href: '/expenses', icon: TrendingDown, roles: ['admin', 'teacher'] },
