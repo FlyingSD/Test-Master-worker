@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Plus, Search, Edit, Trash2, TrendingDown, DollarSign, Calendar, FileText } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, TrendingDown, DollarSign, Calendar, FileText, FileDown } from 'lucide-react'
 import { useExpenses, useDeleteExpense, useTotalExpenses } from '@/hooks/useExpenses'
 import { formatDate, formatCurrency } from '@/utils/formatters'
+import { exportExpensesToExcel } from '@/utils/excelExport'
 import { Expense } from '@/types'
 import ExpenseModal from '@/components/ExpenseModal'
 
@@ -87,13 +88,23 @@ export default function ExpensesPage() {
             Управление на разходи и разходи
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary"
-        >
-          <Plus className="w-5 h-5" />
-          Добави разход
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportExpensesToExcel(filteredExpenses)}
+            className="btn btn-ghost"
+            disabled={filteredExpenses.length === 0}
+          >
+            <FileDown className="w-5 h-5" />
+            Експорт Excel
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-primary"
+          >
+            <Plus className="w-5 h-5" />
+            Добави разход
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

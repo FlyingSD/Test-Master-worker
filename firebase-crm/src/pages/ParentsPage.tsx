@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, Phone, Mail, Video, Upload, X } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, Phone, Mail, Video, Upload, X, FileDown } from 'lucide-react'
 import { useParents, useDeleteParent, useUploadVideoToParent, useDeleteVideoFromParent } from '@/hooks/useParents'
 import { useStudents } from '@/hooks/useStudents'
+import { exportParentsToExcel } from '@/utils/excelExport'
 import { Parent } from '@/types'
 import ParentModal from '@/components/ParentModal'
 
@@ -114,13 +115,23 @@ export default function ParentsPage() {
             Управление на родители и техните контакти
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary"
-        >
-          <Plus className="w-5 h-5" />
-          Добави родител
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportParentsToExcel(parents)}
+            className="btn btn-ghost"
+            disabled={parents.length === 0}
+          >
+            <FileDown className="w-5 h-5" />
+            Експорт Excel
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-primary"
+          >
+            <Plus className="w-5 h-5" />
+            Добави родител
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

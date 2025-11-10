@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { Plus, Search, Edit, Trash2, FileText, DollarSign, CheckCircle, XCircle, Printer } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, FileText, DollarSign, CheckCircle, XCircle, Printer, FileDown, Download } from 'lucide-react'
 import { useInvoices, useDeleteInvoice, useInvoiceStats, useMarkInvoicePaid } from '@/hooks/useInvoices'
 import { formatDate, formatCurrency } from '@/utils/formatters'
+import { exportInvoicesToExcel } from '@/utils/excelExport'
+import { generateInvoicePDF } from '@/utils/pdfGenerator'
 import { Invoice } from '@/types'
 import InvoiceModal from '@/components/InvoiceModal'
 
@@ -157,13 +159,23 @@ export default function InvoicesPage() {
             Управление на документи за плащания
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary"
-        >
-          <Plus className="w-5 h-5" />
-          Нов документ
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportInvoicesToExcel(filteredInvoices)}
+            className="btn btn-ghost"
+            disabled={filteredInvoices.length === 0}
+          >
+            <FileDown className="w-5 h-5" />
+            Експорт Excel
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-primary"
+          >
+            <Plus className="w-5 h-5" />
+            Нов документ
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -321,6 +333,13 @@ export default function InvoicesPage() {
                     <td>{getStatusBadge(invoice)}</td>
                     <td>
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => generateInvoicePDF(invoice)}
+                          className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Изтегли PDF"
+                        >
+                          <Download className="w-4 h-4 text-blue-600" />
+                        </button>
                         <button
                           onClick={() => handlePrint(invoice)}
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"

@@ -14,6 +14,8 @@ import { useExpenses } from '@/hooks/useExpenses'
 import { useTodayEvents } from '@/hooks/useEvents'
 import { formatCurrency, formatDate, isOverdue } from '@/utils/formatters'
 import { Link } from 'react-router-dom'
+import RevenueExpensesChart from '@/components/RevenueExpensesChart'
+import ExpensesByCategoryChart from '@/components/ExpensesByCategoryChart'
 
 export default function DashboardPage() {
   const { students } = useStudents()
@@ -96,6 +98,14 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* Charts */}
+      {(payments.length > 0 || expenses.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RevenueExpensesChart />
+          <ExpensesByCategoryChart />
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

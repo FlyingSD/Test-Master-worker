@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, FileDown } from 'lucide-react'
 import { useStudents, useDeleteStudent } from '@/hooks/useStudents'
 import { formatDate, formatCurrency, getStatusColor, getStatusText } from '@/utils/formatters'
+import { exportStudentsToExcel } from '@/utils/excelExport'
 import StudentModal from '@/components/StudentModal'
 import { Student } from '@/types'
 
@@ -66,13 +67,23 @@ export default function StudentsPage() {
             Управление на ученици и техните профили
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary"
-        >
-          <Plus className="w-5 h-5" />
-          Добави ученик
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportStudentsToExcel(filteredStudents)}
+            className="btn btn-ghost"
+            disabled={filteredStudents.length === 0}
+          >
+            <FileDown className="w-5 h-5" />
+            Експорт Excel
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-primary"
+          >
+            <Plus className="w-5 h-5" />
+            Добави ученик
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

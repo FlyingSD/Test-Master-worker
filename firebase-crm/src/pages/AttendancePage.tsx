@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Calendar, Users, CheckCircle, XCircle, Clock, AlertCircle, Save } from 'lucide-react'
+import { Calendar, Users, CheckCircle, XCircle, Clock, AlertCircle, Save, FileDown } from 'lucide-react'
 import { useStudents } from '@/hooks/useStudents'
 import { useAttendanceByDate, useBulkAddAttendance } from '@/hooks/useAttendance'
 import { formatDate } from '@/utils/formatters'
+import { exportAttendanceToExcel } from '@/utils/excelExport'
 import { Attendance } from '@/types'
 
 type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused'
@@ -148,23 +149,33 @@ export default function AttendancePage() {
           <h1 className="text-3xl font-bold text-gray-900">Присъствия</h1>
           <p className="text-gray-600 mt-1">Отбелязване на присъствия по групи</p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={bulkAddAttendance.isPending || stats.unmarked === stats.total}
-          className="btn btn-primary"
-        >
-          {bulkAddAttendance.isPending ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Запазване...
-            </>
-          ) : (
-            <>
-              <Save className="w-5 h-5" />
-              Запази присъствия
-            </>
-          )}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportAttendanceToExcel(existingAttendance)}
+            className="btn btn-ghost"
+            disabled={existingAttendance.length === 0}
+          >
+            <FileDown className="w-5 h-5" />
+            Експорт Excel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={bulkAddAttendance.isPending || stats.unmarked === stats.total}
+            className="btn btn-primary"
+          >
+            {bulkAddAttendance.isPending ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Запазване...
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5" />
+                Запази присъствия
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

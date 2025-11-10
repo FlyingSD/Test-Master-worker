@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Plus, Search, Edit, Trash2, CreditCard, TrendingUp, Calendar } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, CreditCard, TrendingUp, Calendar, FileDown } from 'lucide-react'
 import { usePayments, useDeletePayment } from '@/hooks/usePayments'
 import { formatDate, formatCurrency } from '@/utils/formatters'
+import { exportPaymentsToExcel } from '@/utils/excelExport'
 import PaymentModal from '@/components/PaymentModal'
 import { Payment } from '@/types'
 
@@ -68,13 +69,23 @@ export default function PaymentsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Плащания</h1>
           <p className="text-gray-600 mt-1">Проследяване на плащания и приходи</p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary"
-        >
-          <Plus className="w-5 h-5" />
-          Добави плащане
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportPaymentsToExcel(filteredPayments)}
+            className="btn btn-ghost"
+            disabled={filteredPayments.length === 0}
+          >
+            <FileDown className="w-5 h-5" />
+            Експорт Excel
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-primary"
+          >
+            <Plus className="w-5 h-5" />
+            Добави плащане
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

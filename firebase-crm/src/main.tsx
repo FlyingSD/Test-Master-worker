@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import App from './App'
 import './styles/index.css'
+import { initEmailJS } from './utils/emailService'
 
 // Configure React Query
 const queryClient = new QueryClient({
@@ -15,6 +16,9 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+// Initialize EmailJS
+initEmailJS()
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
