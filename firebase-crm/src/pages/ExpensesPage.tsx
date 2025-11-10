@@ -3,8 +3,10 @@ import { Plus, Search, Edit, Trash2, TrendingDown, DollarSign, Calendar, FileTex
 import { useExpenses, useDeleteExpense, useTotalExpenses } from '@/hooks/useExpenses'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { exportExpensesToExcel } from '@/utils/excelExport'
+import { usePagination } from '@/hooks/usePagination'
 import { Expense } from '@/types'
 import ExpenseModal from '@/components/ExpenseModal'
+import Pagination from '@/components/Pagination'
 
 export default function ExpensesPage() {
   const { expenses, loading } = useExpenses()
@@ -27,6 +29,16 @@ export default function ExpensesPage() {
 
     return matchesSearch && matchesCategory
   })
+
+  // Pagination
+  const {
+    paginatedItems: paginatedExpenses,
+    currentPage,
+    totalPages,
+    goToPage,
+    itemsPerPage,
+    totalItems,
+  } = usePagination(filteredExpenses, 20)
 
   // Calculate stats
   const expensesByCategory = expenses.reduce((acc, exp) => {
@@ -244,7 +256,7 @@ export default function ExpensesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredExpenses.map((expense) => (
+                {paginatedExpenses.map((expense) => (
                   <tr key={expense.id}>
                     <td>
                       <div className="flex items-center gap-2">
@@ -301,6 +313,15 @@ export default function ExpensesPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalItems}
+          />
         )}
       </div>
 

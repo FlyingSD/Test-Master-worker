@@ -3,8 +3,10 @@ import { Plus, Search, Edit, Trash2, CreditCard, TrendingUp, Calendar, FileDown,
 import { usePayments, useDeletePayment } from '@/hooks/usePayments'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { exportPaymentsToExcel } from '@/utils/excelExport'
+import { usePagination } from '@/hooks/usePagination'
 import PaymentModal from '@/components/PaymentModal'
 import BulkPaymentModal from '@/components/BulkPaymentModal'
+import Pagination from '@/components/Pagination'
 import { Payment } from '@/types'
 
 export default function PaymentsPage() {
@@ -26,6 +28,16 @@ export default function PaymentsPage() {
 
     return matchesSearch && matchesMethod && matchesArticle
   })
+
+  // Pagination
+  const {
+    paginatedItems: paginatedPayments,
+    currentPage,
+    totalPages,
+    goToPage,
+    itemsPerPage,
+    totalItems,
+  } = usePagination(filteredPayments, 20)
 
   // Stats
   const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0)
@@ -219,7 +231,7 @@ export default function PaymentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredPayments.map((payment) => (
+                {paginatedPayments.map((payment) => (
                   <tr key={payment.id}>
                     <td>{formatDate(payment.date)}</td>
                     <td>
@@ -281,6 +293,15 @@ export default function PaymentsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalItems}
+          />
         )}
       </div>
 

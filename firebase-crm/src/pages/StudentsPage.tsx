@@ -3,8 +3,10 @@ import { Plus, Search, Edit, Trash2, Eye, Users as UsersIcon, FileDown, Upload }
 import { useStudents, useDeleteStudent } from '@/hooks/useStudents'
 import { formatDate, formatCurrency, getStatusColor, getStatusText } from '@/utils/formatters'
 import { exportStudentsToExcel } from '@/utils/excelExport'
+import { usePagination } from '@/hooks/usePagination'
 import StudentModal from '@/components/StudentModal'
 import CSVImportModal from '@/components/CSVImportModal'
+import Pagination from '@/components/Pagination'
 import { Student } from '@/types'
 
 export default function StudentsPage() {
@@ -25,6 +27,16 @@ export default function StudentsPage() {
 
     return matchesSearch && matchesStatus
   })
+
+  // Pagination
+  const {
+    paginatedItems: paginatedStudents,
+    currentPage,
+    totalPages,
+    goToPage,
+    itemsPerPage,
+    totalItems,
+  } = usePagination(filteredStudents, 20)
 
   // Stats
   const activeCount = students.filter((s) => s.status === 'active').length
@@ -217,7 +229,7 @@ export default function StudentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredStudents.map((student) => (
+                {paginatedStudents.map((student) => (
                   <tr key={student.id}>
                     <td>
                       <div className="flex items-center gap-3">
@@ -278,6 +290,15 @@ export default function StudentsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalItems}
+          />
         )}
       </div>
 
