@@ -40,7 +40,7 @@ type ActivityItem = {
 
 export default function DashboardPage() {
   const navigate = useNavigate()
-  const { isAdmin } = useAuth()
+  const { isAdmin, isTeacher, isParent, userData } = useAuth()
   const { students } = useStudents()
   const { payments } = usePayments()
   const { expenses } = useExpenses()
@@ -49,10 +49,37 @@ export default function DashboardPage() {
   const { attendance } = useAttendance()
   const [activityFilter, setActivityFilter] = useState<'all' | 'payment' | 'homework' | 'attendance'>('all')
 
-  // Calculate stats
+  // 🔒 SECURITY: Filter data by role
+  const myStudentIds = useMemo(() => {
+    if (isParent && userData?.studentIds) {
+      return userData.studentIds
+    }
+    return []
+  }, [isParent, userData?.studentIds])
+
+  // Filter data based on role
+  const visiblePayments = useMemo(() => {
+    if (isAdmin || isTeacher) return payments
+    if (isParent) return payments.filter(p => myStudentIds.includes(p.studentId))
+    return []
+  }, [isAdmin, isTeacher, isParent, payments, myStudentIds])
+
+  const visibleHomework = useMemo(() => {
+    if (isAdmin || isTeacher) return homework
+    if (isParent) return homework.filter(h => myStudentIds.includes(h.studentId))
+    return []
+  }, [isAdmin, isTeacher, isParent, homework, myStudentIds])
+
+  const visibleAttendance = useMemo(() => {
+    if (isAdmin || isTeacher) return attendance
+    if (isParent) return attendance.filter(a => myStudentIds.includes(a.studentId))
+    return []
+  }, [isAdmin, isTeacher, isParent, attendance, myStudentIds])
+
+  // Calculate stats (only for admins)
   const activeStudents = students.filter((s) => s.status === 'active')
-  const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0)
-  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0)
+  const totalRevenue = isAdmin ? payments.reduce((sum, p) => sum + p.amount, 0) : 0
+  const totalExpenses = isAdmin ? expenses.reduce((sum, e) => sum + e.amount, 0) : 0
   const profit = totalRevenue - totalExpenses
 
   // Overdue payments - students with past due dates
@@ -70,11 +97,12 @@ export default function DashboardPage() {
   })
 
   // Recent Activity Feed - combines payments, homework, and attendance
+  // 🔒 SECURITY: Uses filtered data based on user role
   const recentActivity = useMemo(() => {
     const activities: ActivityItem[] = []
 
-    // Add payments
-    payments.slice(0, 10).forEach(payment => {
+    // Add payments (filtered by role)
+    visiblePayments.slice(0, 10).forEach(payment => {
       const paymentDate = payment.date instanceof Date ? payment.date : payment.date?.toDate?.()
       if (paymentDate) {
         activities.push({
@@ -90,8 +118,8 @@ export default function DashboardPage() {
       }
     })
 
-    // Add homework
-    homework.slice(0, 10).forEach(hw => {
+    // Add homework (filtered by role)
+    visibleHomework.slice(0, 10).forEach(hw => {
       const hwDate = hw.completedDate
         ? (hw.completedDate instanceof Date ? hw.completedDate : hw.completedDate?.toDate?.())
         : (hw.assignedDate instanceof Date ? hw.assignedDate : hw.assignedDate?.toDate?.())
@@ -112,8 +140,8 @@ export default function DashboardPage() {
       }
     })
 
-    // Add attendance
-    attendance.slice(0, 10).forEach(att => {
+    // Add attendance (filtered by role)
+    visibleAttendance.slice(0, 10).forEach(att => {
       const attDate = att.date instanceof Date ? att.date : att.date?.toDate?.()
       if (attDate) {
         const statusConfig = {
@@ -139,7 +167,7 @@ export default function DashboardPage() {
 
     // Sort by timestamp descending
     return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-  }, [payments, homework, attendance])
+  }, [visiblePayments, visibleHomework, visibleAttendance])
 
   // Filter activities
   const filteredActivities = useMemo(() => {
@@ -231,8 +259,8 @@ export default function DashboardPage() {
         <p className="text-gray-600 mt-1">Добре дошли в Светлинки CRM</p>
       </div>
 
-      {/* Quick Actions */}
-      {(isAdmin || students.length > 0) && (
+      {/* Quick Actions - Only for admins and teachers */}
+      {(isAdmin || isTeacher) && (
         <div className="card bg-gradient-to-r from-primary/5 to-accent/5">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Plus className="w-5 h-5" />
