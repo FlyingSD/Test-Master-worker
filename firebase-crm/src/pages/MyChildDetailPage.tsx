@@ -1,11 +1,12 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
-import { ArrowLeft, User, CreditCard, BookOpen, Calendar, CheckCircle, Clock, AlertCircle, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, User, CreditCard, BookOpen, Calendar, CheckCircle, Clock, AlertCircle, AlertTriangle, Printer } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useStudentsByParent } from '@/hooks/useStudents'
 import { usePayments } from '@/hooks/usePayments'
 import { useHomeworkByStudent } from '@/hooks/useHomework'
 import { formatDate, formatCurrency } from '@/utils/formatters'
 import { getDueDateStatus } from '@/utils/date'
+import { generatePaymentReceipt } from '@/utils/pdfGenerator'
 
 export default function MyChildDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -379,7 +380,7 @@ export default function MyChildDetailPage() {
             {studentPayments.slice(0, 10).map((payment) => {
               const paymentDate = payment.date instanceof Date ? payment.date : payment.date?.toDate?.()
               return (
-                <div key={payment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div key={payment.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900">
                       {payment.article || 'Месечна такса'}
@@ -399,6 +400,14 @@ export default function MyChildDetailPage() {
                       <p className="text-xs text-gray-500">№ {payment.receiptNumber}</p>
                     )}
                   </div>
+                  {/* Print Receipt Button */}
+                  <button
+                    onClick={() => generatePaymentReceipt(payment, student)}
+                    className="p-2 hover:bg-primary-light rounded-lg transition-colors group"
+                    title="Принтирай квитанция"
+                  >
+                    <Printer className="w-5 h-5 text-gray-600 group-hover:text-primary" />
+                  </button>
                 </div>
               )
             })}
