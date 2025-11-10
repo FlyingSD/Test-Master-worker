@@ -19,6 +19,7 @@ import {
   BookOpen,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { useNotifications } from '@/hooks/useNotifications'
 import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
 
 // Navigation item type
@@ -61,6 +62,7 @@ const adminNavigation: NavItem[] = [
 
 export default function Layout() {
   const { userData, signOut } = useAuth()
+  const { total, hasNotifications } = useNotifications()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
 
@@ -163,7 +165,13 @@ export default function Layout() {
               }
             >
               <item.icon className="w-5 h-5" />
-              {item.name}
+              <span className="flex-1">{item.name}</span>
+              {/* Show notification badge for "Моите деца" */}
+              {item.href === '/my-children' && hasNotifications && (
+                <span className="ml-auto px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] text-center">
+                  {total}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -236,7 +244,15 @@ export default function Layout() {
                     : 'text-gray-600 active:bg-gray-100'
                 }`}
               >
-                <item.icon className="w-5 h-5" />
+                <div className="relative">
+                  <item.icon className="w-5 h-5" />
+                  {/* Show notification badge for "Деца" (my-children) */}
+                  {item.href === '/my-children' && hasNotifications && (
+                    <span className="absolute -top-2 -right-2 px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] text-center">
+                      {total}
+                    </span>
+                  )}
+                </div>
                 <span className="text-xs font-medium">{item.name}</span>
               </NavLink>
             )
