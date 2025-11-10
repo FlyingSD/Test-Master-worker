@@ -161,12 +161,16 @@ export function useAddEvent() {
 
   return useMutation({
     mutationFn: async (eventData: EventFormValues) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       // Convert dates to Timestamps
       const data = {
         ...eventData,
         startTime: toTimestamp(eventData.startTime),
         endTime: toTimestamp(eventData.endTime),
-        createdBy: user?.uid || 'unknown',
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
       }
 

@@ -135,13 +135,19 @@ export function useParentByStudentId(studentId: string) {
  */
 export function useAddParent() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
     mutationFn: async (parentData: ParentFormValues) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       const data = {
         ...parentData,
         studentIds: [], // Initialize empty, will be added when creating students
         videoUrls: [], // Initialize empty videos array
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       }

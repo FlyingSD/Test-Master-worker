@@ -63,10 +63,7 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
       })
     } else {
       // Add new item
-      await addItem.mutateAsync({
-        data: formData,
-        userId: user.id,
-      })
+      await addItem.mutateAsync(formData)
     }
 
     onClose()

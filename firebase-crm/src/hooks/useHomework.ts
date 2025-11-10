@@ -186,9 +186,14 @@ export function useHomeworkByStudent(studentId: string) {
  */
 export function useAddHomework() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
     mutationFn: async (homeworkData: HomeworkFormValues) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       // Convert dates to Timestamp
       const data = {
         ...homeworkData,
@@ -197,6 +202,7 @@ export function useAddHomework() {
         completedDate: homeworkData.completedDate
           ? toTimestamp(homeworkData.completedDate)
           : undefined,
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
       }
 

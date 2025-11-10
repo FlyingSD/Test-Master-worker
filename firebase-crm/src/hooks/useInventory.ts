@@ -111,12 +111,17 @@ export function useLowStockItems() {
  */
 export function useAddInventoryItem() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
-    mutationFn: async ({ data, userId }: { data: InventoryFormValues; userId: string }) => {
+    mutationFn: async (data: InventoryFormValues) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       const itemData = {
         ...data,
-        createdBy: userId,
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       }
@@ -297,17 +302,19 @@ export function useStockTransactionsByItem(itemId: string) {
  */
 export function useAddStockTransaction() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
     mutationFn: async ({
       data,
-      userId,
       inventoryItem
     }: {
       data: StockTransactionFormValues
-      userId: string
       inventoryItem: InventoryItem
     }) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
       // Calculate new stock level
       const newStock = data.type === 'IN'
         ? inventoryItem.currentStock + data.quantity
@@ -322,7 +329,7 @@ export function useAddStockTransaction() {
         ...data,
         inventoryItemName: inventoryItem.name,
         totalPrice: data.quantity * data.pricePerUnit,
-        createdBy: userId,
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
       }
 
@@ -350,7 +357,7 @@ export function useAddStockTransaction() {
             method: 'Кеш', // Default to cash, can be customized
             date: serverTimestamp(),
             notes: `Автоматично създадено от складова продажба: ${inventoryItem.name} x${data.quantity}`,
-            createdBy: userId,
+            createdBy: user.uid,
             createdAt: serverTimestamp(),
           }
 

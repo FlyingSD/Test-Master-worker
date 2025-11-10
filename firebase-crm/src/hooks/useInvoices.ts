@@ -152,9 +152,13 @@ export async function getNextInvoiceNumber(): Promise<string> {
  */
 export function useAddInvoice() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
-    mutationFn: async ({ data, userId }: { data: InvoiceFormValues; userId: string }) => {
+    mutationFn: async (data: InvoiceFormValues) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
       // Get next invoice number
       const invoiceNumber = await getNextInvoiceNumber()
 
@@ -169,7 +173,7 @@ export function useAddInvoice() {
         subtotal,
         vatAmount,
         total,
-        createdBy: userId,
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       }

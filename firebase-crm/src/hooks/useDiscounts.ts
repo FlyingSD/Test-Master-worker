@@ -176,11 +176,15 @@ export function useAddDiscount() {
 
   return useMutation({
     mutationFn: async (data: DiscountFormValues) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       const discount = {
         ...data,
         startDate: toTimestamp(data.startDate),
         endDate: toTimestamp(data.endDate),
-        createdBy: user?.uid || 'unknown',
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
       }
       const docRef = await addDoc(discountsCollection, discount)

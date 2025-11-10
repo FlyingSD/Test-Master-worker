@@ -39,7 +39,6 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
 
     await addTransaction.mutateAsync({
       data: formData,
-      userId: user.id,
       inventoryItem: item,
     })
 

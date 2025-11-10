@@ -27,21 +27,32 @@ const expensesCollection = collection(db, COLLECTIONS.EXPENSES)
 export function useExpenses() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     const q = query(expensesCollection, orderBy('date', 'desc'))
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const expensesData: Expense[] = []
-      snapshot.forEach((doc) => {
-        expensesData.push({ id: doc.id, ...doc.data() } as Expense)
-      })
-      setExpenses(expensesData)
-      setLoading(false)
-    })
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const expensesData: Expense[] = []
+        snapshot.forEach((doc) => {
+          expensesData.push({ id: doc.id, ...doc.data() } as Expense)
+        })
+        setExpenses(expensesData)
+        setLoading(false)
+        setError(null)
+      },
+      (err) => {
+        console.error('Error fetching expenses:', err)
+        setError(err as Error)
+        setLoading(false)
+        toast.error(ERROR_MESSAGES.LOAD_EXPENSES_ERROR || 'Error loading expenses')
+      }
+    )
     return () => unsubscribe()
   }, [])
 
-  return { expenses, loading }
+  return { expenses, loading, error }
 }
 
 export function useAddExpense() {
@@ -50,10 +61,14 @@ export function useAddExpense() {
 
   return useMutation({
     mutationFn: async (data: ExpenseFormValues) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       const expense = {
         ...data,
         date: toTimestamp(data.date),
-        createdBy: user?.uid || 'unknown',
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
       }
       const docRef = await addDoc(expensesCollection, expense)

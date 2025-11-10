@@ -258,11 +258,15 @@ export function useAddPayment() {
 
   return useMutation({
     mutationFn: async (paymentData: PaymentFormValues) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       // Convert date to Timestamp if it's a Date
       const data = {
         ...paymentData,
         date: toTimestamp(paymentData.date),
-        createdBy: user?.uid || 'unknown',
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
       }
 
@@ -498,11 +502,15 @@ export function useBulkAddPayments() {
     mutationFn: async (
       payments: Array<Omit<Payment, 'id' | 'createdAt' | 'createdBy'>>
     ) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       const promises = payments.map((paymentData) => {
         const data = {
           ...paymentData,
           date: toTimestamp(paymentData.date),
-          createdBy: user?.uid || 'admin',
+          createdBy: user.uid,
           createdAt: serverTimestamp(),
         }
         return addDoc(paymentsCollection, data)

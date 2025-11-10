@@ -214,10 +214,14 @@ export function useAddAttendance() {
 
   return useMutation({
     mutationFn: async (data: Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       const attendanceData = {
         ...data,
         date: toTimestamp(data.date),
-        createdBy: user?.uid || 'unknown',
+        createdBy: user.uid,
         createdAt: serverTimestamp(),
       }
       const docRef = await addDoc(attendanceCollection, attendanceData)
@@ -314,11 +318,15 @@ export function useBulkAddAttendance() {
     mutationFn: async (
       records: Array<Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>>
     ) => {
+      if (!user) {
+        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+      }
+
       const promises = records.map((data) => {
         const attendanceData = {
           ...data,
           date: toTimestamp(data.date),
-          createdBy: user?.uid || 'unknown',
+          createdBy: user.uid,
           createdAt: serverTimestamp(),
         }
         return addDoc(attendanceCollection, attendanceData)
