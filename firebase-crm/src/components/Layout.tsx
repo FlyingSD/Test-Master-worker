@@ -12,6 +12,7 @@ import {
   LogOut,
   Shield,
   Package,
+  AlertTriangle,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
@@ -26,6 +27,7 @@ const mainNavigation = [
   { name: 'Події', href: '/events', icon: Calendar },
   { name: 'Отстъпки', href: '/discounts', icon: Percent },
   { name: 'Репорти', href: '/reports', icon: FileText },
+  { name: '⚠️ Грешки', href: '/errors', icon: AlertTriangle },
 ]
 
 // Admin-only navigation

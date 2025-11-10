@@ -5,6 +5,8 @@ import { useStudents } from '@/hooks/useStudents'
 import { Payment, PaymentFormValues } from '@/types'
 import { bgnToEur, eurToBgn } from '@/utils/formatters'
 import { Timestamp } from 'firebase/firestore'
+import ErrorAlert from '@/components/ErrorAlert'
+import { ValidationErrors, ErrorMessage } from '@/utils/errorMessages'
 
 interface PaymentModalProps {
   payment?: Payment | null
@@ -29,6 +31,8 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
   })
 
   const [currencyInput, setCurrencyInput] = useState<'BGN' | 'EUR'>('BGN')
+  const [warnings, setWarnings] = useState<ErrorMessage[]>([])
+  const [errors, setErrors] = useState<ErrorMessage[]>([])
 
   // Load payment data if editing
   useEffect(() => {
@@ -79,19 +83,64 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
   }
 
   const handleAmountChange = (value: number, currency: 'BGN' | 'EUR') => {
+    let newFormData
     if (currency === 'BGN') {
-      setFormData({
+      newFormData = {
         ...formData,
         amount: value,
         amountEUR: bgnToEur(value),
-      })
+      }
     } else {
-      setFormData({
+      newFormData = {
         ...formData,
         amountEUR: value,
         amount: eurToBgn(value),
-      })
+      }
     }
+    setFormData(newFormData)
+    validateForm(newFormData)
+  }
+
+  // Validate form data and show warnings/errors
+  const validateForm = (data: PaymentFormValues) => {
+    const newWarnings: ErrorMessage[] = []
+    const newErrors: ErrorMessage[] = []
+
+    // Check amount
+    if (data.amount <= 0) {
+      newErrors.push(ValidationErrors.AMOUNT_ZERO)
+    } else if (data.amount > 1000) {
+      newWarnings.push(ValidationErrors.AMOUNT_TOO_LARGE)
+    }
+
+    // Check currency mismatch
+    if (data.amount && data.amountEUR) {
+      const expectedEUR = data.amount / 1.96
+      const difference = Math.abs(data.amountEUR - expectedEUR)
+      if (difference > 0.5) {
+        newWarnings.push({
+          ...ValidationErrors.CURRENCY_MISMATCH,
+          solution: `Очакваната стойност в EUR е ${expectedEUR.toFixed(2)}. Коригирайте сумите`,
+        })
+      }
+    }
+
+    // Check date
+    if (data.date) {
+      const date = data.date instanceof Date ? data.date : new Date(data.date)
+      if (date > new Date()) {
+        newErrors.push(ValidationErrors.DATE_FUTURE)
+      }
+
+      const twoYearsAgo = new Date()
+      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2)
+      if (date < twoYearsAgo) {
+        newWarnings.push(ValidationErrors.DATE_TOO_OLD)
+      }
+    }
+
+    setWarnings(newWarnings)
+    setErrors(newErrors)
   }
 
   return (
@@ -112,6 +161,32 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Errors */}
+          {errors.length > 0 && (
+            <div className="space-y-2">
+              {errors.map((error, index) => (
+                <ErrorAlert
+                  key={`error-${index}`}
+                  error={error}
+                  onClose={() => setErrors(errors.filter((_, i) => i !== index))}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Warnings */}
+          {warnings.length > 0 && (
+            <div className="space-y-2">
+              {warnings.map((warning, index) => (
+                <ErrorAlert
+                  key={`warning-${index}`}
+                  error={warning}
+                  onClose={() => setWarnings(warnings.filter((_, i) => i !== index))}
+                />
+              ))}
+            </div>
+          )}
+
           {/* Student Selection */}
           <div>
             <label className="label">
@@ -153,9 +228,11 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                     ? formData.date.toISOString().split('T')[0]
                     : ''
                 }
-                onChange={(e) =>
-                  setFormData({ ...formData, date: new Date(e.target.value) })
-                }
+                onChange={(e) => {
+                  const newFormData = { ...formData, date: new Date(e.target.value) }
+                  setFormData(newFormData)
+                  validateForm(newFormData)
+                }}
               />
             </div>
           </div>
@@ -307,7 +384,7 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
             </button>
             <button
               type="submit"
-              disabled={addPayment.isPending || updatePayment.isPending}
+              disabled={addPayment.isPending || updatePayment.isPending || errors.length > 0}
               className="btn btn-primary flex-1"
             >
               {addPayment.isPending || updatePayment.isPending ? (
