@@ -441,6 +441,27 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 }
 
 // System Settings interface
+// Feature permissions - Control which features are accessible per role
+export type FeatureName =
+  | 'dashboard'
+  | 'students'
+  | 'homework'
+  | 'parents'
+  | 'payments'
+  | 'expenses'
+  | 'inventory'
+  | 'attendance'
+  | 'events'
+  | 'discounts'
+  | 'reports'
+  | 'errors'
+  | 'my-children'
+
+export interface RoleFeaturePermissions {
+  teacher: Record<FeatureName, boolean>
+  parent: Record<FeatureName, boolean>
+}
+
 export interface SystemSettings {
   id: string
   schoolName: string
@@ -453,6 +474,7 @@ export interface SystemSettings {
   emailNotifications: boolean
   smsNotifications: boolean
   theme: 'light' | 'dark'
+  featurePermissions?: RoleFeaturePermissions // Feature permissions per role
   updatedBy: string
   updatedAt: Date | Timestamp
 }

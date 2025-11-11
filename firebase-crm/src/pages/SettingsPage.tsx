@@ -1,16 +1,49 @@
 import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
-import { Save, Settings, Building2, Globe, Bell, Palette, Shield } from 'lucide-react'
+import { Save, Settings, Building2, Globe, Bell, Palette, Shield, Key, Users } from 'lucide-react'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { useAuth } from '@/hooks/useAuth'
-import { SystemSettings } from '@/types'
+import { SystemSettings, RoleFeaturePermissions, FeatureName } from '@/types'
 import toast from 'react-hot-toast'
 
 export default function SettingsPage() {
   const { user, userData } = useAuth()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+
+  const defaultFeaturePermissions: RoleFeaturePermissions = {
+    teacher: {
+      dashboard: true,
+      students: true,
+      homework: true,
+      parents: true,
+      payments: true,
+      expenses: false,
+      inventory: true,
+      attendance: true,
+      events: true,
+      discounts: true,
+      reports: false,
+      errors: true,
+      'my-children': false,
+    },
+    parent: {
+      dashboard: true,
+      students: false,
+      homework: false,
+      parents: false,
+      payments: true,
+      expenses: false,
+      inventory: false,
+      attendance: false,
+      events: true,
+      discounts: false,
+      reports: false,
+      errors: false,
+      'my-children': true,
+    },
+  }
 
   const [settings, setSettings] = useState<Partial<SystemSettings>>({
     schoolName: 'Светлинки',
@@ -23,6 +56,7 @@ export default function SettingsPage() {
     emailNotifications: true,
     smsNotifications: false,
     theme: 'light',
+    featurePermissions: defaultFeaturePermissions,
   })
 
   // 🔒 SECURITY: Only admins can access system settings
@@ -69,6 +103,36 @@ export default function SettingsPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  // Feature permission helpers
+  const featureLabels: Record<FeatureName, string> = {
+    dashboard: 'Dashboard',
+    students: 'Ученици',
+    homework: 'Домашни',
+    parents: 'Родители',
+    payments: 'Плащания',
+    expenses: 'Разходи',
+    inventory: 'Склад',
+    attendance: 'Присъствия',
+    events: 'Події',
+    discounts: 'Отстъпки',
+    reports: 'Репорти',
+    errors: '⚠️ Грешки',
+    'my-children': 'Моите деца',
+  }
+
+  const toggleFeature = (role: 'teacher' | 'parent', feature: FeatureName) => {
+    setSettings({
+      ...settings,
+      featurePermissions: {
+        ...settings.featurePermissions!,
+        [role]: {
+          ...settings.featurePermissions![role],
+          [feature]: !settings.featurePermissions![role][feature],
+        },
+      },
+    })
   }
 
   if (loading) {
@@ -306,6 +370,90 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Role-based Feature Permissions */}
+      <div className="card">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-orange-50 rounded-lg">
+            <Key className="w-6 h-6 text-orange-600" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-gray-900">Разрешения по роли</h2>
+            <p className="text-sm text-gray-600">
+              Управлявайте кои функции са достъпни за учители и родители
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Teacher Permissions */}
+          <div className="border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-900">Учители</h3>
+              <span className="text-xs text-gray-500 ml-auto">
+                {Object.values(settings.featurePermissions?.teacher || {}).filter(Boolean).length} включени
+              </span>
+            </div>
+            <div className="space-y-2">
+              {(Object.keys(settings.featurePermissions?.teacher || {}) as FeatureName[]).map((feature) => {
+                const isEnabled = settings.featurePermissions?.teacher[feature]
+                return (
+                  <div key={feature} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                    <span className="text-sm text-gray-700">{featureLabels[feature]}</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={isEnabled}
+                        onChange={() => toggleFeature('teacher', feature)}
+                      />
+                      <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Parent Permissions */}
+          <div className="border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="w-5 h-5 text-green-600" />
+              <h3 className="font-semibold text-gray-900">Родители</h3>
+              <span className="text-xs text-gray-500 ml-auto">
+                {Object.values(settings.featurePermissions?.parent || {}).filter(Boolean).length} включени
+              </span>
+            </div>
+            <div className="space-y-2">
+              {(Object.keys(settings.featurePermissions?.parent || {}) as FeatureName[]).map((feature) => {
+                const isEnabled = settings.featurePermissions?.parent[feature]
+                return (
+                  <div key={feature} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                    <span className="text-sm text-gray-700">{featureLabels[feature]}</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={isEnabled}
+                        onChange={() => toggleFeature('parent', feature)}
+                      />
+                      <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                    </label>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>Забележка:</strong> Администраторите винаги имат достъп до всички функции.
+            Промените влизат в сила веднага след запазване и logout/login на потребителите.
+          </p>
         </div>
       </div>
 
