@@ -21,6 +21,7 @@ const ParentsPage = lazy(() => import('@/pages/ParentsPage'))
 const InventoryPage = lazy(() => import('@/pages/InventoryPage'))
 const ExpensesPage = lazy(() => import('@/pages/ExpensesPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
+const LabelsManagementPage = lazy(() => import('@/pages/LabelsManagementPage'))
 const AttendancePage = lazy(() => import('@/pages/AttendancePage'))
 const ErrorDashboardPage = lazy(() => import('@/pages/ErrorDashboardPage'))
 const MyChildrenPage = lazy(() => import('@/pages/MyChildrenPage'))
@@ -184,6 +185,14 @@ export default function App() {
                 element={
                   <Suspense fallback={<PageLoader />}>
                     <SettingsPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="labels"
+                element={
+                  <Suspense fallback={<PageLoader />}>
+                    <LabelsManagementPage />
                   </Suspense>
                 }
               />

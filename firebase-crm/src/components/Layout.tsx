@@ -21,6 +21,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useFeaturePermissions } from '@/hooks/useFeaturePermissions'
+import { useLabels } from '@/hooks/useLabels'
 import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
 import { triggerHaptic } from '@/utils/touchGestures'
 import { FeatureName } from '@/types'
@@ -34,46 +35,52 @@ interface NavItem {
   feature?: FeatureName // Optional feature name for permission check
 }
 
-// Main navigation items (Admin & Teacher)
-const mainNavigation: NavItem[] = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['admin', 'teacher'], feature: 'dashboard' },
-  { name: 'Ученици', href: '/students', icon: Users, roles: ['admin', 'teacher'], feature: 'students' },
-  { name: 'Групи', href: '/groups', icon: Users, roles: ['admin', 'teacher'], feature: 'groups' },
-  { name: 'Домашни', href: '/homework', icon: BookOpen, roles: ['admin', 'teacher'], feature: 'homework' },
-  { name: 'Родители', href: '/parents', icon: Users, roles: ['admin', 'teacher'], feature: 'parents' },
-  { name: 'Плащания', href: '/payments', icon: CreditCard, roles: ['admin', 'teacher', 'parent'], feature: 'payments' },
-  { name: 'Разходи', href: '/expenses', icon: TrendingDown, roles: ['admin', 'teacher'], feature: 'expenses' },
-  { name: 'Склад', href: '/inventory', icon: Package, roles: ['admin', 'teacher'], feature: 'inventory' },
-  { name: 'Присъствия', href: '/attendance', icon: UserCheck, roles: ['admin', 'teacher'], feature: 'attendance' },
-  { name: 'Събития', href: '/events', icon: Calendar, roles: ['admin', 'teacher', 'parent'], feature: 'events' },
-  { name: 'Отстъпки', href: '/discounts', icon: Percent, roles: ['admin', 'teacher'], feature: 'discounts' },
-  { name: 'Репорти', href: '/reports', icon: FileText, roles: ['admin', 'teacher'], feature: 'reports' },
-  { name: 'Настройки', href: '/settings', icon: Settings, roles: ['admin'] }, // No feature check - admin only
-  { name: '⚠️ Грешки', href: '/errors', icon: AlertTriangle, roles: ['admin', 'teacher'], feature: 'errors' },
+// Main navigation items generator (Admin & Teacher)
+const getMainNavigation = (labels: any): NavItem[] => [
+  { name: labels.navigation.dashboard, href: '/', icon: LayoutDashboard, roles: ['admin', 'teacher'], feature: 'dashboard' },
+  { name: labels.navigation.students, href: '/students', icon: Users, roles: ['admin', 'teacher'], feature: 'students' },
+  { name: labels.navigation.groups, href: '/groups', icon: Users, roles: ['admin', 'teacher'], feature: 'groups' },
+  { name: labels.navigation.homework, href: '/homework', icon: BookOpen, roles: ['admin', 'teacher'], feature: 'homework' },
+  { name: labels.navigation.parents, href: '/parents', icon: Users, roles: ['admin', 'teacher'], feature: 'parents' },
+  { name: labels.navigation.payments, href: '/payments', icon: CreditCard, roles: ['admin', 'teacher', 'parent'], feature: 'payments' },
+  { name: labels.navigation.expenses, href: '/expenses', icon: TrendingDown, roles: ['admin', 'teacher'], feature: 'expenses' },
+  { name: labels.navigation.inventory, href: '/inventory', icon: Package, roles: ['admin', 'teacher'], feature: 'inventory' },
+  { name: labels.navigation.attendance, href: '/attendance', icon: UserCheck, roles: ['admin', 'teacher'], feature: 'attendance' },
+  { name: labels.navigation.events, href: '/events', icon: Calendar, roles: ['admin', 'teacher', 'parent'], feature: 'events' },
+  { name: labels.navigation.discounts, href: '/discounts', icon: Percent, roles: ['admin', 'teacher'], feature: 'discounts' },
+  { name: labels.navigation.reports, href: '/reports', icon: FileText, roles: ['admin', 'teacher'], feature: 'reports' },
+  { name: labels.navigation.settings, href: '/settings', icon: Settings, roles: ['admin'] }, // No feature check - admin only
+  { name: labels.navigation.errors, href: '/errors', icon: AlertTriangle, roles: ['admin', 'teacher'], feature: 'errors' },
 ]
 
-// Parent-specific navigation
-const parentNavigation: NavItem[] = [
-  { name: 'Начало', href: '/', icon: LayoutDashboard, roles: ['parent'], feature: 'dashboard' },
-  { name: 'Моите деца', href: '/my-children', icon: Users, roles: ['parent'], feature: 'my-children' },
-  { name: 'Плащания', href: '/payments', icon: CreditCard, roles: ['parent'], feature: 'payments' },
-  { name: 'Събития', href: '/events', icon: Calendar, roles: ['parent'], feature: 'events' },
+// Parent-specific navigation generator
+const getParentNavigation = (labels: any): NavItem[] => [
+  { name: labels.navigation.dashboard, href: '/', icon: LayoutDashboard, roles: ['parent'], feature: 'dashboard' },
+  { name: labels.navigation.myChildren, href: '/my-children', icon: Users, roles: ['parent'], feature: 'my-children' },
+  { name: labels.navigation.payments, href: '/payments', icon: CreditCard, roles: ['parent'], feature: 'payments' },
+  { name: labels.navigation.events, href: '/events', icon: Calendar, roles: ['parent'], feature: 'events' },
 ]
 
-// Admin-only navigation
-const adminNavigation: NavItem[] = [
-  { name: '👑 Admin Panel', href: '/admin', icon: Shield, roles: ['admin'] },
+// Admin-only navigation generator
+const getAdminNavigation = (labels: any): NavItem[] => [
+  { name: labels.navigation.adminPanel, href: '/admin', icon: Shield, roles: ['admin'] },
 ]
 
 export default function Layout() {
   const { userData, signOut } = useAuth()
   const { total, hasNotifications } = useNotifications()
   const { hasFeatureAccess, loading: permissionsLoading } = useFeaturePermissions()
+  const { labels } = useLabels()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
 
   // Get user role
   const userRole = userData?.role || 'parent'
+
+  // Generate navigation items with labels
+  const mainNavigation = getMainNavigation(labels)
+  const parentNavigation = getParentNavigation(labels)
+  const adminNavigation = getAdminNavigation(labels)
 
   // Filter navigation based on user role and feature permissions
   const getNavigation = () => {
@@ -108,18 +115,18 @@ export default function Layout() {
   const getMobileNavigation = () => {
     if (userRole === 'parent') {
       return [
-        { name: 'Начало', href: '/', icon: LayoutDashboard },
+        { name: labels.navigation.dashboard, href: '/', icon: LayoutDashboard },
         { name: 'Деца', href: '/my-children', icon: Users },
-        { name: 'Плащания', href: '/payments', icon: CreditCard },
-        { name: 'Събития', href: '/events', icon: Calendar },
+        { name: labels.navigation.payments, href: '/payments', icon: CreditCard },
+        { name: labels.navigation.events, href: '/events', icon: Calendar },
       ]
     }
 
     return [
-      { name: 'Начало', href: '/', icon: LayoutDashboard },
-      { name: 'Ученици', href: '/students', icon: Users },
-      { name: 'Плащания', href: '/payments', icon: CreditCard },
-      { name: 'Събития', href: '/events', icon: Calendar },
+      { name: labels.navigation.dashboard, href: '/', icon: LayoutDashboard },
+      { name: labels.navigation.students, href: '/students', icon: Users },
+      { name: labels.navigation.payments, href: '/payments', icon: CreditCard },
+      { name: labels.navigation.events, href: '/events', icon: Calendar },
       { name: 'Още', href: '/more', icon: Menu },
     ]
   }

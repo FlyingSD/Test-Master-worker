@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
-import { Save, Settings, Building2, Globe, Bell, Palette, Shield, Key, Users } from 'lucide-react'
+import { Navigate, Link } from 'react-router-dom'
+import { Save, Settings, Building2, Globe, Bell, Palette, Shield, Key, Users, Languages, ArrowRight } from 'lucide-react'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { useAuth } from '@/hooks/useAuth'
@@ -456,6 +456,56 @@ export default function SettingsPage() {
           <p className="text-sm text-blue-800">
             <strong>Забележка:</strong> Администраторите винаги имат достъп до всички функции.
             Промените влизат в сила веднага след запазване и logout/login на потребителите.
+          </p>
+        </div>
+      </div>
+
+      {/* Labels Management */}
+      <div className="card">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-purple-50 rounded-lg">
+            <Languages className="w-6 h-6 text-purple-600" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-gray-900">Управление на етикети</h2>
+            <p className="text-sm text-gray-600">
+              Персонализирайте текстовете в потребителския интерфейс
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900 mb-2">Промяна на текстове в интерфейса</h3>
+              <p className="text-sm text-gray-700 mb-3">
+                Можете да промените всички текстове в системата - заглавия на страници, бутони, съобщения и навигация.
+                Промените се виждат веднага за всички потребители.
+              </p>
+              <ul className="text-sm text-gray-600 space-y-1 mb-4">
+                <li>• Навигация (Dashboard, Ученици, Групи, и т.н.)</li>
+                <li>• Заглавия и описания на страници</li>
+                <li>• Бутони и форми</li>
+                <li>• Съобщения и статуси</li>
+              </ul>
+              <Link
+                to="/labels"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Отвори Editor
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            <div className="hidden md:block text-6xl">
+              🏷️
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            <strong>Съвет:</strong> Използвайте тази функция за да адаптирате езика на системата към вашите нужди
+            или да добавите термини специфични за вашата институция.
           </p>
         </div>
       </div>
