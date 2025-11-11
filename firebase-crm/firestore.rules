@@ -65,6 +65,55 @@ service cloud.firestore {
       return isTeacher() && groupId in getUserData().groups;
     }
 
+    // ========================================
+    // 🔒 FIELD VALIDATION FUNCTIONS (CRITICAL #10 FIX)
+    // ========================================
+
+    // Validate string field: not null, is string, not empty
+    function isValidString(value) {
+      return value != null && value is string && value.size() > 0;
+    }
+
+    // Validate optional string: null or valid string
+    function isValidOptionalString(value) {
+      return value == null || (value is string && value.size() > 0);
+    }
+
+    // Validate number field: not null, is number
+    function isValidNumber(value) {
+      return value != null && value is number;
+    }
+
+    // Validate positive number: number >= 0
+    function isPositiveNumber(value) {
+      return isValidNumber(value) && value >= 0;
+    }
+
+    // Validate strictly positive number: number > 0
+    function isStrictlyPositive(value) {
+      return isValidNumber(value) && value > 0;
+    }
+
+    // Validate timestamp
+    function isValidTimestamp(value) {
+      return value != null && value is timestamp;
+    }
+
+    // Validate boolean
+    function isValidBoolean(value) {
+      return value != null && value is bool;
+    }
+
+    // Validate enum: value is in allowed list
+    function isInEnum(value, allowedValues) {
+      return value != null && value in allowedValues;
+    }
+
+    // Validate array: not null, is list
+    function isValidArray(value) {
+      return value != null && value is list;
+    }
+
 
     // ========================================
     // USERS COLLECTION
@@ -109,6 +158,23 @@ service cloud.firestore {
     // STUDENTS COLLECTION
     // ========================================
     match /students/{studentId} {
+      // 🔒 Field validation for students
+      function isValidStudent(data) {
+        return isValidString(data.name) &&
+               isValidString(data.studentCode) &&
+               data.studentCode.size() == 6 &&
+               isValidString(data.group) &&
+               isPositiveNumber(data.fee) &&
+               isPositiveNumber(data.feeEUR) &&
+               isValidTimestamp(data.dueDate) &&
+               isInEnum(data.status, ['active', 'inactive']) &&
+               isInEnum(data.studyType, ['Групово', 'Индивидуално']) &&
+               isValidArray(data.parentIds) &&
+               isValidOptionalString(data.notes) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
       // Read access:
       // - Admins: see all students
       // - Teachers: see ONLY students in their assigned groups (GDPR compliant)
@@ -119,15 +185,17 @@ service cloud.firestore {
         parentHasStudent(studentId)
       );
 
-      // Create: Only admins and teachers
+      // Create: Only admins and teachers with field validation
       allow create: if isAdminOrTeacher() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidStudent(request.resource.data);
 
-      // Update: Admins or owner (teacher must teach the student's group)
+      // Update: Admins or owner (teacher must teach the student's group) with field validation
       // TODO: Implement parent self-linking with student code verification
       // For now, parents must be linked by admin/teacher for security
-      allow update: if isAdmin() ||
-        (isTeacher() && ownsDocument() && teacherTeachesGroup(resource.data.group));
+      allow update: if (isAdmin() ||
+        (isTeacher() && ownsDocument() && teacherTeachesGroup(resource.data.group))) &&
+        isValidStudent(request.resource.data);
 
       // Delete: Only admins or owner
       allow delete: if canModifyDocument();
@@ -138,6 +206,20 @@ service cloud.firestore {
     // PAYMENTS COLLECTION
     // ========================================
     match /payments/{paymentId} {
+      // 🔒 Field validation for payments
+      function isValidPayment(data) {
+        return isValidString(data.studentId) &&
+               isValidString(data.studentName) &&
+               isStrictlyPositive(data.amount) &&
+               isInEnum(data.method, ['Кеш', 'ПОС', 'Банков път', 'Фактура']) &&
+               isInEnum(data.article, ['', 'Абакус', 'Учебна тетрадка', 'Други']) &&
+               isValidTimestamp(data.date) &&
+               isValidOptionalString(data.notes) &&
+               isValidOptionalString(data.receiptNumber) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
       // Read access:
       // - Admins: see all payments
       // - Teachers: see all payments (for class management)
@@ -148,12 +230,14 @@ service cloud.firestore {
         (isParent() && parentHasStudent(resource.data.studentId))
       );
 
-      // Create: Only admins and teachers
+      // Create: Only admins and teachers with field validation
       allow create: if isAdminOrTeacher() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidPayment(request.resource.data);
 
-      // Update: Only admins or owner
-      allow update: if canModifyDocument();
+      // Update: Only admins or owner with field validation
+      allow update: if canModifyDocument() &&
+        isValidPayment(request.resource.data);
 
       // Delete: Only admins or owner
       allow delete: if canModifyDocument();
@@ -164,15 +248,28 @@ service cloud.firestore {
     // EXPENSES COLLECTION
     // ========================================
     match /expenses/{expenseId} {
+      // 🔒 Field validation for expenses
+      function isValidExpense(data) {
+        return isInEnum(data.category, ['Наем', 'Ток', 'Вода', 'Интернет', 'Заплати', 'Материали', 'Реклама', 'Други']) &&
+               isStrictlyPositive(data.amount) &&
+               isValidString(data.description) &&
+               isValidTimestamp(data.date) &&
+               isValidOptionalString(data.receiptNumber) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
       // Read: Only admins and teachers
       allow read: if isAdminOrTeacher();
 
-      // Create: Only admins and teachers
+      // Create: Only admins and teachers with field validation
       allow create: if isAdminOrTeacher() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidExpense(request.resource.data);
 
-      // Update: Only admins or owner
-      allow update: if canModifyDocument();
+      // Update: Only admins or owner with field validation
+      allow update: if canModifyDocument() &&
+        isValidExpense(request.resource.data);
 
       // Delete: Only admins or owner
       allow delete: if canModifyDocument();
@@ -202,6 +299,21 @@ service cloud.firestore {
     // HOMEWORK COLLECTION
     // ========================================
     match /homework/{homeworkId} {
+      // 🔒 Field validation for homework
+      function isValidHomework(data) {
+        return isValidString(data.studentId) &&
+               isValidString(data.studentName) &&
+               isValidString(data.title) &&
+               isValidString(data.description) &&
+               isValidTimestamp(data.assignedDate) &&
+               isValidTimestamp(data.dueDate) &&
+               isInEnum(data.status, ['assigned', 'completed', 'overdue']) &&
+               isValidOptionalString(data.teacherNotes) &&
+               isValidOptionalString(data.parentNotes) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
       // Read access:
       // - Admins: see all homework
       // - Teachers: see homework they created
@@ -212,12 +324,14 @@ service cloud.firestore {
         (isParent() && parentHasStudent(resource.data.studentId))
       );
 
-      // Create: Only admins and teachers
+      // Create: Only admins and teachers with field validation
       allow create: if isAdminOrTeacher() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidHomework(request.resource.data);
 
-      // Update: Only admins or owner (teachers who created it)
-      allow update: if canModifyDocument();
+      // Update: Only admins or owner (teachers who created it) with field validation
+      allow update: if canModifyDocument() &&
+        isValidHomework(request.resource.data);
 
       // Delete: Only admins or owner
       allow delete: if canModifyDocument();
@@ -332,15 +446,34 @@ service cloud.firestore {
     // INVENTORY COLLECTION
     // ========================================
     match /inventory/{itemId} {
+      // 🔒 Field validation for inventory items
+      function isValidInventory(data) {
+        return isValidString(data.name) &&
+               isValidString(data.sku) &&
+               isInEnum(data.category, ['Абакуси', 'Учебници', 'Тетрадки', 'Материали', 'Други']) &&
+               isValidOptionalString(data.description) &&
+               isPositiveNumber(data.purchasePrice) &&
+               isPositiveNumber(data.salePrice) &&
+               isPositiveNumber(data.currentStock) &&
+               isPositiveNumber(data.minimumStock) &&
+               isValidOptionalString(data.location) &&
+               isValidOptionalString(data.supplier) &&
+               isValidBoolean(data.isActive) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
       // Read: Only admins and teachers
       allow read: if isAdminOrTeacher();
 
-      // Create: Only admins and teachers
+      // Create: Only admins and teachers with field validation
       allow create: if isAdminOrTeacher() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidInventory(request.resource.data);
 
-      // Update: Only admins or owner
-      allow update: if canModifyDocument();
+      // Update: Only admins or owner with field validation
+      allow update: if canModifyDocument() &&
+        isValidInventory(request.resource.data);
 
       // Delete: Only admins or owner
       allow delete: if canModifyDocument();
@@ -351,12 +484,27 @@ service cloud.firestore {
     // STOCK_TRANSACTIONS COLLECTION
     // ========================================
     match /stock_transactions/{transactionId} {
+      // 🔒 Field validation for stock transactions
+      function isValidStockTransaction(data) {
+        return isValidString(data.inventoryItemId) &&
+               isValidString(data.inventoryItemName) &&
+               isInEnum(data.type, ['IN', 'OUT']) &&
+               isStrictlyPositive(data.quantity) &&
+               isPositiveNumber(data.pricePerUnit) &&
+               isPositiveNumber(data.totalPrice) &&
+               isInEnum(data.reason, ['Покупка от доставчик', 'Продажба на ученик', 'Брак', 'Инвентаризация', 'Друго']) &&
+               isValidOptionalString(data.notes) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
       // Read: Only admins and teachers
       allow read: if isAdminOrTeacher();
 
-      // Create: Only admins and teachers
+      // Create: Only admins and teachers with field validation
       allow create: if isAdminOrTeacher() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidStockTransaction(request.resource.data);
 
       // Update: No updates allowed (transactions are immutable)
       allow update: if false;
@@ -370,16 +518,30 @@ service cloud.firestore {
     // GROUPS COLLECTION
     // ========================================
     match /groups/{groupId} {
+      // 🔒 Field validation for groups
+      function isValidGroup(data) {
+        return isValidString(data.name) &&
+               isValidOptionalString(data.description) &&
+               isPositiveNumber(data.price) &&
+               isPositiveNumber(data.currentStudents) &&
+               isInEnum(data.status, ['active', 'inactive', 'archived']) &&
+               isValidOptionalString(data.notes) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
       // Read: Everyone authenticated (students/parents need to see group info)
       allow read: if isAuthenticated();
 
-      // Create: Only admins and teachers
+      // Create: Only admins and teachers with field validation
       allow create: if isAdminOrTeacher() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidGroup(request.resource.data);
 
-      // Update: Only admins or owner (teacher who created it)
+      // Update: Only admins or owner (teacher who created it) with field validation
       // Teachers cannot change price, priceEUR, teacherId, teacherName
-      allow update: if canModifyDocument() && (
+      allow update: if canModifyDocument() &&
+        isValidGroup(request.resource.data) && (
         isAdmin() ||
         (
           isTeacher() &&
