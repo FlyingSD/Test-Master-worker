@@ -51,7 +51,7 @@ export default function HomeworkModal({
     title: '',
     description: '',
     assignedDate: new Date(),
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // +7 days default
+    dueDate: new Date(Date?.now() + 7 * 24 * 60 * 60 * 1000), // +7 days default
     status: 'assigned',
     completedDate: undefined,
     grade: undefined,
@@ -74,23 +74,23 @@ export default function HomeworkModal({
   useEffect(() => {
     if (homework) {
       setFormData({
-        studentId: homework.studentId,
-        studentName: homework.studentName,
-        title: homework.title,
-        description: homework.description,
-        assignedDate: homework.assignedDate instanceof Timestamp
-          ? homework.assignedDate.toDate()
-          : homework.assignedDate,
-        dueDate: homework.dueDate instanceof Timestamp
-          ? homework.dueDate.toDate()
-          : homework.dueDate,
-        status: homework.status,
-        completedDate: homework.completedDate instanceof Timestamp
-          ? homework.completedDate.toDate()
-          : homework.completedDate,
-        grade: homework.grade,
-        teacherNotes: homework.teacherNotes || '',
-        parentNotes: homework.parentNotes || '',
+        studentId: homework?.studentId,
+        studentName: homework?.studentName,
+        title: homework?.title,
+        description: homework?.description,
+        assignedDate: homework?.assignedDate instanceof Timestamp
+          ? homework?.assignedDate.toDate()
+          : homework?.assignedDate,
+        dueDate: homework?.dueDate instanceof Timestamp
+          ? homework?.dueDate.toDate()
+          : homework?.dueDate,
+        status: homework?.status,
+        completedDate: homework?.completedDate instanceof Timestamp
+          ? homework?.completedDate.toDate()
+          : homework?.completedDate,
+        grade: homework?.grade,
+        teacherNotes: homework?.teacherNotes || '',
+        parentNotes: homework?.parentNotes || '',
       })
     }
   }, [homework])
@@ -99,13 +99,13 @@ export default function HomeworkModal({
    * Pre-select student if studentId is provided
    */
   useEffect(() => {
-    if (initialStudentId && students.length > 0 && !homework) {
-      const student = students.find(s => s.id === initialStudentId)
+    if (initialStudentId && students?.length > 0 && !homework) {
+      const student = students?.find(s => s?.id === initialStudentId)
       if (student) {
         setFormData(prev => ({
           ...prev,
-          studentId: student.id,
-          studentName: student.name,
+          studentId: student?.id,
+          studentName: student?.name,
         }))
       }
     }
@@ -128,8 +128,8 @@ export default function HomeworkModal({
     const newWarnings: ErrorMessage[] = []
 
     // RULE 1: Due date validation
-    if (data.dueDate <= data.assignedDate) {
-      newErrors.push({
+    if (data?.dueDate <= data?.assignedDate) {
+      newErrors?.push({
         type: 'error',
         title: 'Невалидна крайна дата',
         message: 'Крайната дата трябва да е след датата на задаване',
@@ -139,9 +139,9 @@ export default function HomeworkModal({
 
     // RULE 2: Far future due date warning
     const thirtyDaysFromNow = new Date()
-    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
-    if (data.dueDate > thirtyDaysFromNow) {
-      newWarnings.push({
+    thirtyDaysFromNow?.setDate(thirtyDaysFromNow?.getDate() + 30)
+    if (data?.dueDate > thirtyDaysFromNow) {
+      newWarnings?.push({
         type: 'warning',
         title: 'Далечна крайна дата',
         message: 'Крайната дата е повече от 30 дни напред',
@@ -150,8 +150,8 @@ export default function HomeworkModal({
     }
 
     // RULE 3: Grade validation (Bulgarian system: 1-6)
-    if (data.grade !== undefined && (data.grade < 1 || data.grade > 6)) {
-      newErrors.push({
+    if (data?.grade !== undefined && (data?.grade < 1 || data?.grade > 6)) {
+      newErrors?.push({
         type: 'error',
         title: 'Невалидна оценка',
         message: 'Оценката трябва да е между 1 и 6',
@@ -161,9 +161,9 @@ export default function HomeworkModal({
 
     // RULE 4: Assigned date in past warning
     const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    if (data.assignedDate < yesterday) {
-      newWarnings.push({
+    yesterday?.setDate(yesterday?.getDate() - 1)
+    if (data?.assignedDate < yesterday) {
+      newWarnings?.push({
         type: 'warning',
         title: 'Стара дата на задаване',
         message: 'Датата на задаване е в миналото',
@@ -174,7 +174,7 @@ export default function HomeworkModal({
     setErrors(newErrors)
     setWarnings(newWarnings)
 
-    return newErrors.length === 0 // Return true if no errors
+    return newErrors?.length === 0 // Return true if no errors
   }
 
   // ============================================================================
@@ -186,7 +186,7 @@ export default function HomeworkModal({
    * Populates studentName from selected student (denormalization)
    */
   const handleStudentChange = (studentId: string) => {
-    const selectedStudent = students.find(s => s.id === studentId)
+    const selectedStudent = students?.find(s => s?.id === studentId)
     const newFormData = {
       ...formData,
       studentId,
@@ -234,17 +234,17 @@ export default function HomeworkModal({
    * 4. Submit via hooks (with automatic PoLP enforcement)
    * 5. Close modal on success
    */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     // Step 1: Validate
     const isValid = validateForm(formData)
-    if (!isValid || errors.length > 0) {
+    if (!isValid || errors?.length > 0) {
       return // Block submission if validation errors exist
     }
 
     // Step 2: Check student selection
-    const selectedStudent = students.find(s => s.id === formData.studentId)
+    const selectedStudent = students?.find(s => s?.id === formData?.studentId)
     if (!selectedStudent && !homework) {
       alert('Моля изберете ученик')
       return
@@ -253,27 +253,27 @@ export default function HomeworkModal({
     // Step 3: Prepare data for submission
     const dataToSubmit = {
       ...formData,
-      studentName: selectedStudent?.name || formData.studentName,
+      studentName: selectedStudent?.name || formData?.studentName,
     }
 
     try {
       // Step 4: Submit (CREATE vs UPDATE)
       if (homework) {
         // UPDATE MODE
-        await updateHomework.mutateAsync({
-          id: homework.id,
+        await updateHomework?.mutateAsync({
+          id: homework?.id,
           data: dataToSubmit,
         })
       } else {
         // CREATE MODE
-        await addHomework.mutateAsync(dataToSubmit)
+        await addHomework?.mutateAsync(dataToSubmit)
       }
 
       // Step 5: Close modal on success
       onClose()
     } catch (error) {
       // Error handling is done automatically by hooks (toast notifications)
-      console.error('Homework submission error:', error)
+      console?.error('Homework submission error:', error)
     }
   }
 
@@ -299,7 +299,7 @@ export default function HomeworkModal({
   }
 
   // Get active students only (filtered)
-  const activeStudents = students.filter(s => s.status === 'active')
+  const activeStudents = students?.filter(s => s?.status === 'active')
 
   // ============================================================================
   // RENDER (SoC: UI Layer)
@@ -337,25 +337,25 @@ export default function HomeworkModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
 
           {/* ========== ERROR/WARNING ALERTS ========== */}
-          {errors.length > 0 && (
+          {errors?.length > 0 && (
             <div className="space-y-2">
-              {errors.map((error, index) => (
+              {errors?.map((error, index) => (
                 <ErrorAlert
                   key={`error-${index}`}
                   error={error}
-                  onClose={() => setErrors(errors.filter((_, i) => i !== index))}
+                  onClose={() => setErrors(errors?.filter((_, i) => i !== index))}
                 />
               ))}
             </div>
           )}
 
-          {warnings.length > 0 && (
+          {warnings?.length > 0 && (
             <div className="space-y-2">
-              {warnings.map((warning, index) => (
+              {warnings?.map((warning, index) => (
                 <ErrorAlert
                   key={`warning-${index}`}
                   error={warning}
-                  onClose={() => setWarnings(warnings.filter((_, i) => i !== index))}
+                  onClose={() => setWarnings(warnings?.filter((_, i) => i !== index))}
                 />
               ))}
             </div>
@@ -370,14 +370,14 @@ export default function HomeworkModal({
             <select
               required
               className="input"
-              value={formData.studentId}
-              onChange={(e) => handleStudentChange(e.target.value)}
+              value={formData?.studentId}
+              onChange={(e) => handleStudentChange(e?.target.value)}
               disabled={!!homework} // Cannot change student when editing
             >
               <option value="">Избери ученик</option>
-              {activeStudents.map((student) => (
-                <option key={student.id} value={student.id}>
-                  {student.name} - {student.group}
+              {activeStudents?.map((student) => (
+                <option key={student?.id} value={student?.id}>
+                  {student?.name} - {student?.group}
                 </option>
               ))}
             </select>
@@ -399,9 +399,9 @@ export default function HomeworkModal({
               required
               className="input"
               placeholder="Глава 5: Алгебра"
-              value={formData.title}
+              value={formData?.title}
               onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
+                setFormData({ ...formData, title: e?.target.value })
               }
             />
           </div>
@@ -416,9 +416,9 @@ export default function HomeworkModal({
               required
               className="input min-h-[120px] resize-y"
               placeholder="Какво трябва да направят учениците? Включи конкретни инструкции..."
-              value={formData.description}
+              value={formData?.description}
               onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData({ ...formData, description: e?.target.value })
               }
             />
           </div>
@@ -436,11 +436,11 @@ export default function HomeworkModal({
                 required
                 className="input"
                 value={
-                  formData.assignedDate instanceof Date
-                    ? formData.assignedDate.toISOString().split('T')[0]
+                  formData?.assignedDate instanceof Date
+                    ? formData?.assignedDate?.toISOString().split('T')[0]
                     : ''
                 }
-                onChange={(e) => handleDateChange('assignedDate', e.target.value)}
+                onChange={(e) => handleDateChange('assignedDate', e?.target.value)}
               />
             </div>
 
@@ -455,11 +455,11 @@ export default function HomeworkModal({
                 required
                 className="input"
                 value={
-                  formData.dueDate instanceof Date
-                    ? formData.dueDate.toISOString().split('T')[0]
+                  formData?.dueDate instanceof Date
+                    ? formData?.dueDate?.toISOString().split('T')[0]
                     : ''
                 }
-                onChange={(e) => handleDateChange('dueDate', e.target.value)}
+                onChange={(e) => handleDateChange('dueDate', e?.target.value)}
               />
             </div>
           </div>
@@ -471,15 +471,15 @@ export default function HomeworkModal({
               <label className="label">Статус</label>
               <select
                 className="input"
-                value={formData.status}
+                value={formData?.status}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    status: e.target.value as HomeworkFormValues['status'],
+                    status: e?.target.value as HomeworkFormValues['status'],
                   })
                 }
               >
-                {HOMEWORK_STATUS_OPTIONS.map((status) => (
+                {HOMEWORK_STATUS_OPTIONS?.map((status) => (
                   <option key={status} value={status}>
                     {status === 'assigned' && 'Зададено'}
                     {status === 'completed' && 'Завършено'}
@@ -502,8 +502,8 @@ export default function HomeworkModal({
                 step="1"
                 className="input"
                 placeholder="Оценка 1-6"
-                value={formData.grade || ''}
-                onChange={(e) => handleGradeChange(e.target.value)}
+                value={formData?.grade || ''}
+                onChange={(e) => handleGradeChange(e?.target.value)}
               />
               <p className="text-xs text-gray-500 mt-1">
                 Български 6-бален: Слаб (2) до Отличен (6)
@@ -517,9 +517,9 @@ export default function HomeworkModal({
             <textarea
               className="input min-h-[80px] resize-y"
               placeholder="Обратна връзка, забележки за оценяването, наблюдения..."
-              value={formData.teacherNotes}
+              value={formData?.teacherNotes}
               onChange={(e) =>
-                setFormData({ ...formData, teacherNotes: e.target.value })
+                setFormData({ ...formData, teacherNotes: e?.target.value })
               }
             />
           </div>
@@ -530,9 +530,9 @@ export default function HomeworkModal({
             <textarea
               className="input min-h-[80px] resize-y"
               placeholder="Опционални бележки за родителите относно домашното..."
-              value={formData.parentNotes}
+              value={formData?.parentNotes}
               onChange={(e) =>
-                setFormData({ ...formData, parentNotes: e.target.value })
+                setFormData({ ...formData, parentNotes: e?.target.value })
               }
             />
           </div>
@@ -549,13 +549,13 @@ export default function HomeworkModal({
             <button
               type="submit"
               disabled={
-                addHomework.isPending ||
-                updateHomework.isPending ||
-                errors.length > 0
+                addHomework?.isPending ||
+                updateHomework?.isPending ||
+                errors?.length > 0
               }
               className="btn btn-primary flex-1"
             >
-              {addHomework.isPending || updateHomework.isPending ? (
+              {addHomework?.isPending || updateHomework?.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Запазва се...

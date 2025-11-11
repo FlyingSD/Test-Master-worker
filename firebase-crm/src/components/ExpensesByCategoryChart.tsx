@@ -3,11 +3,11 @@ import {
   ArcElement,
   Tooltip,
   Legend,
-} from 'chart.js'
+} from 'chart?.js'
 import { Doughnut } from 'react-chartjs-2'
 import { useExpenses } from '@/hooks/useExpenses'
 
-ChartJS.register(ArcElement, Tooltip, Legend)
+ChartJS?.register(ArcElement, Tooltip, Legend)
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Наем': '#EF4444',
@@ -24,13 +24,13 @@ export default function ExpensesByCategoryChart() {
   const { expenses } = useExpenses()
 
   // Group expenses by category
-  const expensesByCategory = expenses.reduce((acc, expense) => {
-    acc[expense.category] = (acc[expense.category] || 0) + expense.amount
+  const expensesByCategory = expenses?.reduce((acc, expense) => {
+    acc[expense?.category] = (acc[expense?.category] || 0) + expense?.amount
     return acc
   }, {} as Record<string, number>)
 
-  const categories = Object.keys(expensesByCategory)
-  const amounts = Object.values(expensesByCategory)
+  const categories = Object?.keys(expensesByCategory)
+  const amounts = Object?.values(expensesByCategory)
 
   const data = {
     labels: categories,
@@ -38,14 +38,14 @@ export default function ExpensesByCategoryChart() {
       {
         label: 'Разходи по категория',
         data: amounts,
-        backgroundColor: categories.map((cat) => CATEGORY_COLORS[cat] || '#6B7280'),
-        borderColor: categories.map((cat) => CATEGORY_COLORS[cat] || '#6B7280'),
+        backgroundColor: categories?.map((cat) => CATEGORY_COLORS[cat] || '#6B7280'),
+        borderColor: categories?.map((cat) => CATEGORY_COLORS[cat] || '#6B7280'),
         borderWidth: 2,
       },
     ],
   }
 
-  const total = amounts.reduce((sum, val) => sum + val, 0)
+  const total = amounts?.reduce((sum, val) => sum + val, 0)
 
   const options = {
     responsive: true,
@@ -56,18 +56,18 @@ export default function ExpensesByCategoryChart() {
         position: 'right' as const,
         onClick: (e: any, legendItem: any, legend: any) => {
           // Toggle dataset visibility
-          const index = legendItem.index
-          const chart = legend.chart
-          const meta = chart.getDatasetMeta(0)
-          const segment = meta.data[index]
-          segment.hidden = !segment.hidden
-          chart.update()
+          const index = legendItem?.index
+          const chart = legend?.chart
+          const meta = chart?.getDatasetMeta(0)
+          const segment = meta?.data[index]
+          segment?.hidden = !segment?.hidden
+          chart?.update()
         },
         onHover: (e: any) => {
-          e.native.target.style.cursor = 'pointer'
+          e?.native.target?.style.cursor = 'pointer'
         },
         onLeave: (e: any) => {
-          e.native.target.style.cursor = 'default'
+          e?.native.target?.style.cursor = 'default'
         },
         labels: {
           usePointStyle: true,
@@ -77,15 +77,15 @@ export default function ExpensesByCategoryChart() {
             weight: '500' as any,
           },
           generateLabels: (chart: any) => {
-            const data = chart.data
-            if (data.labels.length && data.datasets.length) {
-              return data.labels.map((label: string, i: number) => {
-                const value = data.datasets[0].data[i]
+            const data = chart?.data
+            if (data?.labels.length && data?.datasets.length) {
+              return data?.labels.map((label: string, i: number) => {
+                const value = data?.datasets[0].data[i]
                 const percentage = ((value / total) * 100).toFixed(1)
                 return {
                   text: `${label} (${percentage}%)`,
-                  fillStyle: data.datasets[0].backgroundColor[i],
-                  strokeStyle: data.datasets[0].borderColor[i],
+                  fillStyle: data?.datasets[0].backgroundColor[i],
+                  strokeStyle: data?.datasets[0].borderColor[i],
                   lineWidth: 2,
                   hidden: false,
                   index: i,
@@ -110,25 +110,25 @@ export default function ExpensesByCategoryChart() {
       },
       tooltip: {
         enabled: true,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'rgba(0, 0, 0, 0?.8)',
         titleColor: '#fff',
         bodyColor: '#fff',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: 'rgba(255, 255, 255, 0?.1)',
         borderWidth: 1,
         padding: 12,
         callbacks: {
           label: function (context: any) {
-            const label = context.label || ''
-            const value = context.parsed || 0
+            const label = context?.label || ''
+            const value = context?.parsed || 0
             const percentage = ((value / total) * 100).toFixed(1)
-            return `${label}: ${new Intl.NumberFormat('bg-BG', {
+            return `${label}: ${new Intl?.NumberFormat('bg-BG', {
               style: 'currency',
               currency: 'BGN',
               minimumFractionDigits: 2,
             }).format(value)} (${percentage}%)`
           },
           footer: function () {
-            return `Общо: ${new Intl.NumberFormat('bg-BG', {
+            return `Общо: ${new Intl?.NumberFormat('bg-BG', {
               style: 'currency',
               currency: 'BGN',
               minimumFractionDigits: 2,
@@ -149,7 +149,7 @@ export default function ExpensesByCategoryChart() {
     },
   }
 
-  if (categories.length === 0) {
+  if (categories?.length === 0) {
     return (
       <div className="card p-6 flex items-center justify-center" style={{ height: '400px' }}>
         <p className="text-gray-500">Няма данни за разходи</p>

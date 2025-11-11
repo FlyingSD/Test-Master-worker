@@ -23,7 +23,7 @@ import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 
-const paymentPlansCollection = collection(db, COLLECTIONS.PAYMENT_PLANS)
+const paymentPlansCollection = collection(db, COLLECTIONS?.PAYMENT_PLANS)
 
 /**
  * Hook to get all payment plans with real-time updates
@@ -39,18 +39,18 @@ export function usePaymentPlans() {
       q,
       (snapshot) => {
         const plansData: PaymentPlan[] = []
-        snapshot.forEach((doc) => {
-          plansData.push({ id: doc.id, ...doc.data() } as PaymentPlan)
+        snapshot?.forEach((doc) => {
+          plansData?.push({ id: doc?.id, ...doc?.data() } as PaymentPlan)
         })
         setPaymentPlans(plansData)
         setLoading(false)
         setError(null)
       },
       (err) => {
-        console.error('Error fetching payment plans:', err)
+        console?.error('Error fetching payment plans:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error('Грешка при зареждане на планове за плащане')
+        toast?.error('Грешка при зареждане на планове за плащане')
       }
     )
 
@@ -82,8 +82,8 @@ export function usePaymentPlansByStudent(studentId: string) {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const plansData: PaymentPlan[] = []
-      snapshot.forEach((doc) => {
-        plansData.push({ id: doc.id, ...doc.data() } as PaymentPlan)
+      snapshot?.forEach((doc) => {
+        plansData?.push({ id: doc?.id, ...doc?.data() } as PaymentPlan)
       })
       setPaymentPlans(plansData)
       setLoading(false)
@@ -105,31 +105,31 @@ export function useAddPaymentPlan() {
   return useMutation({
     mutationFn: async (data: Omit<PaymentPlan, 'id' | 'createdAt' | 'createdBy'>) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // Convert dates to timestamps
       const planData = {
         ...data,
-        startDate: toTimestamp(data.startDate),
-        installments: data.installments.map((inst: Installment) => ({
+        startDate: toTimestamp(data?.startDate),
+        installments: data?.installments.map((inst: Installment) => ({
           ...inst,
-          dueDate: toTimestamp(inst.dueDate),
-          paidDate: inst.paidDate ? toTimestamp(inst.paidDate) : null,
+          dueDate: toTimestamp(inst?.dueDate),
+          paidDate: inst?.paidDate ? toTimestamp(inst?.paidDate) : null,
         })),
-        createdBy: user.uid,
+        createdBy: user?.uid,
         createdAt: serverTimestamp(),
       }
       const docRef = await addDoc(paymentPlansCollection, planData)
-      return docRef.id
+      return docRef?.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.paymentPlans })
-      toast.success('Планът за плащане е създаден успешно!')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.paymentPlans })
+      toast?.success('Планът за плащане е създаден успешно!')
     },
     onError: (error) => {
-      console.error('Error creating payment plan:', error)
-      toast.error('Грешка при създаване на план за плащане')
+      console?.error('Error creating payment plan:', error)
+      toast?.error('Грешка при създаване на план за плащане')
     },
   })
 }
@@ -150,36 +150,36 @@ export function useUpdatePaymentPlan() {
       data: Partial<Omit<PaymentPlan, 'id' | 'createdAt' | 'createdBy'>>
     }) => {
       await validateDocumentOwnership(
-        COLLECTIONS.PAYMENT_PLANS,
+        COLLECTIONS?.PAYMENT_PLANS,
         id,
         user!,
         'План за плащане не е намерен'
       )
 
-      const docRef = doc(db, COLLECTIONS.PAYMENT_PLANS, id)
+      const docRef = doc(db, COLLECTIONS?.PAYMENT_PLANS, id)
       const updateData: any = { ...data, updatedAt: serverTimestamp() }
 
-      if (updateData.startDate) {
-        updateData.startDate = toTimestamp(updateData.startDate)
+      if (updateData?.startDate) {
+        updateData?.startDate = toTimestamp(updateData?.startDate)
       }
 
-      if (updateData.installments) {
-        updateData.installments = updateData.installments.map((inst: Installment) => ({
+      if (updateData?.installments) {
+        updateData?.installments = updateData?.installments.map((inst: Installment) => ({
           ...inst,
-          dueDate: toTimestamp(inst.dueDate),
-          paidDate: inst.paidDate ? toTimestamp(inst.paidDate) : null,
+          dueDate: toTimestamp(inst?.dueDate),
+          paidDate: inst?.paidDate ? toTimestamp(inst?.paidDate) : null,
         }))
       }
 
       await updateDoc(docRef, updateData)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.paymentPlans })
-      toast.success('Планът за плащане е обновен успешно!')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.paymentPlans })
+      toast?.success('Планът за плащане е обновен успешно!')
     },
     onError: (error) => {
-      console.error('Error updating payment plan:', error)
-      toast.error('Грешка при обновяване на план за плащане')
+      console?.error('Error updating payment plan:', error)
+      toast?.error('Грешка при обновяване на план за плащане')
     },
   })
 }
@@ -194,21 +194,21 @@ export function useDeletePaymentPlan() {
   return useMutation({
     mutationFn: async (id: string) => {
       await validateDocumentOwnership(
-        COLLECTIONS.PAYMENT_PLANS,
+        COLLECTIONS?.PAYMENT_PLANS,
         id,
         user!,
         'План за плащане не е намерен'
       )
 
-      await deleteDoc(doc(db, COLLECTIONS.PAYMENT_PLANS, id))
+      await deleteDoc(doc(db, COLLECTIONS?.PAYMENT_PLANS, id))
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.paymentPlans })
-      toast.success('Планът за плащане е изтрит успешно!')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.paymentPlans })
+      toast?.success('Планът за плащане е изтрит успешно!')
     },
     onError: (error) => {
-      console.error('Error deleting payment plan:', error)
-      toast.error('Грешка при изтриване на план за плащане')
+      console?.error('Error deleting payment plan:', error)
+      toast?.error('Грешка при изтриване на план за плащане')
     },
   })
 }
@@ -231,29 +231,29 @@ export function useMarkInstallmentPaid() {
       relatedPaymentId?: string
     }) => {
       await validateDocumentOwnership(
-        COLLECTIONS.PAYMENT_PLANS,
+        COLLECTIONS?.PAYMENT_PLANS,
         planId,
         user!,
         'План за плащане не е намерен'
       )
 
-      const planRef = doc(db, COLLECTIONS.PAYMENT_PLANS, planId)
+      const planRef = doc(db, COLLECTIONS?.PAYMENT_PLANS, planId)
       const planDoc = await validateDocumentOwnership(
-        COLLECTIONS.PAYMENT_PLANS,
+        COLLECTIONS?.PAYMENT_PLANS,
         planId,
         user!,
         'План за плащане не е намерен'
       )
 
-      const planData = planDoc.data() as PaymentPlan
+      const planData = planDoc?.data() as PaymentPlan
 
       // Update the installment status
-      const updatedInstallments = planData.installments.map((inst) => {
-        if (inst.installmentNumber === installmentNumber) {
+      const updatedInstallments = planData?.installments.map((inst) => {
+        if (inst?.installmentNumber === installmentNumber) {
           return {
             ...inst,
             status: 'paid' as const,
-            paidDate: Timestamp.now(),
+            paidDate: Timestamp?.now(),
             relatedPaymentId,
           }
         }
@@ -261,7 +261,7 @@ export function useMarkInstallmentPaid() {
       })
 
       // Check if all installments are paid
-      const allPaid = updatedInstallments.every((inst) => inst.status === 'paid')
+      const allPaid = updatedInstallments?.every((inst) => inst?.status === 'paid')
       const newStatus = allPaid ? 'completed' : 'active'
 
       await updateDoc(planRef, {
@@ -271,12 +271,12 @@ export function useMarkInstallmentPaid() {
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.paymentPlans })
-      toast.success('Вноската е маркирана като платена!')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.paymentPlans })
+      toast?.success('Вноската е маркирана като платена!')
     },
     onError: (error) => {
-      console.error('Error marking installment as paid:', error)
-      toast.error('Грешка при маркиране на вноската')
+      console?.error('Error marking installment as paid:', error)
+      toast?.error('Грешка при маркиране на вноската')
     },
   })
 }

@@ -50,39 +50,39 @@ export function useNotifications(): NotificationCounts {
     }
 
     // Get student IDs for this parent
-    const studentIds = students.map(s => s.id)
+    const studentIds = students?.map(s => s?.id)
 
     // Filter homework for parent's children
-    const parentHomework = homework.filter(hw =>
-      studentIds.includes(hw.studentId) && hw.status === 'assigned'
+    const parentHomework = homework?.filter(hw =>
+      studentIds?.includes(hw?.studentId) && hw?.status === 'assigned'
     )
 
     // Count overdue homework
-    const overdueHomework = parentHomework.filter(hw => {
-      const status = getDueDateStatus(hw.dueDate)
-      return status.status === 'overdue'
+    const overdueHomework = parentHomework?.filter(hw => {
+      const status = getDueDateStatus(hw?.dueDate)
+      return status?.status === 'overdue'
     }).length
 
     // Count critical homework (today or tomorrow)
-    const criticalHomework = parentHomework.filter(hw => {
-      const status = getDueDateStatus(hw.dueDate)
-      return status.status === 'critical'
+    const criticalHomework = parentHomework?.filter(hw => {
+      const status = getDueDateStatus(hw?.dueDate)
+      return status?.status === 'critical'
     }).length
 
     // Count overdue payments
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today?.setHours(0, 0, 0, 0)
 
-    const overduePayments = students.filter(student => {
-      if (!student.dueDate) return false
-      const dueDate = student.dueDate instanceof Date
-        ? student.dueDate
-        : student.dueDate?.toDate?.()
+    const overduePayments = students?.filter(student => {
+      if (!student?.dueDate) return false
+      const dueDate = student?.dueDate instanceof Date
+        ? student?.dueDate
+        : student?.dueDate?.toDate?.()
 
       if (!dueDate) return false
 
       const dueDateOnly = new Date(dueDate)
-      dueDateOnly.setHours(0, 0, 0, 0)
+      dueDateOnly?.setHours(0, 0, 0, 0)
 
       return dueDateOnly < today
     }).length

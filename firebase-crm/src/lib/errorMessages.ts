@@ -208,5 +208,5 @@ export const SUCCESS_MESSAGES = {
  * Helper to get error message with dynamic content
  */
 export function getErrorMessage(error: Error): string {
-  return error.message || ERROR_MESSAGES.GENERAL.UNKNOWN
+  return error?.message || ERROR_MESSAGES?.GENERAL.UNKNOWN
 }

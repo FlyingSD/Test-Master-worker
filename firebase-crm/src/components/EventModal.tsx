@@ -21,7 +21,7 @@ export default function EventModal({ event, onClose }: EventModalProps) {
     group: '',
     businessDescription: '',
     startTime: new Date(),
-    endTime: new Date(Date.now() + 60 * 60 * 1000), // +1 hour
+    endTime: new Date(Date?.now() + 60 * 60 * 1000), // +1 hour
     location: '',
     teacherId: '',
     studentIds: [],
@@ -35,43 +35,43 @@ export default function EventModal({ event, onClose }: EventModalProps) {
   useEffect(() => {
     if (event) {
       setFormData({
-        title: event.title,
-        type: event.type,
-        group: event.group || '',
-        businessDescription: event.businessDescription || '',
-        startTime: event.startTime instanceof Timestamp
-          ? event.startTime.toDate()
-          : event.startTime,
-        endTime: event.endTime instanceof Timestamp
-          ? event.endTime.toDate()
-          : event.endTime,
-        location: event.location || '',
-        teacherId: event.teacherId || '',
-        studentIds: event.studentIds || [],
-        notes: event.notes || '',
-        color: event.color || '#46B19D',
+        title: event?.title,
+        type: event?.type,
+        group: event?.group || '',
+        businessDescription: event?.businessDescription || '',
+        startTime: event?.startTime instanceof Timestamp
+          ? event?.startTime.toDate()
+          : event?.startTime,
+        endTime: event?.endTime instanceof Timestamp
+          ? event?.endTime.toDate()
+          : event?.endTime,
+        location: event?.location || '',
+        teacherId: event?.teacherId || '',
+        studentIds: event?.studentIds || [],
+        notes: event?.notes || '',
+        color: event?.color || '#46B19D',
       })
     }
   }, [event])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     // Validate that end time is after start time
-    if (formData.endTime <= formData.startTime) {
+    if (formData?.endTime <= formData?.startTime) {
       alert('Крайният час трябва да е след началния час')
       return
     }
 
     if (event) {
       // Update existing event
-      await updateEvent.mutateAsync({
-        id: event.id,
+      await updateEvent?.mutateAsync({
+        id: event?.id,
         data: formData,
       })
     } else {
       // Add new event
-      await addEvent.mutateAsync(formData)
+      await addEvent?.mutateAsync(formData)
     }
 
     onClose()
@@ -105,9 +105,9 @@ export default function EventModal({ event, onClose }: EventModalProps) {
               required
               className="input"
               placeholder="Урок по ментална аритметика"
-              value={formData.title}
+              value={formData?.title}
               onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
+                setFormData({ ...formData, title: e?.target.value })
               }
             />
           </div>
@@ -121,11 +121,11 @@ export default function EventModal({ event, onClose }: EventModalProps) {
               <select
                 required
                 className="input"
-                value={formData.type}
+                value={formData?.type}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    type: e.target.value as 'Урок' | 'Събитие' | 'Ваканция' | 'Друго',
+                    type: e?.target.value as 'Урок' | 'Събитие' | 'Ваканция' | 'Друго',
                   })
                 }
               >
@@ -147,23 +147,23 @@ export default function EventModal({ event, onClose }: EventModalProps) {
                 <>
                   <select
                     className="input"
-                    value={customGroup ? '__custom__' : (formData.group || '')}
+                    value={customGroup ? '__custom__' : (formData?.group || '')}
                     onChange={(e) => {
-                      if (e.target.value === '__custom__') {
+                      if (e?.target.value === '__custom__') {
                         setCustomGroup(true)
                         setFormData({ ...formData, group: '' })
                       } else {
                         setCustomGroup(false)
-                        setFormData({ ...formData, group: e.target.value })
+                        setFormData({ ...formData, group: e?.target.value })
                       }
                     }}
                   >
                     <option value="">Без група</option>
                     {groups
-                      .filter(g => g.status === 'active')
+                      .filter(g => g?.status === 'active')
                       .map((group) => (
-                        <option key={group.id} value={group.name}>
-                          {group.name} {group.subject ? `(${group.subject})` : ''}
+                        <option key={group?.id} value={group?.name}>
+                          {group?.name} {group?.subject ? `(${group?.subject})` : ''}
                         </option>
                       ))}
                     <option value="__custom__">➕ Нова група (въведете име)</option>
@@ -173,9 +173,9 @@ export default function EventModal({ event, onClose }: EventModalProps) {
                       type="text"
                       className="input mt-2"
                       placeholder="Име на нова група..."
-                      value={formData.group}
+                      value={formData?.group}
                       onChange={(e) =>
-                        setFormData({ ...formData, group: e.target.value })
+                        setFormData({ ...formData, group: e?.target.value })
                       }
                     />
                   )}
@@ -196,9 +196,9 @@ export default function EventModal({ event, onClose }: EventModalProps) {
               type="text"
               className="input"
               placeholder="Expo 2026, Семинар, Презентация..."
-              value={formData.businessDescription}
+              value={formData?.businessDescription}
               onChange={(e) =>
-                setFormData({ ...formData, businessDescription: e.target.value })
+                setFormData({ ...formData, businessDescription: e?.target.value })
               }
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -219,14 +219,14 @@ export default function EventModal({ event, onClose }: EventModalProps) {
                   required
                   className="input pl-10"
                   value={
-                    formData.startTime instanceof Date
-                      ? formData.startTime.toISOString().slice(0, 16)
+                    formData?.startTime instanceof Date
+                      ? formData?.startTime.toISOString().slice(0, 16)
                       : ''
                   }
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      startTime: new Date(e.target.value),
+                      startTime: new Date(e?.target.value),
                     })
                   }
                 />
@@ -244,14 +244,14 @@ export default function EventModal({ event, onClose }: EventModalProps) {
                   required
                   className="input pl-10"
                   value={
-                    formData.endTime instanceof Date
-                      ? formData.endTime.toISOString().slice(0, 16)
+                    formData?.endTime instanceof Date
+                      ? formData?.endTime.toISOString().slice(0, 16)
                       : ''
                   }
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      endTime: new Date(e.target.value),
+                      endTime: new Date(e?.target.value),
                     })
                   }
                 />
@@ -268,9 +268,9 @@ export default function EventModal({ event, onClose }: EventModalProps) {
                 type="text"
                 className="input pl-10"
                 placeholder="Зала 1, Онлайн..."
-                value={formData.location}
+                value={formData?.location}
                 onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
+                  setFormData({ ...formData, location: e?.target.value })
                 }
               />
             </div>
@@ -289,16 +289,16 @@ export default function EventModal({ event, onClose }: EventModalProps) {
                 { name: 'Green', value: '#10B981' },
               ].map((color) => (
                 <button
-                  key={color.value}
+                  key={color?.value}
                   type="button"
-                  onClick={() => setFormData({ ...formData, color: color.value })}
+                  onClick={() => setFormData({ ...formData, color: color?.value })}
                   className={`w-10 h-10 rounded-lg transition-all ${
-                    formData.color === color.value
+                    formData?.color === color?.value
                       ? 'ring-4 ring-offset-2 ring-gray-300 scale-110'
                       : 'hover:scale-105'
                   }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
+                  style={{ backgroundColor: color?.value }}
+                  title={color?.name}
                 />
               ))}
             </div>
@@ -310,9 +310,9 @@ export default function EventModal({ event, onClose }: EventModalProps) {
             <textarea
               className="input min-h-[100px] resize-y"
               placeholder="Допълнителна информация..."
-              value={formData.notes}
+              value={formData?.notes}
               onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
+                setFormData({ ...formData, notes: e?.target.value })
               }
             />
           </div>
@@ -328,10 +328,10 @@ export default function EventModal({ event, onClose }: EventModalProps) {
             </button>
             <button
               type="submit"
-              disabled={addEvent.isPending || updateEvent.isPending}
+              disabled={addEvent?.isPending || updateEvent?.isPending}
               className="btn btn-primary flex-1"
             >
-              {addEvent.isPending || updateEvent.isPending ? (
+              {addEvent?.isPending || updateEvent?.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Запазване...

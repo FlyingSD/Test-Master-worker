@@ -25,9 +25,9 @@ function deepMerge<T extends Record<string, any>>(
       customValue !== null &&
       customValue !== undefined &&
       typeof customValue === 'object' &&
-      !Array.isArray(customValue) &&
+      !Array?.isArray(customValue) &&
       typeof defaultValue === 'object' &&
-      !Array.isArray(defaultValue)
+      !Array?.isArray(defaultValue)
     ) {
       // Recursively merge nested objects
       result[key] = deepMerge(defaultValue, customValue) as any
@@ -55,7 +55,7 @@ function deepMerge<T extends Record<string, any>>(
  *
  *   if (loading) return <Spinner />
  *
- *   return <h1>{labels.pages.students.title}</h1>
+ *   return <h1>{labels?.pages.students?.title}</h1>
  * }
  * ```
  */
@@ -65,20 +65,20 @@ export function useLabels() {
 
   useEffect(() => {
     // Real-time listener for labels document
-    const docRef = doc(db, COLLECTIONS.SETTINGS, 'labels')
+    const docRef = doc(db, COLLECTIONS?.SETTINGS, 'labels')
 
     const unsubscribe = onSnapshot(
       docRef,
       (docSnap) => {
-        if (docSnap.exists()) {
-          setCustomLabels(docSnap.data() as Partial<Labels>)
+        if (docSnap?.exists()) {
+          setCustomLabels(docSnap?.data() as Partial<Labels>)
         } else {
           setCustomLabels(null)
         }
         setLoading(false)
       },
       (error) => {
-        console.error('Error loading labels:', error)
+        console?.error('Error loading labels:', error)
         setCustomLabels(null)
         setLoading(false)
       }
@@ -127,20 +127,20 @@ export function useUpdateLabels() {
   const updateLabels = async (labels: Partial<Labels>) => {
     setSaving(true)
     try {
-      const docRef = doc(db, COLLECTIONS.SETTINGS, 'labels')
+      const docRef = doc(db, COLLECTIONS?.SETTINGS, 'labels')
 
       // Merge with existing labels
       const existingDoc = await getDoc(docRef)
-      const existingLabels = existingDoc.exists() ? existingDoc.data() : {}
+      const existingLabels = existingDoc?.exists() ? existingDoc?.data() : {}
 
       const merged = deepMerge(existingLabels as Partial<Labels>, labels)
 
       await setDoc(docRef, merged)
 
-      toast.success('Етикетите са запазени успешно')
+      toast?.success('Етикетите са запазени успешно')
     } catch (error) {
-      console.error('Error updating labels:', error)
-      toast.error('Грешка при запазване на етикети')
+      console?.error('Error updating labels:', error)
+      toast?.error('Грешка при запазване на етикети')
       throw error
     } finally {
       setSaving(false)
@@ -150,12 +150,12 @@ export function useUpdateLabels() {
   const resetToDefaults = async () => {
     setSaving(true)
     try {
-      const docRef = doc(db, COLLECTIONS.SETTINGS, 'labels')
+      const docRef = doc(db, COLLECTIONS?.SETTINGS, 'labels')
       await setDoc(docRef, {})
-      toast.success('Етикетите са върнати към стойностите по подразбиране')
+      toast?.success('Етикетите са върнати към стойностите по подразбиране')
     } catch (error) {
-      console.error('Error resetting labels:', error)
-      toast.error('Грешка при нулиране на етикети')
+      console?.error('Error resetting labels:', error)
+      toast?.error('Грешка при нулиране на етикети')
       throw error
     } finally {
       setSaving(false)
@@ -174,13 +174,13 @@ export function useUpdateLabels() {
  *
  * @description Helper hook to get a specific label value by dot-notation path.
  *
- * @param path - Dot-notation path to label (e.g., 'pages.students.title')
+ * @param path - Dot-notation path to label (e?.g., 'pages?.students.title')
  * @returns {string} The label value
  *
  * @example
  * ```tsx
  * function MyComponent() {
- *   const title = useLabel('pages.students.title')
+ *   const title = useLabel('pages?.students.title')
  *   return <h1>{title}</h1>
  * }
  * ```
@@ -189,7 +189,7 @@ export function useLabel(path: string): string {
   const { labels } = useLabels()
 
   return useMemo(() => {
-    const keys = path.split('.')
+    const keys = path?.split('.')
     let value: any = labels
 
     for (const key of keys) {

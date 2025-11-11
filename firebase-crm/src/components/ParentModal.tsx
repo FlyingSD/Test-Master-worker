@@ -33,35 +33,35 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
   useEffect(() => {
     if (parent) {
       setFormData({
-        name: parent.name,
-        phone: parent.phone,
-        phone2: parent.phone2 || '',
-        email: parent.email || '',
-        address: parent.address || '',
-        city: parent.city || '',
-        relationship: parent.relationship,
-        paymentMethod: parent.paymentMethod,
-        companyName: parent.companyName || '',
-        companyVAT: parent.companyVAT || '',
-        companyAddress: parent.companyAddress || '',
-        notes: parent.notes || '',
+        name: parent?.name,
+        phone: parent?.phone,
+        phone2: parent?.phone2 || '',
+        email: parent?.email || '',
+        address: parent?.address || '',
+        city: parent?.city || '',
+        relationship: parent?.relationship,
+        paymentMethod: parent?.paymentMethod,
+        companyName: parent?.companyName || '',
+        companyVAT: parent?.companyVAT || '',
+        companyAddress: parent?.companyAddress || '',
+        notes: parent?.notes || '',
       })
-      setShowCompanyFields(!!(parent.companyName || parent.companyVAT || parent.companyAddress))
+      setShowCompanyFields(!!(parent?.companyName || parent?.companyVAT || parent?.companyAddress))
     }
   }, [parent])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     if (parent) {
       // Update existing parent
-      await updateParent.mutateAsync({
-        id: parent.id,
+      await updateParent?.mutateAsync({
+        id: parent?.id,
         data: formData,
       })
     } else {
       // Add new parent
-      await addParent.mutateAsync(formData)
+      await addParent?.mutateAsync(formData)
     }
 
     onClose()
@@ -102,9 +102,9 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                 required
                 className="input"
                 placeholder="Иван Петров"
-                value={formData.name}
+                value={formData?.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData({ ...formData, name: e?.target.value })
                 }
               />
             </div>
@@ -114,11 +114,11 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
               <label className="label">Родство</label>
               <select
                 className="input"
-                value={formData.relationship || ''}
+                value={formData?.relationship || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    relationship: e.target.value as typeof formData.relationship,
+                    relationship: e?.target.value as typeof formData?.relationship,
                   })
                 }
               >
@@ -149,9 +149,9 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                   required
                   className="input"
                   placeholder="+359 888 123 456"
-                  value={formData.phone}
+                  value={formData?.phone}
                   onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
+                    setFormData({ ...formData, phone: e?.target.value })
                   }
                 />
               </div>
@@ -162,9 +162,9 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                   type="tel"
                   className="input"
                   placeholder="+359 888 123 456"
-                  value={formData.phone2}
+                  value={formData?.phone2}
                   onChange={(e) =>
-                    setFormData({ ...formData, phone2: e.target.value })
+                    setFormData({ ...formData, phone2: e?.target.value })
                   }
                 />
               </div>
@@ -178,10 +178,10 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                 <input
                   type="email"
                   className="input pl-10"
-                  placeholder="ivan.petrov@example.com"
-                  value={formData.email}
+                  placeholder="ivan?.petrov@example?.com"
+                  value={formData?.email}
                   onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
+                    setFormData({ ...formData, email: e?.target.value })
                   }
                 />
               </div>
@@ -197,9 +197,9 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                     type="text"
                     className="input pl-10"
                     placeholder="ул. Цар Борис III №15"
-                    value={formData.address}
+                    value={formData?.address}
                     onChange={(e) =>
-                      setFormData({ ...formData, address: e.target.value })
+                      setFormData({ ...formData, address: e?.target.value })
                     }
                   />
                 </div>
@@ -211,9 +211,9 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                   type="text"
                   className="input"
                   placeholder="София"
-                  value={formData.city}
+                  value={formData?.city}
                   onChange={(e) =>
-                    setFormData({ ...formData, city: e.target.value })
+                    setFormData({ ...formData, city: e?.target.value })
                   }
                 />
               </div>
@@ -225,11 +225,11 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
             <label className="label">Предпочитан метод на плащане</label>
             <select
               className="input"
-              value={formData.paymentMethod || ''}
+              value={formData?.paymentMethod || ''}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  paymentMethod: e.target.value as typeof formData.paymentMethod,
+                  paymentMethod: e?.target.value as typeof formData?.paymentMethod,
                 })
               }
             >
@@ -266,9 +266,9 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                     type="text"
                     className="input"
                     placeholder="ООД Пример"
-                    value={formData.companyName}
+                    value={formData?.companyName}
                     onChange={(e) =>
-                      setFormData({ ...formData, companyName: e.target.value })
+                      setFormData({ ...formData, companyName: e?.target.value })
                     }
                   />
                 </div>
@@ -280,9 +280,9 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                     type="text"
                     className="input"
                     placeholder="123456789"
-                    value={formData.companyVAT}
+                    value={formData?.companyVAT}
                     onChange={(e) =>
-                      setFormData({ ...formData, companyVAT: e.target.value })
+                      setFormData({ ...formData, companyVAT: e?.target.value })
                     }
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -297,9 +297,9 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                     type="text"
                     className="input"
                     placeholder="гр. София, ул. Бизнес №1"
-                    value={formData.companyAddress}
+                    value={formData?.companyAddress}
                     onChange={(e) =>
-                      setFormData({ ...formData, companyAddress: e.target.value })
+                      setFormData({ ...formData, companyAddress: e?.target.value })
                     }
                   />
                 </div>
@@ -313,9 +313,9 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
             <textarea
               className="input min-h-[100px] resize-y"
               placeholder="Допълнителна информация, предпочитания, специални условия..."
-              value={formData.notes}
+              value={formData?.notes}
               onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
+                setFormData({ ...formData, notes: e?.target.value })
               }
             />
           </div>
@@ -331,10 +331,10 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
             </button>
             <button
               type="submit"
-              disabled={addParent.isPending || updateParent.isPending}
+              disabled={addParent?.isPending || updateParent?.isPending}
               className="btn btn-primary flex-1"
             >
-              {addParent.isPending || updateParent.isPending ? (
+              {addParent?.isPending || updateParent?.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Запазване...

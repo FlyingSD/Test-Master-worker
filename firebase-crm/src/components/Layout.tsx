@@ -37,33 +37,33 @@ interface NavItem {
 
 // Main navigation items generator (Admin & Teacher)
 const getMainNavigation = (labels: any): NavItem[] => [
-  { name: labels.navigation.dashboard, href: '/', icon: LayoutDashboard, roles: ['admin', 'teacher'], feature: 'dashboard' },
-  { name: labels.navigation.students, href: '/students', icon: Users, roles: ['admin', 'teacher'], feature: 'students' },
-  { name: labels.navigation.groups, href: '/groups', icon: Users, roles: ['admin', 'teacher'], feature: 'groups' },
-  { name: labels.navigation.homework, href: '/homework', icon: BookOpen, roles: ['admin', 'teacher'], feature: 'homework' },
-  { name: labels.navigation.parents, href: '/parents', icon: Users, roles: ['admin', 'teacher'], feature: 'parents' },
-  { name: labels.navigation.payments, href: '/payments', icon: CreditCard, roles: ['admin', 'teacher', 'parent'], feature: 'payments' },
-  { name: labels.navigation.expenses, href: '/expenses', icon: TrendingDown, roles: ['admin', 'teacher'], feature: 'expenses' },
-  { name: labels.navigation.inventory, href: '/inventory', icon: Package, roles: ['admin', 'teacher'], feature: 'inventory' },
-  { name: labels.navigation.attendance, href: '/attendance', icon: UserCheck, roles: ['admin', 'teacher'], feature: 'attendance' },
-  { name: labels.navigation.events, href: '/events', icon: Calendar, roles: ['admin', 'teacher', 'parent'], feature: 'events' },
-  { name: labels.navigation.discounts, href: '/discounts', icon: Percent, roles: ['admin', 'teacher'], feature: 'discounts' },
-  { name: labels.navigation.reports, href: '/reports', icon: FileText, roles: ['admin', 'teacher'], feature: 'reports' },
-  { name: labels.navigation.settings, href: '/settings', icon: Settings, roles: ['admin'] }, // No feature check - admin only
-  { name: labels.navigation.errors, href: '/errors', icon: AlertTriangle, roles: ['admin', 'teacher'], feature: 'errors' },
+  { name: labels?.navigation.dashboard, href: '/', icon: LayoutDashboard, roles: ['admin', 'teacher'], feature: 'dashboard' },
+  { name: labels?.navigation.students, href: '/students', icon: Users, roles: ['admin', 'teacher'], feature: 'students' },
+  { name: labels?.navigation.groups, href: '/groups', icon: Users, roles: ['admin', 'teacher'], feature: 'groups' },
+  { name: labels?.navigation.homework, href: '/homework', icon: BookOpen, roles: ['admin', 'teacher'], feature: 'homework' },
+  { name: labels?.navigation.parents, href: '/parents', icon: Users, roles: ['admin', 'teacher'], feature: 'parents' },
+  { name: labels?.navigation.payments, href: '/payments', icon: CreditCard, roles: ['admin', 'teacher', 'parent'], feature: 'payments' },
+  { name: labels?.navigation.expenses, href: '/expenses', icon: TrendingDown, roles: ['admin', 'teacher'], feature: 'expenses' },
+  { name: labels?.navigation.inventory, href: '/inventory', icon: Package, roles: ['admin', 'teacher'], feature: 'inventory' },
+  { name: labels?.navigation.attendance, href: '/attendance', icon: UserCheck, roles: ['admin', 'teacher'], feature: 'attendance' },
+  { name: labels?.navigation.events, href: '/events', icon: Calendar, roles: ['admin', 'teacher', 'parent'], feature: 'events' },
+  { name: labels?.navigation.discounts, href: '/discounts', icon: Percent, roles: ['admin', 'teacher'], feature: 'discounts' },
+  { name: labels?.navigation.reports, href: '/reports', icon: FileText, roles: ['admin', 'teacher'], feature: 'reports' },
+  { name: labels?.navigation.settings, href: '/settings', icon: Settings, roles: ['admin'] }, // No feature check - admin only
+  { name: labels?.navigation.errors, href: '/errors', icon: AlertTriangle, roles: ['admin', 'teacher'], feature: 'errors' },
 ]
 
 // Parent-specific navigation generator
 const getParentNavigation = (labels: any): NavItem[] => [
-  { name: labels.navigation.dashboard, href: '/', icon: LayoutDashboard, roles: ['parent'], feature: 'dashboard' },
-  { name: labels.navigation.myChildren, href: '/my-children', icon: Users, roles: ['parent'], feature: 'my-children' },
-  { name: labels.navigation.payments, href: '/payments', icon: CreditCard, roles: ['parent'], feature: 'payments' },
-  { name: labels.navigation.events, href: '/events', icon: Calendar, roles: ['parent'], feature: 'events' },
+  { name: labels?.navigation.dashboard, href: '/', icon: LayoutDashboard, roles: ['parent'], feature: 'dashboard' },
+  { name: labels?.navigation.myChildren, href: '/my-children', icon: Users, roles: ['parent'], feature: 'my-children' },
+  { name: labels?.navigation.payments, href: '/payments', icon: CreditCard, roles: ['parent'], feature: 'payments' },
+  { name: labels?.navigation.events, href: '/events', icon: Calendar, roles: ['parent'], feature: 'events' },
 ]
 
 // Admin-only navigation generator
 const getAdminNavigation = (labels: any): NavItem[] => [
-  { name: labels.navigation.adminPanel, href: '/admin', icon: Shield, roles: ['admin'] },
+  { name: labels?.navigation.adminPanel, href: '/admin', icon: Shield, roles: ['admin'] },
 ]
 
 export default function Layout() {
@@ -86,20 +86,20 @@ export default function Layout() {
   const getNavigation = () => {
     if (userRole === 'parent') {
       // Filter parent navigation by feature permissions
-      return parentNavigation.filter(item => {
-        if (!item.feature) return true // No feature check needed
-        return hasFeatureAccess(item.feature, userRole)
+      return parentNavigation?.filter(item => {
+        if (!item?.feature) return true // No feature check needed
+        return hasFeatureAccess(item?.feature, userRole)
       })
     }
 
     // For admin and teacher, filter by role AND feature permissions
-    const nav = mainNavigation.filter(item => {
+    const nav = mainNavigation?.filter(item => {
       // First check if role is allowed
-      if (!item.roles.includes(userRole)) return false
+      if (!item?.roles.includes(userRole)) return false
 
       // Then check feature permission (admins always pass this check)
-      if (!item.feature) return true // No feature check needed (e.g., Settings)
-      return hasFeatureAccess(item.feature, userRole)
+      if (!item?.feature) return true // No feature check needed (e?.g., Settings)
+      return hasFeatureAccess(item?.feature, userRole)
     })
 
     if (isAdmin(userRole)) {
@@ -115,18 +115,18 @@ export default function Layout() {
   const getMobileNavigation = () => {
     if (userRole === 'parent') {
       return [
-        { name: labels.navigation.dashboard, href: '/', icon: LayoutDashboard },
+        { name: labels?.navigation.dashboard, href: '/', icon: LayoutDashboard },
         { name: 'Деца', href: '/my-children', icon: Users },
-        { name: labels.navigation.payments, href: '/payments', icon: CreditCard },
-        { name: labels.navigation.events, href: '/events', icon: Calendar },
+        { name: labels?.navigation.payments, href: '/payments', icon: CreditCard },
+        { name: labels?.navigation.events, href: '/events', icon: Calendar },
       ]
     }
 
     return [
-      { name: labels.navigation.dashboard, href: '/', icon: LayoutDashboard },
-      { name: labels.navigation.students, href: '/students', icon: Users },
-      { name: labels.navigation.payments, href: '/payments', icon: CreditCard },
-      { name: labels.navigation.events, href: '/events', icon: Calendar },
+      { name: labels?.navigation.dashboard, href: '/', icon: LayoutDashboard },
+      { name: labels?.navigation.students, href: '/students', icon: Users },
+      { name: labels?.navigation.payments, href: '/payments', icon: CreditCard },
+      { name: labels?.navigation.events, href: '/events', icon: Calendar },
       { name: 'Още', href: '/more', icon: Menu },
     ]
   }
@@ -178,11 +178,11 @@ export default function Layout() {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin h-[calc(100vh-180px)]">
-          {navigation.map((item) => (
+          {navigation?.map((item) => (
             <NavLink
-              key={item.name}
-              to={item.href}
-              end={item.href === '/'}
+              key={item?.name}
+              to={item?.href}
+              end={item?.href === '/'}
               onClick={() => {
                 triggerHaptic('light')
                 setSidebarOpen(false)
@@ -195,11 +195,11 @@ export default function Layout() {
                 }`
               }
             >
-              <item.icon className="w-5 h-5" />
-              <span className="flex-1">{item.name}</span>
+              <item?.icon className="w-5 h-5" />
+              <span className="flex-1">{item?.name}</span>
               {/* Show notification badge for "Моите деца" */}
-              {item.href === '/my-children' && hasNotifications && (
-                <span className="ml-auto px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] text-center">
+              {item?.href === '/my-children' && hasNotifications && (
+                <span className="ml-auto px-2 py-0?.5 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] text-center">
                   {total}
                 </span>
               )}
@@ -256,22 +256,22 @@ export default function Layout() {
         </header>
 
         {/* Page content */}
-        <main className="min-h-[calc(100vh-3.5rem)] lg:min-h-screen">
+        <main className="min-h-[calc(100vh-3?.5rem)] lg:min-h-screen">
           <Outlet />
         </main>
       </div>
 
       {/* Mobile Bottom Navigation */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-inset-bottom">
-        <div className={`grid h-16 ${mobileNavigation.length === 4 ? 'grid-cols-4' : 'grid-cols-5'}`}>
-          {mobileNavigation.map((item) => {
-            const isActive = location.pathname === item.href ||
-              (item.href === '/more' && !mobileNavigation.slice(0, 4).some(nav => nav.href === location.pathname))
+        <div className={`grid h-16 ${mobileNavigation?.length === 4 ? 'grid-cols-4' : 'grid-cols-5'}`}>
+          {mobileNavigation?.map((item) => {
+            const isActive = location?.pathname === item?.href ||
+              (item?.href === '/more' && !mobileNavigation?.slice(0, 4).some(nav => nav?.href === location?.pathname))
 
             return (
               <NavLink
-                key={item.name}
-                to={item.href}
+                key={item?.name}
+                to={item?.href}
                 onClick={() => triggerHaptic('tap')}
                 className={`flex flex-col items-center justify-center gap-1 touch-manipulation transition-colors min-h-[56px] ${
                   isActive
@@ -280,15 +280,15 @@ export default function Layout() {
                 }`}
               >
                 <div className="relative">
-                  <item.icon className="w-5 h-5" />
+                  <item?.icon className="w-5 h-5" />
                   {/* Show notification badge for "Деца" (my-children) */}
-                  {item.href === '/my-children' && hasNotifications && (
-                    <span className="absolute -top-2 -right-2 px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] text-center">
+                  {item?.href === '/my-children' && hasNotifications && (
+                    <span className="absolute -top-2 -right-2 px-1?.5 py-0?.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] text-center">
                       {total}
                     </span>
                   )}
                 </div>
-                <span className="text-xs font-medium">{item.name}</span>
+                <span className="text-xs font-medium">{item?.name}</span>
               </NavLink>
             )
           })}

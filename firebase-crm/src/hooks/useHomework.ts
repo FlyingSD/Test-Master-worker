@@ -25,14 +25,14 @@ import { toTimestamp } from '@/utils/date'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
-const homeworkCollection = collection(db, COLLECTIONS.HOMEWORK)
+const homeworkCollection = collection(db, COLLECTIONS?.HOMEWORK)
 
 /**
  * Hook to get all homework with real-time updates
  * 🔒 SECURITY FIX: Now filters homework by role (PoLP)
  * - Admins see ALL homework
  * - Teachers see ONLY homework they created (ownership-based filtering)
- * - Parents see ONLY homework for THEIR children (userData.studentIds)
+ * - Parents see ONLY homework for THEIR children (userData?.studentIds)
  * - Batches queries for 10+ students (Firestore 'in' operator limit)
  *
  * NOTE: For teachers, we filter by ownership (createdBy) rather than by group,
@@ -54,12 +54,12 @@ export function useHomework() {
     setLoading(true)
 
     // 🔒 SECURITY: Parents can only see homework for THEIR children (PoLP)
-    // Uses userData.studentIds for server-side filtering
+    // Uses userData?.studentIds for server-side filtering
     if (isParent) {
-      const studentIds = userData.studentIds || []
+      const studentIds = userData?.studentIds || []
 
       // Handle parents with no children assigned
-      if (studentIds.length === 0) {
+      if (studentIds?.length === 0) {
         setHomework([])
         setLoading(false)
         return
@@ -68,14 +68,14 @@ export function useHomework() {
       // Batch studentIds for Firestore 'in' operator (max 10 items)
       const batchSize = 10
       const batches: string[][] = []
-      for (let i = 0; i < studentIds.length; i += batchSize) {
-        batches.push(studentIds.slice(i, i + batchSize))
+      for (let i = 0; i < studentIds?.length; i += batchSize) {
+        batches?.push(studentIds?.slice(i, i + batchSize))
       }
 
       const unsubscribeHomework: (() => void)[] = []
       const allHomework = new Map<string, Homework>()
 
-      batches.forEach((batch) => {
+      batches?.forEach((batch) => {
         const homeworkQuery = query(
           homeworkCollection,
           where('studentId', 'in', batch),
@@ -85,25 +85,25 @@ export function useHomework() {
         const unsubscribe = onSnapshot(
           homeworkQuery,
           (snapshot) => {
-            snapshot.forEach((doc) => {
-              allHomework.set(doc.id, { id: doc.id, ...doc.data() } as Homework)
+            snapshot?.forEach((doc) => {
+              allHomework?.set(doc?.id, { id: doc?.id, ...doc?.data() } as Homework)
             })
-            setHomework(Array.from(allHomework.values()))
+            setHomework(Array?.from(allHomework?.values()))
             setLoading(false)
             setError(null)
           },
           (err) => {
-            console.error('Error fetching parent homework:', err)
+            console?.error('Error fetching parent homework:', err)
             setError(err as Error)
             setLoading(false)
-            toast.error(ERROR_MESSAGES.LOAD_HOMEWORK_ERROR)
+            toast?.error(ERROR_MESSAGES?.LOAD_HOMEWORK_ERROR)
           }
         )
 
-        unsubscribeHomework.push(unsubscribe)
+        unsubscribeHomework?.push(unsubscribe)
       })
 
-      return () => unsubscribeHomework.forEach((unsub) => unsub())
+      return () => unsubscribeHomework?.forEach((unsub) => unsub())
     }
 
     // Real-time listener
@@ -113,16 +113,16 @@ export function useHomework() {
       q,
       (snapshot) => {
         let homeworkData: Homework[] = []
-        snapshot.forEach((doc) => {
-          homeworkData.push({
-            id: doc.id,
-            ...doc.data(),
+        snapshot?.forEach((doc) => {
+          homeworkData?.push({
+            id: doc?.id,
+            ...doc?.data(),
           } as Homework)
         })
 
         // 🔒 SECURITY: Filter for teachers - only show homework they created
         if (isTeacher) {
-          homeworkData = homeworkData.filter(hw => hw.createdBy === userData.id)
+          homeworkData = homeworkData?.filter(hw => hw?.createdBy === userData?.id)
         }
         // Admins see all homework (no filtering)
 
@@ -131,10 +131,10 @@ export function useHomework() {
         setError(null)
       },
       (err) => {
-        console.error('Error fetching homework:', err)
+        console?.error('Error fetching homework:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error(ERROR_MESSAGES.LOAD_HOMEWORK_ERROR)
+        toast?.error(ERROR_MESSAGES?.LOAD_HOMEWORK_ERROR)
       }
     )
 
@@ -163,7 +163,7 @@ export function useHomework() {
  *
  *   if (loading) return <Spinner />
  *
- *   return homework.map(hw => <HomeworkCard key={hw.id} {...hw} />)
+ *   return homework?.map(hw => <HomeworkCard key={hw?.id} {...hw} />)
  * }
  * ```
  */
@@ -186,10 +186,10 @@ export function useHomeworkByStudent(studentId: string) {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const homeworkData: Homework[]  = []
-      snapshot.forEach((doc) => {
-        homeworkData.push({
-          id: doc.id,
-          ...doc.data(),
+      snapshot?.forEach((doc) => {
+        homeworkData?.push({
+          id: doc?.id,
+          ...doc?.data(),
         } as Homework)
       })
       setHomework(homeworkData)
@@ -213,7 +213,7 @@ export function useHomeworkByStudent(studentId: string) {
  *   - isPending: True while request is in progress
  *   - isSuccess/isError: Status flags
  *
- * @security Populates createdBy field with current user.uid for ownership tracking
+ * @security Populates createdBy field with current user?.uid for ownership tracking
  *
  * @example
  * ```tsx
@@ -221,12 +221,12 @@ export function useHomeworkByStudent(studentId: string) {
  *   const addHomework = useAddHomework()
  *
  *   const handleSubmit = async (data: HomeworkFormValues) => {
- *     await addHomework.mutateAsync(data)
- *     toast.success('Homework assigned!')
+ *     await addHomework?.mutateAsync(data)
+ *     toast?.success('Homework assigned!')
  *     onClose()
  *   }
  *
- *   return <Form onSubmit={handleSubmit} loading={addHomework.isPending} />
+ *   return <Form onSubmit={handleSubmit} loading={addHomework?.isPending} />
  * }
  * ```
  */
@@ -237,31 +237,31 @@ export function useAddHomework() {
   return useMutation({
     mutationFn: async (homeworkData: HomeworkFormValues) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // Convert dates to Timestamp
       const data = {
         ...homeworkData,
-        assignedDate: toTimestamp(homeworkData.assignedDate),
-        dueDate: toTimestamp(homeworkData.dueDate),
-        completedDate: homeworkData.completedDate
-          ? toTimestamp(homeworkData.completedDate)
+        assignedDate: toTimestamp(homeworkData?.assignedDate),
+        dueDate: toTimestamp(homeworkData?.dueDate),
+        completedDate: homeworkData?.completedDate
+          ? toTimestamp(homeworkData?.completedDate)
           : undefined,
-        createdBy: user.uid,
+        createdBy: user?.uid,
         createdAt: serverTimestamp(),
       }
 
       const docRef = await addDoc(homeworkCollection, data)
-      return docRef.id
+      return docRef?.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.homework })
-      toast.success(SUCCESS_MESSAGES.HOMEWORK_ADDED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.homework })
+      toast?.success(SUCCESS_MESSAGES?.HOMEWORK_ADDED)
     },
     onError: (error: Error) => {
-      console.error('Error adding homework:', error)
-      toast.error(ERROR_MESSAGES.ADD_HOMEWORK_ERROR)
+      console?.error('Error adding homework:', error)
+      toast?.error(ERROR_MESSAGES?.ADD_HOMEWORK_ERROR)
     },
   })
 }
@@ -273,8 +273,8 @@ export function useAddHomework() {
  * Converts Date objects to Firestore Timestamps if present.
  *
  * @param {object} params - Update parameters
- * @param {string} params.id - The homework ID to update
- * @param {Partial<HomeworkFormValues>} params.data - Partial homework data to update
+ * @param {string} params?.id - The homework ID to update
+ * @param {Partial<HomeworkFormValues>} params?.data - Partial homework data to update
  *
  * @returns {UseMutationResult} React Query mutation object for homework update
  *
@@ -289,7 +289,7 @@ export function useAddHomework() {
  *   const updateHomework = useUpdateHomework()
  *
  *   const handleSubmit = async (data: Partial<HomeworkFormValues>) => {
- *     await updateHomework.mutateAsync({ id: homework.id, data })
+ *     await updateHomework?.mutateAsync({ id: homework?.id, data })
  *   }
  *
  *   return <Form initialValues={homework} onSubmit={handleSubmit} />
@@ -303,42 +303,42 @@ export function useUpdateHomework() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<HomeworkFormValues> }) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Validate ownership before update
       await validateDocumentOwnership(
-        COLLECTIONS.HOMEWORK,
+        COLLECTIONS?.HOMEWORK,
         id,
         userData,
-        ERROR_MESSAGES.HOMEWORK_NOT_FOUND
+        ERROR_MESSAGES?.HOMEWORK_NOT_FOUND
       )
 
       // Convert dates to Timestamp
       const updateData: any = { ...data }
 
-      if (updateData.assignedDate) {
-        updateData.assignedDate = toTimestamp(updateData.assignedDate)
+      if (updateData?.assignedDate) {
+        updateData?.assignedDate = toTimestamp(updateData?.assignedDate)
       }
-      if (updateData.dueDate) {
-        updateData.dueDate = toTimestamp(updateData.dueDate)
+      if (updateData?.dueDate) {
+        updateData?.dueDate = toTimestamp(updateData?.dueDate)
       }
-      if (updateData.completedDate) {
-        updateData.completedDate = toTimestamp(updateData.completedDate)
+      if (updateData?.completedDate) {
+        updateData?.completedDate = toTimestamp(updateData?.completedDate)
       }
 
-      updateData.updatedAt = serverTimestamp()
+      updateData?.updatedAt = serverTimestamp()
 
-      const docRef = doc(db, COLLECTIONS.HOMEWORK, id)
+      const docRef = doc(db, COLLECTIONS?.HOMEWORK, id)
       await updateDoc(docRef, updateData)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.homework })
-      toast.success(SUCCESS_MESSAGES.HOMEWORK_UPDATED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.homework })
+      toast?.success(SUCCESS_MESSAGES?.HOMEWORK_UPDATED)
     },
     onError: (error: Error) => {
-      console.error('Error updating homework:', error)
-      toast.error(ERROR_MESSAGES.UPDATE_HOMEWORK_ERROR)
+      console?.error('Error updating homework:', error)
+      toast?.error(ERROR_MESSAGES?.UPDATE_HOMEWORK_ERROR)
     },
   })
 }
@@ -364,7 +364,7 @@ export function useUpdateHomework() {
  *
  *   const handleDelete = async () => {
  *     if (confirm('Delete this homework assignment?')) {
- *       await deleteHomework.mutateAsync(homework.id)
+ *       await deleteHomework?.mutateAsync(homework?.id)
  *     }
  *   }
  *
@@ -379,28 +379,28 @@ export function useDeleteHomework() {
   return useMutation({
     mutationFn: async (homeworkId: string) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Validate ownership before deletion
       await validateDocumentOwnership(
-        COLLECTIONS.HOMEWORK,
+        COLLECTIONS?.HOMEWORK,
         homeworkId,
         userData,
-        ERROR_MESSAGES.HOMEWORK_NOT_FOUND
+        ERROR_MESSAGES?.HOMEWORK_NOT_FOUND
       )
 
       // Delete homework
-      const docRef = doc(db, COLLECTIONS.HOMEWORK, homeworkId)
+      const docRef = doc(db, COLLECTIONS?.HOMEWORK, homeworkId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.homework })
-      toast.success(SUCCESS_MESSAGES.HOMEWORK_DELETED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.homework })
+      toast?.success(SUCCESS_MESSAGES?.HOMEWORK_DELETED)
     },
     onError: (error: Error) => {
-      console.error('Error deleting homework:', error)
-      toast.error(ERROR_MESSAGES.DELETE_HOMEWORK_ERROR)
+      console?.error('Error deleting homework:', error)
+      toast?.error(ERROR_MESSAGES?.DELETE_HOMEWORK_ERROR)
     },
   })
 }
@@ -412,9 +412,9 @@ export function useDeleteHomework() {
  * Internally uses useUpdateHomework with specific update data.
  *
  * @param {object} params - Completion parameters
- * @param {string} params.id - The homework ID to mark as completed
- * @param {number} [params.grade] - Optional grade for the homework
- * @param {string} [params.teacherNotes] - Optional teacher notes/feedback
+ * @param {string} params?.id - The homework ID to mark as completed
+ * @param {number} [params?.grade] - Optional grade for the homework
+ * @param {string} [params?.teacherNotes] - Optional teacher notes/feedback
  *
  * @returns {UseMutationResult} React Query mutation object
  *
@@ -424,12 +424,12 @@ export function useDeleteHomework() {
  *   const completeHomework = useCompleteHomework()
  *
  *   const handleGrade = async (grade: number, notes: string) => {
- *     await completeHomework.mutateAsync({
- *       id: homework.id,
+ *     await completeHomework?.mutateAsync({
+ *       id: homework?.id,
  *       grade,
  *       teacherNotes: notes
  *     })
- *     toast.success('Homework graded!')
+ *     toast?.success('Homework graded!')
  *   }
  *
  *   return <GradingForm onSubmit={handleGrade} />
@@ -441,7 +441,7 @@ export function useCompleteHomework() {
 
   return useMutation({
     mutationFn: async ({ id, grade, teacherNotes }: { id: string; grade?: number; teacherNotes?: string }) => {
-      await updateHomework.mutateAsync({
+      await updateHomework?.mutateAsync({
         id,
         data: {
           status: 'completed',

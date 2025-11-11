@@ -22,7 +22,7 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
     value: 0,
     reason: '',
     startDate: new Date(),
-    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // +30 days
+    endDate: new Date(Date?.now() + 30 * 24 * 60 * 60 * 1000), // +30 days
     isActive: true,
   })
 
@@ -30,27 +30,27 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
   useEffect(() => {
     if (discount) {
       setFormData({
-        studentId: discount.studentId,
-        studentName: discount.studentName,
-        type: discount.type,
-        value: discount.value,
-        reason: discount.reason,
-        startDate: discount.startDate instanceof Timestamp
-          ? discount.startDate.toDate()
-          : discount.startDate,
-        endDate: discount.endDate instanceof Timestamp
-          ? discount.endDate.toDate()
-          : discount.endDate,
-        isActive: discount.isActive,
+        studentId: discount?.studentId,
+        studentName: discount?.studentName,
+        type: discount?.type,
+        value: discount?.value,
+        reason: discount?.reason,
+        startDate: discount?.startDate instanceof Timestamp
+          ? discount?.startDate.toDate()
+          : discount?.startDate,
+        endDate: discount?.endDate instanceof Timestamp
+          ? discount?.endDate.toDate()
+          : discount?.endDate,
+        isActive: discount?.isActive,
       })
     }
   }, [discount])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     // Get student name from selected student
-    const selectedStudent = students.find((s) => s.id === formData.studentId)
+    const selectedStudent = students?.find((s) => s?.id === formData?.studentId)
     if (!selectedStudent && !discount) {
       alert('Моля изберете ученик')
       return
@@ -58,18 +58,18 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
 
     const dataToSubmit = {
       ...formData,
-      studentName: selectedStudent?.name || formData.studentName,
+      studentName: selectedStudent?.name || formData?.studentName,
     }
 
     if (discount) {
       // Update existing discount
-      await updateDiscount.mutateAsync({
-        id: discount.id,
+      await updateDiscount?.mutateAsync({
+        id: discount?.id,
         data: dataToSubmit,
       })
     } else {
       // Add new discount
-      await addDiscount.mutateAsync(dataToSubmit)
+      await addDiscount?.mutateAsync(dataToSubmit)
     }
 
     onClose()
@@ -101,18 +101,18 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
             <select
               required
               className="input"
-              value={formData.studentId}
+              value={formData?.studentId}
               onChange={(e) =>
-                setFormData({ ...formData, studentId: e.target.value })
+                setFormData({ ...formData, studentId: e?.target.value })
               }
               disabled={!!discount} // Can't change student when editing
             >
               <option value="">Избери ученик</option>
               {students
-                .filter((s) => s.status === 'active')
+                .filter((s) => s?.status === 'active')
                 .map((student) => (
-                  <option key={student.id} value={student.id}>
-                    {student.name} - {student.group}
+                  <option key={student?.id} value={student?.id}>
+                    {student?.name} - {student?.group}
                   </option>
                 ))}
             </select>
@@ -126,7 +126,7 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
             <div className="grid grid-cols-2 gap-4 mb-4">
               <label
                 className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  formData.type === 'Процент'
+                  formData?.type === 'Процент'
                     ? 'border-primary bg-primary-light'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
@@ -135,7 +135,7 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
                   type="radio"
                   name="type"
                   value="Процент"
-                  checked={formData.type === 'Процент'}
+                  checked={formData?.type === 'Процент'}
                   onChange={(e) =>
                     setFormData({ ...formData, type: 'Процент' })
                   }
@@ -147,7 +147,7 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
 
               <label
                 className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  formData.type === 'Фиксирана сума'
+                  formData?.type === 'Фиксирана сума'
                     ? 'border-primary bg-primary-light'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
@@ -156,7 +156,7 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
                   type="radio"
                   name="type"
                   value="Фиксирана сума"
-                  checked={formData.type === 'Фиксирана сума'}
+                  checked={formData?.type === 'Фиксирана сума'}
                   onChange={(e) =>
                     setFormData({ ...formData, type: 'Фиксирана сума' })
                   }
@@ -171,21 +171,21 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
                 type="number"
                 required
                 min="0"
-                step={formData.type === 'Процент' ? '1' : '0.01'}
-                max={formData.type === 'Процент' ? '100' : undefined}
+                step={formData?.type === 'Процент' ? '1' : '0?.01'}
+                max={formData?.type === 'Процент' ? '100' : undefined}
                 className="input pr-16"
-                placeholder={formData.type === 'Процент' ? '10' : '50.00'}
-                value={formData.value || ''}
+                placeholder={formData?.type === 'Процент' ? '10' : '50?.00'}
+                value={formData?.value || ''}
                 onChange={(e) =>
-                  setFormData({ ...formData, value: Number(e.target.value) })
+                  setFormData({ ...formData, value: Number(e?.target.value) })
                 }
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 font-medium text-gray-600">
-                {formData.type === 'Процент' ? '%' : 'лв.'}
+                {formData?.type === 'Процент' ? '%' : 'лв.'}
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              {formData.type === 'Процент'
+              {formData?.type === 'Процент'
                 ? 'Процент от месечната такса (0-100%)'
                 : 'Фиксирана сума в лева'}
             </p>
@@ -204,12 +204,12 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
                   required
                   className="input pl-10"
                   value={
-                    formData.startDate instanceof Date
-                      ? formData.startDate.toISOString().split('T')[0]
+                    formData?.startDate instanceof Date
+                      ? formData?.startDate?.toISOString().split('T')[0]
                       : ''
                   }
                   onChange={(e) =>
-                    setFormData({ ...formData, startDate: new Date(e.target.value) })
+                    setFormData({ ...formData, startDate: new Date(e?.target.value) })
                   }
                 />
               </div>
@@ -226,12 +226,12 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
                   required
                   className="input pl-10"
                   value={
-                    formData.endDate instanceof Date
-                      ? formData.endDate.toISOString().split('T')[0]
+                    formData?.endDate instanceof Date
+                      ? formData?.endDate?.toISOString().split('T')[0]
                       : ''
                   }
                   onChange={(e) =>
-                    setFormData({ ...formData, endDate: new Date(e.target.value) })
+                    setFormData({ ...formData, endDate: new Date(e?.target.value) })
                   }
                 />
               </div>
@@ -247,9 +247,9 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
               required
               className="input min-h-[80px] resize-y"
               placeholder="Многодетно семейство, Промоция за нов ученик, и т.н."
-              value={formData.reason}
+              value={formData?.reason}
               onChange={(e) =>
-                setFormData({ ...formData, reason: e.target.value })
+                setFormData({ ...formData, reason: e?.target.value })
               }
             />
           </div>
@@ -259,9 +259,9 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={formData.isActive}
+                checked={formData?.isActive}
                 onChange={(e) =>
-                  setFormData({ ...formData, isActive: e.target.checked })
+                  setFormData({ ...formData, isActive: e?.target.checked })
                 }
                 className="w-5 h-5 text-primary rounded focus:ring-primary"
               />
@@ -285,10 +285,10 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
             </button>
             <button
               type="submit"
-              disabled={addDiscount.isPending || updateDiscount.isPending}
+              disabled={addDiscount?.isPending || updateDiscount?.isPending}
               className="btn btn-primary flex-1"
             >
-              {addDiscount.isPending || updateDiscount.isPending ? (
+              {addDiscount?.isPending || updateDiscount?.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Запазване...

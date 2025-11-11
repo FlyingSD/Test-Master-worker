@@ -25,7 +25,7 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
     amount: 0,
     amountEUR: 0,
     article: '',
-    method: PAYMENT_METHODS.CASH,
+    method: PAYMENT_METHODS?.CASH,
     date: new Date(),
     notes: '',
     receiptNumber: '',
@@ -38,26 +38,26 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
   useEffect(() => {
     if (payment) {
       setFormData({
-        studentId: payment.studentId,
-        studentName: payment.studentName,
-        amount: payment.amount,
-        amountEUR: payment.amountEUR || 0,
-        article: payment.article,
-        method: payment.method,
-        date: payment.date instanceof Timestamp
-          ? payment.date.toDate()
-          : payment.date,
-        notes: payment.notes || '',
-        receiptNumber: payment.receiptNumber || '',
+        studentId: payment?.studentId,
+        studentName: payment?.studentName,
+        amount: payment?.amount,
+        amountEUR: payment?.amountEUR || 0,
+        article: payment?.article,
+        method: payment?.method,
+        date: payment?.date instanceof Timestamp
+          ? payment?.date.toDate()
+          : payment?.date,
+        notes: payment?.notes || '',
+        receiptNumber: payment?.receiptNumber || '',
       })
     }
   }, [payment])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     // Get student name from selected student
-    const selectedStudent = students.find((s) => s.id === formData.studentId)
+    const selectedStudent = students?.find((s) => s?.id === formData?.studentId)
     if (!selectedStudent && !payment) {
       alert('Моля изберете ученик')
       return
@@ -65,18 +65,18 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
 
     const dataToSubmit = {
       ...formData,
-      studentName: selectedStudent?.name || formData.studentName,
+      studentName: selectedStudent?.name || formData?.studentName,
     }
 
     if (payment) {
       // Update existing payment
-      await updatePayment.mutateAsync({
-        id: payment.id,
+      await updatePayment?.mutateAsync({
+        id: payment?.id,
         data: dataToSubmit,
       })
     } else {
       // Add new payment
-      await addPayment.mutateAsync(dataToSubmit)
+      await addPayment?.mutateAsync(dataToSubmit)
     }
 
     onClose()
@@ -107,35 +107,35 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
     const newErrors: ErrorMessage[] = []
 
     // Check amount
-    if (data.amount <= 0) {
-      newErrors.push(ValidationErrors.AMOUNT_ZERO)
-    } else if (data.amount > 1000) {
-      newWarnings.push(ValidationErrors.AMOUNT_TOO_LARGE)
+    if (data?.amount <= 0) {
+      newErrors?.push(ValidationErrors?.AMOUNT_ZERO)
+    } else if (data?.amount > 1000) {
+      newWarnings?.push(ValidationErrors?.AMOUNT_TOO_LARGE)
     }
 
     // Check currency mismatch
-    if (data.amount && data.amountEUR) {
-      const expectedEUR = data.amount / 1.96
-      const difference = Math.abs(data.amountEUR - expectedEUR)
-      if (difference > 0.5) {
-        newWarnings.push({
-          ...ValidationErrors.CURRENCY_MISMATCH,
-          solution: `Очакваната стойност в EUR е ${expectedEUR.toFixed(2)}. Коригирайте сумите`,
+    if (data?.amount && data?.amountEUR) {
+      const expectedEUR = data?.amount / 1?.96
+      const difference = Math?.abs(data?.amountEUR - expectedEUR)
+      if (difference > 0?.5) {
+        newWarnings?.push({
+          ...ValidationErrors?.CURRENCY_MISMATCH,
+          solution: `Очакваната стойност в EUR е ${expectedEUR?.toFixed(2)}. Коригирайте сумите`,
         })
       }
     }
 
     // Check date
-    if (data.date) {
-      const date = data.date instanceof Date ? data.date : new Date(data.date)
+    if (data?.date) {
+      const date = data?.date instanceof Date ? data?.date : new Date(data?.date)
       if (date > new Date()) {
-        newErrors.push(ValidationErrors.DATE_FUTURE)
+        newErrors?.push(ValidationErrors?.DATE_FUTURE)
       }
 
       const twoYearsAgo = new Date()
-      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2)
+      twoYearsAgo?.setFullYear(twoYearsAgo?.getFullYear() - 2)
       if (date < twoYearsAgo) {
-        newWarnings.push(ValidationErrors.DATE_TOO_OLD)
+        newWarnings?.push(ValidationErrors?.DATE_TOO_OLD)
       }
     }
 
@@ -162,26 +162,26 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Errors */}
-          {errors.length > 0 && (
+          {errors?.length > 0 && (
             <div className="space-y-2">
-              {errors.map((error, index) => (
+              {errors?.map((error, index) => (
                 <ErrorAlert
                   key={`error-${index}`}
                   error={error}
-                  onClose={() => setErrors(errors.filter((_, i) => i !== index))}
+                  onClose={() => setErrors(errors?.filter((_, i) => i !== index))}
                 />
               ))}
             </div>
           )}
 
           {/* Warnings */}
-          {warnings.length > 0 && (
+          {warnings?.length > 0 && (
             <div className="space-y-2">
-              {warnings.map((warning, index) => (
+              {warnings?.map((warning, index) => (
                 <ErrorAlert
                   key={`warning-${index}`}
                   error={warning}
-                  onClose={() => setWarnings(warnings.filter((_, i) => i !== index))}
+                  onClose={() => setWarnings(warnings?.filter((_, i) => i !== index))}
                 />
               ))}
             </div>
@@ -195,18 +195,18 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
             <select
               required
               className="input"
-              value={formData.studentId}
+              value={formData?.studentId}
               onChange={(e) =>
-                setFormData({ ...formData, studentId: e.target.value })
+                setFormData({ ...formData, studentId: e?.target.value })
               }
               disabled={!!payment} // Can't change student when editing
             >
               <option value="">Избери ученик</option>
               {students
-                .filter((s) => s.status === 'active')
+                .filter((s) => s?.status === 'active')
                 .map((student) => (
-                  <option key={student.id} value={student.id}>
-                    {student.name} - {student.group}
+                  <option key={student?.id} value={student?.id}>
+                    {student?.name} - {student?.group}
                   </option>
                 ))}
             </select>
@@ -224,12 +224,12 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                 required
                 className="input pl-10"
                 value={
-                  formData.date instanceof Date
-                    ? formData.date.toISOString().split('T')[0]
+                  formData?.date instanceof Date
+                    ? formData?.date?.toISOString().split('T')[0]
                     : ''
                 }
                 onChange={(e) => {
-                  const newFormData = { ...formData, date: new Date(e.target.value) }
+                  const newFormData = { ...formData, date: new Date(e?.target.value) }
                   setFormData(newFormData)
                   validateForm(newFormData)
                 }}
@@ -249,12 +249,12 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                     type="number"
                     required
                     min="0"
-                    step="0.01"
+                    step="0?.01"
                     className="input"
-                    placeholder="0.00"
-                    value={formData.amount || ''}
+                    placeholder="0?.00"
+                    value={formData?.amount || ''}
                     onChange={(e) =>
-                      handleAmountChange(Number(e.target.value), 'BGN')
+                      handleAmountChange(Number(e?.target.value), 'BGN')
                     }
                   />
                   <div className="px-4 py-2 bg-gray-100 rounded-lg font-medium text-gray-700 flex items-center">
@@ -268,12 +268,12 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                   <input
                     type="number"
                     min="0"
-                    step="0.01"
+                    step="0?.01"
                     className="input"
-                    placeholder="0.00"
-                    value={formData.amountEUR || ''}
+                    placeholder="0?.00"
+                    value={formData?.amountEUR || ''}
                     onChange={(e) =>
-                      handleAmountChange(Number(e.target.value), 'EUR')
+                      handleAmountChange(Number(e?.target.value), 'EUR')
                     }
                   />
                   <div className="px-4 py-2 bg-gray-100 rounded-lg font-medium text-gray-700 flex items-center">
@@ -292,11 +292,11 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
             <label className="label">Артикул</label>
             <select
               className="input"
-              value={formData.article}
+              value={formData?.article}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  article: e.target.value as '' | 'Абакус' | 'Учебна тетрадка' | 'Други',
+                  article: e?.target.value as '' | 'Абакус' | 'Учебна тетрадка' | 'Други',
                 })
               }
             >
@@ -316,11 +316,11 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
               Метод на плащане <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {PAYMENT_METHOD_OPTIONS.map((method) => (
+              {PAYMENT_METHOD_OPTIONS?.map((method) => (
                 <label
                   key={method}
                   className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                    formData.method === method
+                    formData?.method === method
                       ? 'border-primary bg-primary-light'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
@@ -329,11 +329,11 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                     type="radio"
                     name="method"
                     value={method}
-                    checked={formData.method === method}
+                    checked={formData?.method === method}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        method: e.target.value as typeof PAYMENT_METHODS[keyof typeof PAYMENT_METHODS],
+                        method: e?.target.value as typeof PAYMENT_METHODS[keyof typeof PAYMENT_METHODS],
                       })
                     }
                     className="sr-only"
@@ -351,9 +351,9 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
               type="text"
               className="input"
               placeholder="INV-2024-001"
-              value={formData.receiptNumber}
+              value={formData?.receiptNumber}
               onChange={(e) =>
-                setFormData({ ...formData, receiptNumber: e.target.value })
+                setFormData({ ...formData, receiptNumber: e?.target.value })
               }
             />
           </div>
@@ -364,9 +364,9 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
             <textarea
               className="input min-h-[80px] resize-y"
               placeholder="Допълнителна информация..."
-              value={formData.notes}
+              value={formData?.notes}
               onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
+                setFormData({ ...formData, notes: e?.target.value })
               }
             />
           </div>
@@ -382,10 +382,10 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
             </button>
             <button
               type="submit"
-              disabled={addPayment.isPending || updatePayment.isPending || errors.length > 0}
+              disabled={addPayment?.isPending || updatePayment?.isPending || errors?.length > 0}
               className="btn btn-primary flex-1"
             >
-              {addPayment.isPending || updatePayment.isPending ? (
+              {addPayment?.isPending || updatePayment?.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Запазване...

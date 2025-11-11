@@ -22,7 +22,7 @@ export default function AdminPanelPage() {
   const [activeTab, setActiveTab] = useState<'users' | 'settings' | 'audit' | 'export'>('users')
 
   // Protect admin panel - only admins can access
-  if (!user || !isAdmin(user.role)) {
+  if (!user || !isAdmin(user?.role)) {
     return <Navigate to="/" replace />
   }
 
@@ -69,21 +69,21 @@ export default function AdminPanelPage() {
       {/* Tabs */}
       <div className="border-b border-gray-200">
         <div className="flex gap-4">
-          {tabs.map((tab) => (
+          {tabs?.map((tab) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              key={tab?.id}
+              onClick={() => setActiveTab(tab?.id)}
               className={`
                 flex items-center gap-2 px-4 py-3 border-b-2 transition-all
                 ${
-                  activeTab === tab.id
+                  activeTab === tab?.id
                     ? 'border-primary text-primary font-medium'
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }
               `}
             >
-              <tab.icon className="w-5 h-5" />
-              {tab.name}
+              <tab?.icon className="w-5 h-5" />
+              {tab?.name}
             </button>
           ))}
         </div>
@@ -109,9 +109,9 @@ function UsersTab() {
 
   // TODO: Replace with actual hook
   const users = [
-    { id: '1', name: 'Кристиан Тимневски', email: 'kristian@svetlinki.bg', role: 'admin' as const, isActive: true },
-    { id: '2', name: 'Мария Петрова', email: 'maria@svetlinki.bg', role: 'teacher' as const, isActive: true },
-    { id: '3', name: 'Иван Георгиев', email: 'ivan@email.com', role: 'parent' as const, isActive: true },
+    { id: '1', name: 'Кристиан Тимневски', email: 'kristian@svetlinki?.bg', role: 'admin' as const, isActive: true },
+    { id: '2', name: 'Мария Петрова', email: 'maria@svetlinki?.bg', role: 'teacher' as const, isActive: true },
+    { id: '3', name: 'Иван Георгиев', email: 'ivan@email?.com', role: 'parent' as const, isActive: true },
   ]
 
   return (
@@ -124,7 +124,7 @@ function UsersTab() {
             type="text"
             placeholder="Търси потребител..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e?.target.value)}
             className="input pl-10"
           />
         </div>
@@ -148,26 +148,26 @@ function UsersTab() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td className="font-medium">{user.name}</td>
-                <td>{user.email}</td>
+            {users?.map((user) => (
+              <tr key={user?.id}>
+                <td className="font-medium">{user?.name}</td>
+                <td>{user?.email}</td>
                 <td>
                   <span
                     className={`badge ${
-                      user.role === 'admin'
+                      user?.role === 'admin'
                         ? 'bg-red-100 text-red-800'
-                        : user.role === 'teacher'
+                        : user?.role === 'teacher'
                         ? 'bg-blue-100 text-blue-800'
                         : 'bg-green-100 text-green-800'
                     }`}
                   >
-                    {user.role === 'admin' ? '👑 Admin' : user.role === 'teacher' ? '👨‍🏫 Учител' : '👨‍👩‍👧 Родител'}
+                    {user?.role === 'admin' ? '👑 Admin' : user?.role === 'teacher' ? '👨‍🏫 Учител' : '👨‍👩‍👧 Родител'}
                   </span>
                 </td>
                 <td>
-                  <span className={`badge ${user.isActive ? 'badge-success' : 'badge-danger'}`}>
-                    {user.isActive ? 'Активен' : 'Неактивен'}
+                  <span className={`badge ${user?.isActive ? 'badge-success' : 'badge-danger'}`}>
+                    {user?.isActive ? 'Активен' : 'Неактивен'}
                   </span>
                 </td>
                 <td>
@@ -186,19 +186,19 @@ function UsersTab() {
       <div className="grid grid-cols-4 gap-4">
         <div className="card">
           <div className="text-sm text-gray-600">Общо потребители</div>
-          <div className="text-2xl font-bold">{users.length}</div>
+          <div className="text-2xl font-bold">{users?.length}</div>
         </div>
         <div className="card">
           <div className="text-sm text-gray-600">Администратори</div>
-          <div className="text-2xl font-bold text-red-600">{users.filter((u) => u.role === 'admin').length}</div>
+          <div className="text-2xl font-bold text-red-600">{users?.filter((u) => u?.role === 'admin').length}</div>
         </div>
         <div className="card">
           <div className="text-sm text-gray-600">Учители</div>
-          <div className="text-2xl font-bold text-blue-600">{users.filter((u) => u.role === 'teacher').length}</div>
+          <div className="text-2xl font-bold text-blue-600">{users?.filter((u) => u?.role === 'teacher').length}</div>
         </div>
         <div className="card">
           <div className="text-sm text-gray-600">Родители</div>
-          <div className="text-2xl font-bold text-green-600">{users.filter((u) => u.role === 'parent').length}</div>
+          <div className="text-2xl font-bold text-green-600">{users?.filter((u) => u?.role === 'parent').length}</div>
         </div>
       </div>
     </div>
@@ -211,7 +211,7 @@ function UsersTab() {
 function SettingsTab() {
   const [settings, setSettings] = useState({
     schoolName: 'Светлинки',
-    schoolEmail: 'info@svetlinki.bg',
+    schoolEmail: 'info@svetlinki?.bg',
     schoolPhone: '+359 888 123 456',
     schoolAddress: 'гр. София, ул. Примерна 123',
     currency: 'BGN',
@@ -235,8 +235,8 @@ function SettingsTab() {
             <label className="label">Име на центъра</label>
             <input
               type="text"
-              value={settings.schoolName}
-              onChange={(e) => setSettings({ ...settings, schoolName: e.target.value })}
+              value={settings?.schoolName}
+              onChange={(e) => setSettings({ ...settings, schoolName: e?.target.value })}
               className="input"
             />
           </div>
@@ -244,8 +244,8 @@ function SettingsTab() {
             <label className="label">Email</label>
             <input
               type="email"
-              value={settings.schoolEmail}
-              onChange={(e) => setSettings({ ...settings, schoolEmail: e.target.value })}
+              value={settings?.schoolEmail}
+              onChange={(e) => setSettings({ ...settings, schoolEmail: e?.target.value })}
               className="input"
             />
           </div>
@@ -253,8 +253,8 @@ function SettingsTab() {
             <label className="label">Телефон</label>
             <input
               type="tel"
-              value={settings.schoolPhone}
-              onChange={(e) => setSettings({ ...settings, schoolPhone: e.target.value })}
+              value={settings?.schoolPhone}
+              onChange={(e) => setSettings({ ...settings, schoolPhone: e?.target.value })}
               className="input"
             />
           </div>
@@ -262,8 +262,8 @@ function SettingsTab() {
             <label className="label">Адрес</label>
             <input
               type="text"
-              value={settings.schoolAddress}
-              onChange={(e) => setSettings({ ...settings, schoolAddress: e.target.value })}
+              value={settings?.schoolAddress}
+              onChange={(e) => setSettings({ ...settings, schoolAddress: e?.target.value })}
               className="input"
             />
           </div>
@@ -276,8 +276,8 @@ function SettingsTab() {
           <div>
             <label className="label">Валута</label>
             <select
-              value={settings.currency}
-              onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
+              value={settings?.currency}
+              onChange={(e) => setSettings({ ...settings, currency: e?.target.value })}
               className="input"
             >
               <option value="BGN">BGN (лв)</option>
@@ -287,8 +287,8 @@ function SettingsTab() {
           <div>
             <label className="label">Език</label>
             <select
-              value={settings.language}
-              onChange={(e) => setSettings({ ...settings, language: e.target.value })}
+              value={settings?.language}
+              onChange={(e) => setSettings({ ...settings, language: e?.target.value })}
               className="input"
             >
               <option value="bg">Български</option>
@@ -304,8 +304,8 @@ function SettingsTab() {
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
-              checked={settings.emailNotifications}
-              onChange={(e) => setSettings({ ...settings, emailNotifications: e.target.checked })}
+              checked={settings?.emailNotifications}
+              onChange={(e) => setSettings({ ...settings, emailNotifications: e?.target.checked })}
               className="w-5 h-5 text-primary rounded"
             />
             <div>
@@ -316,8 +316,8 @@ function SettingsTab() {
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
-              checked={settings.smsNotifications}
-              onChange={(e) => setSettings({ ...settings, smsNotifications: e.target.checked })}
+              checked={settings?.smsNotifications}
+              onChange={(e) => setSettings({ ...settings, smsNotifications: e?.target.checked })}
               className="w-5 h-5 text-primary rounded"
             />
             <div>
@@ -356,14 +356,14 @@ function AuditLogTab() {
       user: 'Мария Петрова',
       action: 'Добави плащане',
       entity: '80 лв - Георги Иванов',
-      timestamp: new Date(Date.now() - 3600000),
+      timestamp: new Date(Date?.now() - 3600000),
     },
     {
       id: '3',
       user: 'Кристиан Тимневски',
       action: 'Редактира отстъпка',
       entity: 'Мария Петкова - 10%',
-      timestamp: new Date(Date.now() - 7200000),
+      timestamp: new Date(Date?.now() - 7200000),
     },
   ]
 
@@ -376,22 +376,22 @@ function AuditLogTab() {
         </div>
 
         <div className="divide-y">
-          {logs.map((log) => (
-            <div key={log.id} className="p-4 hover:bg-gray-50 transition-colors">
+          {logs?.map((log) => (
+            <div key={log?.id} className="p-4 hover:bg-gray-50 transition-colors">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center text-primary font-semibold">
-                    {log.user[0]}
+                    {log?.user[0]}
                   </div>
                   <div>
-                    <div className="font-medium">{log.user}</div>
+                    <div className="font-medium">{log?.user}</div>
                     <div className="text-sm text-gray-600">
-                      {log.action} <span className="font-medium">{log.entity}</span>
+                      {log?.action} <span className="font-medium">{log?.entity}</span>
                     </div>
                   </div>
                 </div>
                 <div className="text-sm text-gray-500">
-                  {log.timestamp.toLocaleString('bg-BG', {
+                  {log?.timestamp.toLocaleString('bg-BG', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric',
@@ -459,18 +459,18 @@ function ExportTab() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {exportOptions.map((option) => (
-          <div key={option.title} className="card hover:shadow-md transition-shadow cursor-pointer group" onClick={() => handleExport(option.title)}>
+        {exportOptions?.map((option) => (
+          <div key={option?.title} className="card hover:shadow-md transition-shadow cursor-pointer group" onClick={() => handleExport(option?.title)}>
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-4">
                 <div
-                  className={`w-12 h-12 bg-${option.color}-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
+                  className={`w-12 h-12 bg-${option?.color}-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
                 >
-                  <option.icon className={`w-6 h-6 text-${option.color}-600`} />
+                  <option?.icon className={`w-6 h-6 text-${option?.color}-600`} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">{option.title}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{option.description}</p>
+                  <h4 className="font-semibold text-gray-900">{option?.title}</h4>
+                  <p className="text-sm text-gray-600 mt-1">{option?.description}</p>
                 </div>
               </div>
               <Download className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />

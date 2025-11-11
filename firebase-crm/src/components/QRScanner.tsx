@@ -25,14 +25,14 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
 
   // Initialize QR Scanner
   useEffect(() => {
-    if (mode === 'camera' && videoRef.current && !scannerRef.current) {
+    if (mode === 'camera' && videoRef?.current && !scannerRef?.current) {
       const scanner = new QrScanner(
-        videoRef.current,
+        videoRef?.current,
         (result) => {
           // Extract student code from scanned URL
-          const code = extractStudentCodeFromUrl(result.data)
+          const code = extractStudentCodeFromUrl(result?.data)
           if (code && isValidStudentCode(code)) {
-            scanner.stop()
+            scanner?.stop()
             onScan(code)
           } else {
             setError('Невалиден QR код. Моля, опитайте отново.')
@@ -45,7 +45,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
         }
       )
 
-      scannerRef.current = scanner
+      scannerRef?.current = scanner
 
       // Start scanning
       scanner
@@ -55,7 +55,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
           setError(null)
         })
         .catch((err) => {
-          console.error('Camera error:', err)
+          console?.error('Camera error:', err)
           setError('Грешка при достъп до камерата. Използвайте ръчно въвеждане.')
           setMode('manual')
         })
@@ -63,17 +63,17 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
 
     // Cleanup
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop()
-        scannerRef.current.destroy()
-        scannerRef.current = null
+      if (scannerRef?.current) {
+        scannerRef?.current.stop()
+        scannerRef?.current.destroy()
+        scannerRef?.current = null
       }
     }
   }, [mode, onScan])
 
   // Handle manual code submission
-  const handleManualSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleManualSubmit = (e: React?.FormEvent) => {
+    e?.preventDefault()
     const normalized = normalizeStudentCode(manualCode)
 
     if (!isValidStudentCode(normalized)) {
@@ -151,7 +151,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
                   type="text"
                   value={manualCode}
                   onChange={(e) => {
-                    setManualCode(e.target.value.toUpperCase())
+                    setManualCode(e?.target.value?.toUpperCase())
                     setError(null)
                   }}
                   placeholder="K8M2B6"

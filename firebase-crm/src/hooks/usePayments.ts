@@ -26,7 +26,7 @@ import { toTimestamp } from '@/utils/date'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
-const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
+const paymentsCollection = collection(db, COLLECTIONS?.PAYMENTS)
 
 /**
  * Hook to get all payments with real-time updates
@@ -42,7 +42,7 @@ const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
  * @security Implements Principle of Least Privilege (PoLP)
  * - **Admins**: See ALL payments
  * - **Teachers**: See ONLY payments for students in their assigned groups
- * - **Parents**: See ONLY payments for THEIR children (userData.studentIds)
+ * - **Parents**: See ONLY payments for THEIR children (userData?.studentIds)
  *   - Server-side filtering with batching for 10+ children
  *
  * @example
@@ -51,9 +51,9 @@ const paymentsCollection = collection(db, COLLECTIONS.PAYMENTS)
  *   const { payments, loading, error } = usePayments()
  *
  *   if (loading) return <Spinner />
- *   if (error) return <Error message={error.message} />
+ *   if (error) return <Error message={error?.message} />
  *
- *   return payments.map(p => <PaymentCard key={p.id} {...p} />)
+ *   return payments?.map(p => <PaymentCard key={p?.id} {...p} />)
  * }
  * ```
  */
@@ -73,12 +73,12 @@ export function usePayments() {
     setLoading(true)
 
     // 🔒 SECURITY: Parents can only see payments for THEIR children (PoLP)
-    // Uses userData.studentIds for server-side filtering
+    // Uses userData?.studentIds for server-side filtering
     if (isParent) {
-      const studentIds = userData.studentIds || []
+      const studentIds = userData?.studentIds || []
 
       // Handle parents with no children assigned
-      if (studentIds.length === 0) {
+      if (studentIds?.length === 0) {
         setPayments([])
         setLoading(false)
         return
@@ -87,14 +87,14 @@ export function usePayments() {
       // Batch studentIds for Firestore 'in' operator (max 10 items)
       const batchSize = 10
       const batches: string[][] = []
-      for (let i = 0; i < studentIds.length; i += batchSize) {
-        batches.push(studentIds.slice(i, i + batchSize))
+      for (let i = 0; i < studentIds?.length; i += batchSize) {
+        batches?.push(studentIds?.slice(i, i + batchSize))
       }
 
       const unsubscribePayments: (() => void)[] = []
       const allPayments = new Map<string, Payment>()
 
-      batches.forEach((batch) => {
+      batches?.forEach((batch) => {
         const paymentsQuery = query(
           paymentsCollection,
           where('studentId', 'in', batch),
@@ -104,40 +104,40 @@ export function usePayments() {
         const unsubscribe = onSnapshot(
           paymentsQuery,
           (snapshot) => {
-            snapshot.forEach((doc) => {
-              allPayments.set(doc.id, { id: doc.id, ...doc.data() } as Payment)
+            snapshot?.forEach((doc) => {
+              allPayments?.set(doc?.id, { id: doc?.id, ...doc?.data() } as Payment)
             })
-            setPayments(Array.from(allPayments.values()))
+            setPayments(Array?.from(allPayments?.values()))
             setLoading(false)
             setError(null)
           },
           (err) => {
-            console.error('Error fetching parent payments:', err)
+            console?.error('Error fetching parent payments:', err)
             setError(err as Error)
             setLoading(false)
-            toast.error(ERROR_MESSAGES.LOAD_PAYMENTS_ERROR)
+            toast?.error(ERROR_MESSAGES?.LOAD_PAYMENTS_ERROR)
           }
         )
 
-        unsubscribePayments.push(unsubscribe)
+        unsubscribePayments?.push(unsubscribe)
       })
 
-      return () => unsubscribePayments.forEach((unsub) => unsub())
+      return () => unsubscribePayments?.forEach((unsub) => unsub())
     }
 
     // For teachers, we need to first get their students, then filter payments
-    if (isTeacher && userData.assignedGroups && userData.assignedGroups.length > 0) {
+    if (isTeacher && userData?.assignedGroups && userData?.assignedGroups.length > 0) {
       // Get students in teacher's assigned groups
       const studentsQuery = query(
-        collection(db, COLLECTIONS.STUDENTS),
-        where('group', 'in', userData.assignedGroups)
+        collection(db, COLLECTIONS?.STUDENTS),
+        where('group', 'in', userData?.assignedGroups)
       )
 
       const unsubscribeStudents = onSnapshot(studentsQuery, (studentsSnapshot) => {
         const studentIds: string[] = []
-        studentsSnapshot.forEach((doc) => studentIds.push(doc.id))
+        studentsSnapshot?.forEach((doc) => studentIds?.push(doc?.id))
 
-        if (studentIds.length === 0) {
+        if (studentIds?.length === 0) {
           setPayments([])
           setLoading(false)
           return
@@ -147,14 +147,14 @@ export function usePayments() {
         // Since Firestore 'in' is limited to 10 items, batch the queries
         const batchSize = 10
         const batches: string[][] = []
-        for (let i = 0; i < studentIds.length; i += batchSize) {
-          batches.push(studentIds.slice(i, i + batchSize))
+        for (let i = 0; i < studentIds?.length; i += batchSize) {
+          batches?.push(studentIds?.slice(i, i + batchSize))
         }
 
         const unsubscribePayments: (() => void)[] = []
         const allPayments = new Map<string, Payment>()
 
-        batches.forEach((batch) => {
+        batches?.forEach((batch) => {
           const paymentsQuery = query(
             paymentsCollection,
             where('studentId', 'in', batch),
@@ -162,18 +162,18 @@ export function usePayments() {
           )
 
           const unsubscribe = onSnapshot(paymentsQuery, (snapshot) => {
-            snapshot.forEach((doc) => {
-              allPayments.set(doc.id, { id: doc.id, ...doc.data() } as Payment)
+            snapshot?.forEach((doc) => {
+              allPayments?.set(doc?.id, { id: doc?.id, ...doc?.data() } as Payment)
             })
-            setPayments(Array.from(allPayments.values()))
+            setPayments(Array?.from(allPayments?.values()))
             setLoading(false)
             setError(null)
           })
 
-          unsubscribePayments.push(unsubscribe)
+          unsubscribePayments?.push(unsubscribe)
         })
 
-        return () => unsubscribePayments.forEach((unsub) => unsub())
+        return () => unsubscribePayments?.forEach((unsub) => unsub())
       })
 
       return () => unsubscribeStudents()
@@ -186,10 +186,10 @@ export function usePayments() {
       q,
       (snapshot) => {
         const paymentsData: Payment[] = []
-        snapshot.forEach((doc) => {
-          paymentsData.push({
-            id: doc.id,
-            ...doc.data(),
+        snapshot?.forEach((doc) => {
+          paymentsData?.push({
+            id: doc?.id,
+            ...doc?.data(),
           } as Payment)
         })
         setPayments(paymentsData)
@@ -197,10 +197,10 @@ export function usePayments() {
         setError(null)
       },
       (err) => {
-        console.error('Error fetching payments:', err)
+        console?.error('Error fetching payments:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error(ERROR_MESSAGES.LOAD_PAYMENTS_ERROR)
+        toast?.error(ERROR_MESSAGES?.LOAD_PAYMENTS_ERROR)
       }
     )
 
@@ -238,18 +238,18 @@ export function usePayments() {
  */
 export function usePayment(paymentId: string) {
   return useQuery({
-    queryKey: QUERY_KEYS.payment(paymentId),
+    queryKey: QUERY_KEYS?.payment(paymentId),
     queryFn: async () => {
       const docRef = doc(db, 'payments', paymentId)
       const docSnap = await getDoc(docRef)
 
-      if (!docSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.PAYMENT_NOT_FOUND)
+      if (!docSnap?.exists()) {
+        throw new Error(ERROR_MESSAGES?.PAYMENT_NOT_FOUND)
       }
 
       return {
-        id: docSnap.id,
-        ...docSnap.data(),
+        id: docSnap?.id,
+        ...docSnap?.data(),
       } as Payment
     },
     enabled: !!paymentId,
@@ -278,7 +278,7 @@ export function usePayment(paymentId: string) {
  *   return (
  *     <div>
  *       <h3>Payment History</h3>
- *       {payments.map(p => <PaymentRow key={p.id} {...p} />)}
+ *       {payments?.map(p => <PaymentRow key={p?.id} {...p} />)}
  *     </div>
  *   )
  * }
@@ -303,10 +303,10 @@ export function usePaymentsByStudent(studentId: string) {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const paymentsData: Payment[] = []
-      snapshot.forEach((doc) => {
-        paymentsData.push({
-          id: doc.id,
-          ...doc.data(),
+      snapshot?.forEach((doc) => {
+        paymentsData?.push({
+          id: doc?.id,
+          ...doc?.data(),
         } as Payment)
       })
       setPayments(paymentsData)
@@ -330,7 +330,7 @@ export function usePaymentsByStudent(studentId: string) {
  *   - isPending: True while request is in progress
  *   - isSuccess/isError: Status flags
  *
- * @security Populates createdBy field with current user.uid for ownership tracking
+ * @security Populates createdBy field with current user?.uid for ownership tracking
  *
  * @example
  * ```tsx
@@ -338,12 +338,12 @@ export function usePaymentsByStudent(studentId: string) {
  *   const addPayment = useAddPayment()
  *
  *   const handleSubmit = async (data: PaymentFormValues) => {
- *     await addPayment.mutateAsync(data)
- *     toast.success('Payment added!')
+ *     await addPayment?.mutateAsync(data)
+ *     toast?.success('Payment added!')
  *     onClose()
  *   }
  *
- *   return <Form onSubmit={handleSubmit} loading={addPayment.isPending} />
+ *   return <Form onSubmit={handleSubmit} loading={addPayment?.isPending} />
  * }
  * ```
  */
@@ -354,27 +354,27 @@ export function useAddPayment() {
   return useMutation({
     mutationFn: async (paymentData: PaymentFormValues) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // Convert date to Timestamp if it's a Date
       const data = {
         ...paymentData,
-        date: toTimestamp(paymentData.date),
-        createdBy: user.uid,
+        date: toTimestamp(paymentData?.date),
+        createdBy: user?.uid,
         createdAt: serverTimestamp(),
       }
 
       const docRef = await addDoc(paymentsCollection, data)
-      return docRef.id
+      return docRef?.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments })
-      toast.success(SUCCESS_MESSAGES.PAYMENT_ADDED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.payments })
+      toast?.success(SUCCESS_MESSAGES?.PAYMENT_ADDED)
     },
     onError: (error: Error) => {
-      console.error('Error adding payment:', error)
-      toast.error(ERROR_MESSAGES.ADD_PAYMENT_ERROR + ': ' + error.message)
+      console?.error('Error adding payment:', error)
+      toast?.error(ERROR_MESSAGES?.ADD_PAYMENT_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -393,29 +393,29 @@ export function useUpdatePayment() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<PaymentFormValues> }) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Validate ownership using centralized utility
-      await validateDocumentOwnership(COLLECTIONS.PAYMENTS, id, userData, ERROR_MESSAGES.PAYMENT_NOT_FOUND)
+      await validateDocumentOwnership(COLLECTIONS?.PAYMENTS, id, userData, ERROR_MESSAGES?.PAYMENT_NOT_FOUND)
 
       // Convert date to Timestamp if it's a Date
       const updateData: any = { ...data }
-      if (updateData.date) {
-        updateData.date = toTimestamp(updateData.date)
+      if (updateData?.date) {
+        updateData?.date = toTimestamp(updateData?.date)
       }
 
-      const docRef = doc(db, COLLECTIONS.PAYMENTS, id)
+      const docRef = doc(db, COLLECTIONS?.PAYMENTS, id)
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payment(variables.id) })
-      toast.success(SUCCESS_MESSAGES.PAYMENT_UPDATED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.payments })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.payment(variables?.id) })
+      toast?.success(SUCCESS_MESSAGES?.PAYMENT_UPDATED)
     },
     onError: (error: Error) => {
-      console.error('Error updating payment:', error)
-      toast.error(ERROR_MESSAGES.UPDATE_PAYMENT_ERROR + ': ' + error.message)
+      console?.error('Error updating payment:', error)
+      toast?.error(ERROR_MESSAGES?.UPDATE_PAYMENT_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -434,23 +434,23 @@ export function useDeletePayment() {
   return useMutation({
     mutationFn: async (paymentId: string) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Validate ownership using centralized utility
-      await validateDocumentOwnership(COLLECTIONS.PAYMENTS, paymentId, userData, ERROR_MESSAGES.PAYMENT_NOT_FOUND)
+      await validateDocumentOwnership(COLLECTIONS?.PAYMENTS, paymentId, userData, ERROR_MESSAGES?.PAYMENT_NOT_FOUND)
 
       // Delete payment
-      const docRef = doc(db, COLLECTIONS.PAYMENTS, paymentId)
+      const docRef = doc(db, COLLECTIONS?.PAYMENTS, paymentId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments })
-      toast.success(SUCCESS_MESSAGES.PAYMENT_DELETED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.payments })
+      toast?.success(SUCCESS_MESSAGES?.PAYMENT_DELETED)
     },
     onError: (error: Error) => {
-      console.error('Error deleting payment:', error)
-      toast.error(ERROR_MESSAGES.DELETE_PAYMENT_ERROR + ': ' + error.message)
+      console?.error('Error deleting payment:', error)
+      toast?.error(ERROR_MESSAGES?.DELETE_PAYMENT_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -471,7 +471,7 @@ export function useDeletePayment() {
  *   return (
  *     <Card>
  *       <h3>Total Revenue</h3>
- *       <p>{totalRevenue.toFixed(2)} BGN</p>
+ *       <p>{totalRevenue?.toFixed(2)} BGN</p>
  *     </Card>
  *   )
  * }
@@ -479,7 +479,7 @@ export function useDeletePayment() {
  */
 export function useTotalRevenue() {
   const { payments } = usePayments()
-  return payments.reduce((sum, p) => sum + p.amount, 0)
+  return payments?.reduce((sum, p) => sum + p?.amount, 0)
 }
 
 /**
@@ -503,7 +503,7 @@ export function useTotalRevenue() {
  *   return (
  *     <div>
  *       <h3>January 2024 Payments</h3>
- *       <p>Total: {payments.reduce((sum, p) => sum + p.amount, 0)} BGN</p>
+ *       <p>Total: {payments?.reduce((sum, p) => sum + p?.amount, 0)} BGN</p>
  *     </div>
  *   )
  * }
@@ -512,10 +512,10 @@ export function useTotalRevenue() {
 export function usePaymentsByDateRange(startDate: Date, endDate: Date) {
   const { payments } = usePayments()
 
-  const filteredPayments = payments.filter((payment) => {
-    const paymentDate = payment.date instanceof Timestamp
-      ? payment.date.toDate()
-      : payment.date
+  const filteredPayments = payments?.filter((payment) => {
+    const paymentDate = payment?.date instanceof Timestamp
+      ? payment?.date.toDate()
+      : payment?.date
 
     return paymentDate >= startDate && paymentDate <= endDate
   })
@@ -545,7 +545,7 @@ export function usePaymentsByParent(parentId: string) {
     // First, we need to get the parent's students to know which studentIds to filter by
     // We'll query students and then query payments for those students
     const studentsQuery = query(
-      collection(db, COLLECTIONS.STUDENTS),
+      collection(db, COLLECTIONS?.STUDENTS),
       where('parentId', '==', parentId)
     )
 
@@ -554,11 +554,11 @@ export function usePaymentsByParent(parentId: string) {
       studentsQuery,
       (studentsSnapshot) => {
         const studentIds: string[] = []
-        studentsSnapshot.forEach((doc) => {
-          studentIds.push(doc.id)
+        studentsSnapshot?.forEach((doc) => {
+          studentIds?.push(doc?.id)
         })
 
-        if (studentIds.length === 0) {
+        if (studentIds?.length === 0) {
           setPayments([])
           setLoading(false)
           return
@@ -569,15 +569,15 @@ export function usePaymentsByParent(parentId: string) {
         const batchSize = 10
         const batches: string[][] = []
 
-        for (let i = 0; i < studentIds.length; i += batchSize) {
-          batches.push(studentIds.slice(i, i + batchSize))
+        for (let i = 0; i < studentIds?.length; i += batchSize) {
+          batches?.push(studentIds?.slice(i, i + batchSize))
         }
 
         // Subscribe to payments for all batches
         const unsubscribePayments: (() => void)[] = []
         const allPayments = new Map<string, Payment>()
 
-        batches.forEach((batch) => {
+        batches?.forEach((batch) => {
           const paymentsQuery = query(
             paymentsCollection,
             where('studentId', 'in', batch),  // SERVER-SIDE FILTER ✅
@@ -587,35 +587,35 @@ export function usePaymentsByParent(parentId: string) {
           const unsubscribe = onSnapshot(
             paymentsQuery,
             (snapshot) => {
-              snapshot.forEach((doc) => {
-                allPayments.set(doc.id, {
-                  id: doc.id,
-                  ...doc.data(),
+              snapshot?.forEach((doc) => {
+                allPayments?.set(doc?.id, {
+                  id: doc?.id,
+                  ...doc?.data(),
                 } as Payment)
               })
 
               // Convert map to array and set state
-              setPayments(Array.from(allPayments.values()))
+              setPayments(Array?.from(allPayments?.values()))
               setLoading(false)
               setError(null)
             },
             (err) => {
-              console.error('Error fetching parent payments:', err)
+              console?.error('Error fetching parent payments:', err)
               setError(err as Error)
               setLoading(false)
             }
           )
 
-          unsubscribePayments.push(unsubscribe)
+          unsubscribePayments?.push(unsubscribe)
         })
 
         // Cleanup function for payment subscriptions
         return () => {
-          unsubscribePayments.forEach((unsub) => unsub())
+          unsubscribePayments?.forEach((unsub) => unsub())
         }
       },
       (err) => {
-        console.error('Error fetching parent students:', err)
+        console?.error('Error fetching parent students:', err)
         setError(err as Error)
         setLoading(false)
       }
@@ -633,13 +633,13 @@ export function usePaymentsByParent(parentId: string) {
  * Hook to bulk add payments (for bulk payment modal)
  *
  * @description Creates multiple payment records in a single operation.
- * All payments are processed in parallel using Promise.all for performance.
+ * All payments are processed in parallel using Promise?.all for performance.
  *
  * @returns {UseMutationResult} React Query mutation object for bulk payment creation
  *
  * @param {Array<Omit<Payment, 'id' | 'createdAt' | 'createdBy'>>} payments - Array of payment data to create
  *
- * @security Each payment automatically gets createdBy field populated with current user.uid
+ * @security Each payment automatically gets createdBy field populated with current user?.uid
  *
  * @example
  * ```tsx
@@ -647,7 +647,7 @@ export function usePaymentsByParent(parentId: string) {
  *   const bulkAdd = useBulkAddPayments()
  *
  *   const handleSubmit = async (studentIds: string[], amount: number) => {
- *     const payments = studentIds.map(id => ({
+ *     const payments = studentIds?.map(id => ({
  *       studentId: id,
  *       amount,
  *       method: 'Кеш',
@@ -655,7 +655,7 @@ export function usePaymentsByParent(parentId: string) {
  *       article: 'Monthly Fee'
  *     }))
  *
- *     await bulkAdd.mutateAsync(payments)
+ *     await bulkAdd?.mutateAsync(payments)
  *   }
  *
  *   return <Form onSubmit={handleSubmit} />
@@ -671,28 +671,28 @@ export function useBulkAddPayments() {
       payments: Array<Omit<Payment, 'id' | 'createdAt' | 'createdBy'>>
     ) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
-      const promises = payments.map((paymentData) => {
+      const promises = payments?.map((paymentData) => {
         const data = {
           ...paymentData,
-          date: toTimestamp(paymentData.date),
-          createdBy: user.uid,
+          date: toTimestamp(paymentData?.date),
+          createdBy: user?.uid,
           createdAt: serverTimestamp(),
         }
         return addDoc(paymentsCollection, data)
       })
 
-      await Promise.all(promises)
+      await Promise?.all(promises)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments })
-      toast.success('Плащанията бяха добавени успешно!')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.payments })
+      toast?.success('Плащанията бяха добавени успешно!')
     },
     onError: (error: Error) => {
-      console.error('Error bulk adding payments:', error)
-      toast.error(ERROR_MESSAGES.ADD_PAYMENT_ERROR + ': ' + error.message)
+      console?.error('Error bulk adding payments:', error)
+      toast?.error(ERROR_MESSAGES?.ADD_PAYMENT_ERROR + ': ' + error?.message)
     },
   })
 }

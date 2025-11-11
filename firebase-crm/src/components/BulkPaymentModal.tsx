@@ -13,38 +13,38 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
   const { students } = useStudents()
   const bulkAddPayments = useBulkAddPayments()
 
-  const activeStudents = students.filter((s) => s.status === STUDENT_STATUS.ACTIVE)
+  const activeStudents = students?.filter((s) => s?.status === STUDENT_STATUS?.ACTIVE)
 
   const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(new Set())
   const [amount, setAmount] = useState<number>(0)
   const [amountEUR, setAmountEUR] = useState<number>(0)
   const [item, setItem] = useState('Месечна такса')
-  const [method, setMethod] = useState<typeof PAYMENT_METHODS[keyof typeof PAYMENT_METHODS]>(PAYMENT_METHODS.CASH)
+  const [method, setMethod] = useState<typeof PAYMENT_METHODS[keyof typeof PAYMENT_METHODS]>(PAYMENT_METHODS?.CASH)
   const [date, setDate] = useState(new Date())
   const [notes, setNotes] = useState('')
 
   const handleToggleStudent = (studentId: string) => {
     const newSelected = new Set(selectedStudentIds)
-    if (newSelected.has(studentId)) {
-      newSelected.delete(studentId)
+    if (newSelected?.has(studentId)) {
+      newSelected?.delete(studentId)
     } else {
-      newSelected.add(studentId)
+      newSelected?.add(studentId)
     }
     setSelectedStudentIds(newSelected)
   }
 
   const handleSelectAll = () => {
-    if (selectedStudentIds.size === activeStudents.length) {
+    if (selectedStudentIds?.size === activeStudents?.length) {
       setSelectedStudentIds(new Set())
     } else {
-      setSelectedStudentIds(new Set(activeStudents.map((s) => s.id)))
+      setSelectedStudentIds(new Set(activeStudents?.map((s) => s?.id)))
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
-    if (selectedStudentIds.size === 0) {
+    if (selectedStudentIds?.size === 0) {
       alert('Моля изберете поне един ученик')
       return
     }
@@ -54,11 +54,11 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
       return
     }
 
-    const selectedStudents = activeStudents.filter((s) => selectedStudentIds.has(s.id))
+    const selectedStudents = activeStudents?.filter((s) => selectedStudentIds?.has(s?.id))
 
-    const paymentsToAdd = selectedStudents.map((student) => ({
-      studentId: student.id,
-      studentName: student.name,
+    const paymentsToAdd = selectedStudents?.map((student) => ({
+      studentId: student?.id,
+      studentName: student?.name,
       amount,
       amountEUR,
       item,
@@ -69,15 +69,15 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
     }))
 
     try {
-      await bulkAddPayments.mutateAsync(paymentsToAdd)
+      await bulkAddPayments?.mutateAsync(paymentsToAdd)
       onClose()
     } catch (error) {
-      console.error('Error adding bulk payments:', error)
+      console?.error('Error adding bulk payments:', error)
       alert('Грешка при добавяне на плащания')
     }
   }
 
-  const totalAmount = amount * selectedStudentIds.size
+  const totalAmount = amount * selectedStudentIds?.size
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
@@ -111,7 +111,7 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
                   type="text"
                   className="input"
                   value={item}
-                  onChange={(e) => setItem(e.target.value)}
+                  onChange={(e) => setItem(e?.target.value)}
                   required
                 />
               </div>
@@ -121,7 +121,7 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
                 <select
                   className="input"
                   value={method}
-                  onChange={(e) => setMethod(e.target.value as typeof method)}
+                  onChange={(e) => setMethod(e?.target.value as typeof method)}
                 >
                   <option value="Кеш">Кеш</option>
                   <option value="ПОС">ПОС</option>
@@ -135,9 +135,9 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
                   type="number"
                   className="input"
                   value={amount}
-                  onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setAmount(parseFloat(e?.target.value) || 0)}
                   min="0"
-                  step="0.01"
+                  step="0?.01"
                   required
                 />
               </div>
@@ -148,9 +148,9 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
                   type="number"
                   className="input"
                   value={amountEUR}
-                  onChange={(e) => setAmountEUR(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setAmountEUR(parseFloat(e?.target.value) || 0)}
                   min="0"
-                  step="0.01"
+                  step="0?.01"
                 />
               </div>
 
@@ -159,8 +159,8 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
                 <input
                   type="date"
                   className="input"
-                  value={date.toISOString().split('T')[0]}
-                  onChange={(e) => setDate(new Date(e.target.value))}
+                  value={date?.toISOString().split('T')[0]}
+                  onChange={(e) => setDate(new Date(e?.target.value))}
                 />
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
                 className="input"
                 rows={2}
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(e) => setNotes(e?.target.value)}
                 placeholder="Допълнителна информация..."
               />
             </div>
@@ -181,31 +181,31 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-gray-900">
-                Избор на ученици ({selectedStudentIds.size} от {activeStudents.length})
+                Избор на ученици ({selectedStudentIds?.size} от {activeStudents?.length})
               </h3>
               <button
                 type="button"
                 onClick={handleSelectAll}
                 className="btn btn-ghost text-sm"
               >
-                {selectedStudentIds.size === activeStudents.length
+                {selectedStudentIds?.size === activeStudents?.length
                   ? 'Премахни всички'
                   : 'Избери всички'}
               </button>
             </div>
 
             <div className="border rounded-lg max-h-60 overflow-y-auto">
-              {activeStudents.length === 0 ? (
+              {activeStudents?.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <p>Няма активни ученици</p>
                 </div>
               ) : (
                 <div className="divide-y">
-                  {activeStudents.map((student) => {
-                    const isSelected = selectedStudentIds.has(student.id)
+                  {activeStudents?.map((student) => {
+                    const isSelected = selectedStudentIds?.has(student?.id)
                     return (
                       <label
-                        key={student.id}
+                        key={student?.id}
                         className={`flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
                           isSelected ? 'bg-blue-50' : ''
                         }`}
@@ -213,13 +213,13 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
                         <input
                           type="checkbox"
                           checked={isSelected}
-                          onChange={() => handleToggleStudent(student.id)}
+                          onChange={() => handleToggleStudent(student?.id)}
                           className="w-5 h-5 text-primary rounded focus:ring-primary"
                         />
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900">{student.name}</p>
+                          <p className="font-medium text-gray-900">{student?.name}</p>
                           <p className="text-sm text-gray-600">
-                            {student.group} • Такса: {formatCurrency(student.fee)}
+                            {student?.group} • Такса: {formatCurrency(student?.fee)}
                           </p>
                         </div>
                         {isSelected && (
@@ -234,11 +234,11 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
           </div>
 
           {/* Summary */}
-          {selectedStudentIds.size > 0 && (
+          {selectedStudentIds?.size > 0 && (
             <div className="bg-gray-50 rounded-lg p-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Брой ученици:</span>
-                <span className="font-medium">{selectedStudentIds.size}</span>
+                <span className="font-medium">{selectedStudentIds?.size}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Сума на ученик:</span>
@@ -259,11 +259,11 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
             <button
               type="submit"
               className="btn btn-primary flex-1"
-              disabled={bulkAddPayments.isPending || selectedStudentIds.size === 0}
+              disabled={bulkAddPayments?.isPending || selectedStudentIds?.size === 0}
             >
-              {bulkAddPayments.isPending
+              {bulkAddPayments?.isPending
                 ? 'Записване...'
-                : `Добави ${selectedStudentIds.size} плащания`}
+                : `Добави ${selectedStudentIds?.size} плащания`}
             </button>
           </div>
         </form>

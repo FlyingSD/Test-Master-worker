@@ -17,16 +17,16 @@ export default function DateRangePicker({
 }: DateRangePickerProps) {
   const formatDateForInput = (date: Date | null) => {
     if (!date) return ''
-    return date.toISOString().split('T')[0]
+    return date?.toISOString().split('T')[0]
   }
 
-  const handleStartChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+  const handleStartChange = (e: React?.ChangeEvent<HTMLInputElement>) => {
+    const value = e?.target.value
     onStartDateChange(value ? new Date(value) : null)
   }
 
-  const handleEndChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+  const handleEndChange = (e: React?.ChangeEvent<HTMLInputElement>) => {
+    const value = e?.target.value
     onEndDateChange(value ? new Date(value) : null)
   }
 

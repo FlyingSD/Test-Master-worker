@@ -23,14 +23,14 @@ import { CollectionName } from '@/lib/collections'
  * @example
  * // Simple usage
  * const { data: payments, loading } = useRealtimeCollection<Payment>(
- *   COLLECTIONS.PAYMENTS,
+ *   COLLECTIONS?.PAYMENTS,
  *   [orderBy('date', 'desc')]
  * )
  *
  * @example
  * // With conditional enabling
  * const { data: students } = useRealtimeCollection<Student>(
- *   COLLECTIONS.STUDENTS,
+ *   COLLECTIONS?.STUDENTS,
  *   [where('parentId', '==', parentId)],
  *   !!parentId, // Only fetch if parentId exists
  *   'Грешка при зареждане на ученици'
@@ -57,7 +57,7 @@ export function useRealtimeCollection<T extends DocumentData>(
 
     // Build Firestore query
     const collectionRef = collection(db, collectionName)
-    const q = queryConstraints.length > 0
+    const q = queryConstraints?.length > 0
       ? query(collectionRef, ...queryConstraints)
       : collectionRef
 
@@ -66,10 +66,10 @@ export function useRealtimeCollection<T extends DocumentData>(
       q,
       (snapshot) => {
         const items: (T & { id: string })[] = []
-        snapshot.forEach((doc) => {
-          items.push({
-            id: doc.id,
-            ...doc.data() as T,
+        snapshot?.forEach((doc) => {
+          items?.push({
+            id: doc?.id,
+            ...doc?.data() as T,
           })
         })
         setData(items)
@@ -77,10 +77,10 @@ export function useRealtimeCollection<T extends DocumentData>(
         setError(null)
       },
       (err) => {
-        console.error(`Error fetching ${collectionName}:`, err)
+        console?.error(`Error fetching ${collectionName}:`, err)
         setError(err as Error)
         setLoading(false)
-        toast.error(errorMessage)
+        toast?.error(errorMessage)
       }
     )
 
@@ -97,7 +97,7 @@ export function useRealtimeCollection<T extends DocumentData>(
  *
  * @example
  * const { data: student, loading } = useRealtimeDocument<Student>(
- *   COLLECTIONS.STUDENTS,
+ *   COLLECTIONS?.STUDENTS,
  *   studentId
  * )
  */
@@ -126,11 +126,11 @@ export function useRealtimeDocument<T extends DocumentData>(
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const doc = snapshot.docs.find(d => d.id === documentId)
+        const doc = snapshot?.docs.find(d => d?.id === documentId)
         if (doc) {
           setData({
-            id: doc.id,
-            ...doc.data() as T,
+            id: doc?.id,
+            ...doc?.data() as T,
           })
         } else {
           setData(null)
@@ -139,10 +139,10 @@ export function useRealtimeDocument<T extends DocumentData>(
         setLoading(false)
       },
       (err) => {
-        console.error(`Error fetching document from ${collectionName}:`, err)
+        console?.error(`Error fetching document from ${collectionName}:`, err)
         setError(err as Error)
         setLoading(false)
-        toast.error(errorMessage)
+        toast?.error(errorMessage)
       }
     )
 

@@ -14,9 +14,9 @@ export default function CSVImportModal({ onClose }: CSVImportModalProps) {
 
   const bulkAddStudents = useBulkAddStudents()
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile && selectedFile.type === 'text/csv') {
+  const handleFileChange = (e: React?.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e?.target?.files?.[0]
+    if (selectedFile && selectedFile?.type === 'text/csv') {
       setFile(selectedFile)
       setImportResult(null)
     } else {
@@ -39,12 +39,12 @@ export default function CSVImportModal({ onClose }: CSVImportModalProps) {
   }
 
   const handleImport = async () => {
-    if (!importResult || importResult.success.length === 0) return
+    if (!importResult || importResult?.success.length === 0) return
 
     setImporting(true)
     try {
-      await bulkAddStudents.mutateAsync(importResult.success)
-      alert(`Успешно импортирани ${importResult.success.length} ученици!`)
+      await bulkAddStudents?.mutateAsync(importResult?.success)
+      alert(`Успешно импортирани ${importResult?.success.length} ученици!`)
       onClose()
     } catch (error) {
       alert('Грешка при импортиране на ученици')
@@ -113,7 +113,7 @@ export default function CSVImportModal({ onClose }: CSVImportModalProps) {
               >
                 <Upload className="w-12 h-12 text-gray-400 mb-3" />
                 <p className="text-gray-700 font-medium">
-                  {file ? file.name : 'Кликнете за избор на файл'}
+                  {file ? file?.name : 'Кликнете за избор на файл'}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">CSV файл до 5MB</p>
               </label>
@@ -135,24 +135,24 @@ export default function CSVImportModal({ onClose }: CSVImportModalProps) {
           {importResult && (
             <div className="space-y-4">
               {/* Success */}
-              {importResult.success.length > 0 && (
+              {importResult?.success.length > 0 && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <h3 className="font-semibold text-green-900">
-                      Валидни записи: {importResult.success.length}
+                      Валидни записи: {importResult?.success.length}
                     </h3>
                   </div>
                   <div className="max-h-40 overflow-y-auto">
                     <ul className="text-sm text-green-800 space-y-1">
-                      {importResult.success.slice(0, 5).map((student, idx) => (
+                      {importResult?.success.slice(0, 5).map((student, idx) => (
                         <li key={idx}>
-                          ✓ {student.name} - {student.group}
+                          ✓ {student?.name} - {student?.group}
                         </li>
                       ))}
-                      {importResult.success.length > 5 && (
+                      {importResult?.success.length > 5 && (
                         <li className="font-medium">
-                          ... и още {importResult.success.length - 5}
+                          ... и още {importResult?.success.length - 5}
                         </li>
                       )}
                     </ul>
@@ -161,24 +161,24 @@ export default function CSVImportModal({ onClose }: CSVImportModalProps) {
               )}
 
               {/* Errors */}
-              {importResult.errors.length > 0 && (
+              {importResult?.errors.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertCircle className="w-5 h-5 text-red-600" />
                     <h3 className="font-semibold text-red-900">
-                      Грешки: {importResult.errors.length}
+                      Грешки: {importResult?.errors.length}
                     </h3>
                   </div>
                   <div className="max-h-40 overflow-y-auto">
                     <ul className="text-sm text-red-800 space-y-2">
-                      {importResult.errors.slice(0, 5).map((error, idx) => (
+                      {importResult?.errors.slice(0, 5).map((error, idx) => (
                         <li key={idx}>
-                          Ред {error.row}: {error.error}
+                          Ред {error?.row}: {error?.error}
                         </li>
                       ))}
-                      {importResult.errors.length > 5 && (
+                      {importResult?.errors.length > 5 && (
                         <li className="font-medium">
-                          ... и още {importResult.errors.length - 5} грешки
+                          ... и още {importResult?.errors.length - 5} грешки
                         </li>
                       )}
                     </ul>
@@ -187,7 +187,7 @@ export default function CSVImportModal({ onClose }: CSVImportModalProps) {
               )}
 
               {/* Import Button */}
-              {importResult.success.length > 0 && (
+              {importResult?.success.length > 0 && (
                 <button
                   onClick={handleImport}
                   disabled={importing}
@@ -195,7 +195,7 @@ export default function CSVImportModal({ onClose }: CSVImportModalProps) {
                 >
                   {importing
                     ? 'Импортиране...'
-                    : `Импортирай ${importResult.success.length} ученици`}
+                    : `Импортирай ${importResult?.success.length} ученици`}
                 </button>
               )}
             </div>

@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { UserRole } from '@/types'
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
+  children: React?.ReactNode
   allowedRoles?: UserRole[] // If not specified, any authenticated user can access
   redirectTo?: string // Custom redirect path
 }
@@ -39,9 +39,9 @@ export function ProtectedRoute({
   }
 
   // Check role-based access
-  if (allowedRoles && !allowedRoles.includes(userData.role)) {
+  if (allowedRoles && !allowedRoles?.includes(userData?.role)) {
     // Redirect to appropriate dashboard based on role
-    switch (userData.role) {
+    switch (userData?.role) {
       case 'admin':
         return <Navigate to="/dashboard" replace />
       case 'teacher':

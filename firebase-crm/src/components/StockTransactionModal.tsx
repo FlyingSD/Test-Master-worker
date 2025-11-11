@@ -16,28 +16,28 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
   const addTransaction = useAddStockTransaction()
 
   const [formData, setFormData] = useState<StockTransactionFormValues>({
-    inventoryItemId: item.id,
+    inventoryItemId: item?.id,
     type: type,
     quantity: 1,
-    pricePerUnit: type === 'IN' ? item.purchasePrice : item.salePrice,
+    pricePerUnit: type === 'IN' ? item?.purchasePrice : item?.salePrice,
     reason: type === 'IN' ? 'Покупка от доставчик' : 'Продажба на ученик',
     notes: '',
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     if (!user) {
       return
     }
 
     // Validation: Check if OUT quantity exceeds current stock
-    if (type === 'OUT' && formData.quantity > item.currentStock) {
-      alert(`Недостатъчна наличност! Налично: ${item.currentStock} бр.`)
+    if (type === 'OUT' && formData?.quantity > item?.currentStock) {
+      alert(`Недостатъчна наличност! Налично: ${item?.currentStock} бр.`)
       return
     }
 
-    await addTransaction.mutateAsync({
+    await addTransaction?.mutateAsync({
       data: formData,
       inventoryItem: item,
     })
@@ -45,12 +45,12 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
     onClose()
   }
 
-  const totalPrice = formData.quantity * formData.pricePerUnit
+  const totalPrice = formData?.quantity * formData?.pricePerUnit
   const newStock = type === 'IN'
-    ? item.currentStock + formData.quantity
-    : item.currentStock - formData.quantity
+    ? item?.currentStock + formData?.quantity
+    : item?.currentStock - formData?.quantity
 
-  const isLowStock = newStock <= item.minimumStock
+  const isLowStock = newStock <= item?.minimumStock
   const isOutOfStock = newStock === 0
 
   return (
@@ -72,7 +72,7 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
               <h2 className="text-2xl font-bold text-gray-900">
                 {type === 'IN' ? 'Добавяне на наличност' : 'Изписване от склад'}
               </h2>
-              <p className="text-sm text-gray-600">{item.name}</p>
+              <p className="text-sm text-gray-600">{item?.name}</p>
             </div>
           </div>
           <button
@@ -91,7 +91,7 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
               <div>
                 <p className="text-sm text-gray-600">Текуща наличност</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {item.currentStock} бр.
+                  {item?.currentStock} бр.
                 </p>
               </div>
               <div>
@@ -114,7 +114,7 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
                 ? 'bg-red-50 border-red-200'
                 : 'bg-orange-50 border-orange-200'
             }`}>
-              <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+              <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0?.5 ${
                 isOutOfStock ? 'text-red-600' : 'text-orange-600'
               }`} />
               <div className="flex-1">
@@ -128,7 +128,7 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
                 }`}>
                   {isOutOfStock
                     ? 'След тази операция артикулът няма да е наличен.'
-                    : `Минималният запас е ${item.minimumStock} бр.`}
+                    : `Минималният запас е ${item?.minimumStock} бр.`}
                 </p>
               </div>
             </div>
@@ -143,20 +143,20 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
               type="number"
               required
               min="1"
-              max={type === 'OUT' ? item.currentStock : undefined}
+              max={type === 'OUT' ? item?.currentStock : undefined}
               className="input"
               placeholder="0"
-              value={formData.quantity || ''}
+              value={formData?.quantity || ''}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  quantity: Number(e.target.value),
+                  quantity: Number(e?.target.value),
                 })
               }
             />
             {type === 'OUT' && (
               <p className="text-xs text-gray-500 mt-1">
-                Максимум: {item.currentStock} бр.
+                Максимум: {item?.currentStock} бр.
               </p>
             )}
           </div>
@@ -170,19 +170,19 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
               type="number"
               required
               min="0"
-              step="0.01"
+              step="0?.01"
               className="input"
-              placeholder="0.00"
-              value={formData.pricePerUnit || ''}
+              placeholder="0?.00"
+              value={formData?.pricePerUnit || ''}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  pricePerUnit: Number(e.target.value),
+                  pricePerUnit: Number(e?.target.value),
                 })
               }
             />
             <p className="text-xs text-gray-500 mt-1">
-              Предложена: {formatCurrency(type === 'IN' ? item.purchasePrice : item.salePrice)}
+              Предложена: {formatCurrency(type === 'IN' ? item?.purchasePrice : item?.salePrice)}
             </p>
           </div>
 
@@ -204,11 +204,11 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
             <select
               required
               className="input"
-              value={formData.reason}
+              value={formData?.reason}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  reason: e.target.value as typeof formData.reason,
+                  reason: e?.target.value as typeof formData?.reason,
                 })
               }
             >
@@ -235,9 +235,9 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
             <textarea
               className="input min-h-[80px] resize-y"
               placeholder="Допълнителна информация..."
-              value={formData.notes}
+              value={formData?.notes}
               onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
+                setFormData({ ...formData, notes: e?.target.value })
               }
             />
           </div>
@@ -254,11 +254,11 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Количество:</span>
-                <span className="font-medium">{formData.quantity} бр.</span>
+                <span className="font-medium">{formData?.quantity} бр.</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Текуща наличност:</span>
-                <span className="font-medium">{item.currentStock} бр.</span>
+                <span className="font-medium">{item?.currentStock} бр.</span>
               </div>
               <div className="flex justify-between border-t pt-2">
                 <span className="text-gray-600 font-semibold">Нова наличност:</span>
@@ -278,12 +278,12 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
             </button>
             <button
               type="submit"
-              disabled={addTransaction.isPending}
+              disabled={addTransaction?.isPending}
               className={`btn flex-1 ${
                 type === 'IN' ? 'btn-primary bg-green-600 hover:bg-green-700' : 'btn-primary bg-orange-600 hover:bg-orange-700'
               }`}
             >
-              {addTransaction.isPending ? (
+              {addTransaction?.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Запазване...

@@ -28,10 +28,10 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
 
   // Auto-generate installments when settings change
   useEffect(() => {
-    if (formData.totalAmount > 0 && formData.numberOfInstallments > 0) {
+    if (formData?.totalAmount > 0 && formData?.numberOfInstallments > 0) {
       generateInstallments()
     }
-  }, [formData.totalAmount, formData.numberOfInstallments, formData.startDate, formData.frequency])
+  }, [formData?.totalAmount, formData?.numberOfInstallments, formData?.startDate, formData?.frequency])
 
   const generateInstallments = () => {
     const { totalAmount, numberOfInstallments, startDate, frequency } = formData
@@ -44,15 +44,15 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
       const dueDate = new Date(start)
 
       if (frequency === 'monthly') {
-        dueDate.setMonth(start.getMonth() + i)
+        dueDate?.setMonth(start?.getMonth() + i)
       } else if (frequency === 'weekly') {
-        dueDate.setDate(start.getDate() + i * 7)
+        dueDate?.setDate(start?.getDate() + i * 7)
       }
 
-      newInstallments.push({
+      newInstallments?.push({
         installmentNumber: i + 1,
         dueDate,
-        amount: Math.round(amountPerInstallment * 100) / 100, // Round to 2 decimals
+        amount: Math?.round(amountPerInstallment * 100) / 100, // Round to 2 decimals
         status: 'pending',
         notes: '',
       })
@@ -61,38 +61,38 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
     setInstallments(newInstallments)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
-    if (!formData.studentId) {
+    if (!formData?.studentId) {
       alert('Моля изберете ученик')
       return
     }
 
-    const student = students.find((s) => s.id === formData.studentId)
+    const student = students?.find((s) => s?.id === formData?.studentId)
     if (!student) {
       alert('Ученикът не е намерен')
       return
     }
 
     try {
-      await addPaymentPlan.mutateAsync({
-        studentId: formData.studentId,
-        studentName: student.name,
-        totalAmount: formData.totalAmount,
-        numberOfInstallments: formData.numberOfInstallments,
-        frequency: formData.frequency,
-        startDate: new Date(formData.startDate),
+      await addPaymentPlan?.mutateAsync({
+        studentId: formData?.studentId,
+        studentName: student?.name,
+        totalAmount: formData?.totalAmount,
+        numberOfInstallments: formData?.numberOfInstallments,
+        frequency: formData?.frequency,
+        startDate: new Date(formData?.startDate),
         installments,
         status: 'active',
-        description: formData.description || `План за ${formData.numberOfInstallments} вноски`,
-        notes: formData.notes,
+        description: formData?.description || `План за ${formData?.numberOfInstallments} вноски`,
+        notes: formData?.notes,
       } as Omit<PaymentPlan, 'id' | 'createdAt' | 'createdBy'>)
 
       onClose()
       resetForm()
     } catch (error) {
-      console.error('Error creating payment plan:', error)
+      console?.error('Error creating payment plan:', error)
     }
   }
 
@@ -131,16 +131,16 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
               Ученик <span className="text-red-500">*</span>
             </label>
             <select
-              value={formData.studentId}
-              onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+              value={formData?.studentId}
+              onChange={(e) => setFormData({ ...formData, studentId: e?.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
               required
               disabled={!!studentId}
             >
               <option value="">Избери ученик</option>
-              {students.map((student) => (
-                <option key={student.id} value={student.id}>
-                  {student.name} - {student.group}
+              {students?.map((student) => (
+                <option key={student?.id} value={student?.id}>
+                  {student?.name} - {student?.group}
                 </option>
               ))}
             </select>
@@ -154,13 +154,13 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
               </label>
               <input
                 type="number"
-                value={formData.totalAmount}
+                value={formData?.totalAmount}
                 onChange={(e) =>
-                  setFormData({ ...formData, totalAmount: parseFloat(e.target.value) || 0 })
+                  setFormData({ ...formData, totalAmount: parseFloat(e?.target.value) || 0 })
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                 min="0"
-                step="0.01"
+                step="0?.01"
                 required
               />
             </div>
@@ -171,9 +171,9 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
               </label>
               <input
                 type="number"
-                value={formData.numberOfInstallments}
+                value={formData?.numberOfInstallments}
                 onChange={(e) =>
-                  setFormData({ ...formData, numberOfInstallments: parseInt(e.target.value) || 1 })
+                  setFormData({ ...formData, numberOfInstallments: parseInt(e?.target.value) || 1 })
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                 min="1"
@@ -187,11 +187,11 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
                 Честота <span className="text-red-500">*</span>
               </label>
               <select
-                value={formData.frequency}
+                value={formData?.frequency}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    frequency: e.target.value as 'weekly' | 'monthly' | 'custom',
+                    frequency: e?.target.value as 'weekly' | 'monthly' | 'custom',
                   })
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
@@ -209,8 +209,8 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
               </label>
               <input
                 type="date"
-                value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                value={formData?.startDate}
+                onChange={(e) => setFormData({ ...formData, startDate: e?.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                 required
               />
@@ -221,8 +221,8 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
             <label className="block text-sm font-medium text-gray-700 mb-2">Описание</label>
             <input
               type="text"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              value={formData?.description}
+              onChange={(e) => setFormData({ ...formData, description: e?.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
               placeholder="План за заплащане на такси..."
             />
@@ -231,8 +231,8 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Бележки</label>
             <textarea
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              value={formData?.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e?.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
               rows={2}
               placeholder="Допълнителна информация..."
@@ -240,32 +240,32 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
           </div>
 
           {/* Installments Preview */}
-          {installments.length > 0 && (
+          {installments?.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Преглед на вноските ({installments.length})
+                Преглед на вноските ({installments?.length})
               </h3>
               <div className="space-y-2 max-h-60 overflow-y-auto">
-                {installments.map((inst) => (
+                {installments?.map((inst) => (
                   <div
-                    key={inst.installmentNumber}
+                    key={inst?.installmentNumber}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
-                        {inst.installmentNumber}
+                        {inst?.installmentNumber}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">
-                          Вноска #{inst.installmentNumber}
+                          Вноска #{inst?.installmentNumber}
                         </p>
                         <p className="text-sm text-gray-600">
                           <Cal className="w-3 h-3 inline mr-1" />
-                          {new Date(inst.dueDate).toLocaleDateString('bg-BG')}
+                          {new Date(inst?.dueDate).toLocaleDateString('bg-BG')}
                         </p>
                       </div>
                     </div>
-                    <p className="text-lg font-bold text-green-600">{inst.amount.toFixed(2)} лв</p>
+                    <p className="text-lg font-bold text-green-600">{inst?.amount.toFixed(2)} лв</p>
                   </div>
                 ))}
               </div>
@@ -283,10 +283,10 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
             </button>
             <button
               type="submit"
-              disabled={addPaymentPlan.isPending || installments.length === 0}
+              disabled={addPaymentPlan?.isPending || installments?.length === 0}
               className="flex-1 btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {addPaymentPlan.isPending ? 'Създаване...' : 'Създай план'}
+              {addPaymentPlan?.isPending ? 'Създаване...' : 'Създай план'}
             </button>
           </div>
         </form>

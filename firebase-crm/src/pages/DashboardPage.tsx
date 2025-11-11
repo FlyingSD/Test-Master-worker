@@ -52,7 +52,7 @@ export default function DashboardPage() {
   // 🔒 SECURITY: Filter data by role
   const myStudentIds = useMemo(() => {
     if (isParent && userData?.studentIds) {
-      return userData.studentIds
+      return userData?.studentIds
     }
     return []
   }, [isParent, userData?.studentIds])
@@ -60,39 +60,39 @@ export default function DashboardPage() {
   // Filter data based on role
   const visiblePayments = useMemo(() => {
     if (isAdmin || isTeacher) return payments
-    if (isParent) return payments.filter(p => myStudentIds.includes(p.studentId))
+    if (isParent) return payments?.filter(p => myStudentIds?.includes(p?.studentId))
     return []
   }, [isAdmin, isTeacher, isParent, payments, myStudentIds])
 
   const visibleHomework = useMemo(() => {
     if (isAdmin || isTeacher) return homework
-    if (isParent) return homework.filter(h => myStudentIds.includes(h.studentId))
+    if (isParent) return homework?.filter(h => myStudentIds?.includes(h?.studentId))
     return []
   }, [isAdmin, isTeacher, isParent, homework, myStudentIds])
 
   const visibleAttendance = useMemo(() => {
     if (isAdmin || isTeacher) return attendance
-    if (isParent) return attendance.filter(a => myStudentIds.includes(a.studentId))
+    if (isParent) return attendance?.filter(a => myStudentIds?.includes(a?.studentId))
     return []
   }, [isAdmin, isTeacher, isParent, attendance, myStudentIds])
 
   // Calculate stats (only for admins)
-  const activeStudents = students.filter((s) => s.status === 'active')
-  const totalRevenue = isAdmin ? payments.reduce((sum, p) => sum + p.amount, 0) : 0
-  const totalExpenses = isAdmin ? expenses.reduce((sum, e) => sum + e.amount, 0) : 0
+  const activeStudents = students?.filter((s) => s?.status === 'active')
+  const totalRevenue = isAdmin ? payments?.reduce((sum, p) => sum + p?.amount, 0) : 0
+  const totalExpenses = isAdmin ? expenses?.reduce((sum, e) => sum + e?.amount, 0) : 0
   const profit = totalRevenue - totalExpenses
 
   // Overdue payments - students with past due dates
-  const overduePayments = activeStudents.filter((s) => {
-    const dueDate = s.dueDate instanceof Date ? s.dueDate : s.dueDate.toDate()
+  const overduePayments = activeStudents?.filter((s) => {
+    const dueDate = s?.dueDate instanceof Date ? s?.dueDate : s?.dueDate.toDate()
     return isOverdue(dueDate)
   })
 
   // Upcoming payments - next 7 days
-  const upcomingPayments = activeStudents.filter((s) => {
-    const dueDate = s.dueDate instanceof Date ? s.dueDate : s.dueDate.toDate()
+  const upcomingPayments = activeStudents?.filter((s) => {
+    const dueDate = s?.dueDate instanceof Date ? s?.dueDate : s?.dueDate.toDate()
     const now = new Date()
-    const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+    const weekLater = new Date(now?.getTime() + 7 * 24 * 60 * 60 * 1000)
     return dueDate > now && dueDate <= weekLater
   })
 
@@ -102,14 +102,14 @@ export default function DashboardPage() {
     const activities: ActivityItem[] = []
 
     // Add payments (filtered by role)
-    visiblePayments.slice(0, 10).forEach(payment => {
-      const paymentDate = payment.date instanceof Date ? payment.date : payment.date?.toDate?.()
+    visiblePayments?.slice(0, 10).forEach(payment => {
+      const paymentDate = payment?.date instanceof Date ? payment?.date : payment?.date?.toDate?.()
       if (paymentDate) {
-        activities.push({
-          id: `payment-${payment.id}`,
+        activities?.push({
+          id: `payment-${payment?.id}`,
           type: 'payment',
-          title: `${payment.studentName} - Плащане`,
-          subtitle: `${formatCurrency(payment.amount)} • ${payment.method}`,
+          title: `${payment?.studentName} - Плащане`,
+          subtitle: `${formatCurrency(payment?.amount)} • ${payment?.method}`,
           timestamp: paymentDate,
           icon: CreditCard,
           color: 'text-green-600',
@@ -119,30 +119,30 @@ export default function DashboardPage() {
     })
 
     // Add homework (filtered by role)
-    visibleHomework.slice(0, 10).forEach(hw => {
-      const hwDate = hw.completedDate
-        ? (hw.completedDate instanceof Date ? hw.completedDate : hw.completedDate?.toDate?.())
-        : (hw.assignedDate instanceof Date ? hw.assignedDate : hw.assignedDate?.toDate?.())
+    visibleHomework?.slice(0, 10).forEach(hw => {
+      const hwDate = hw?.completedDate
+        ? (hw?.completedDate instanceof Date ? hw?.completedDate : hw?.completedDate?.toDate?.())
+        : (hw?.assignedDate instanceof Date ? hw?.assignedDate : hw?.assignedDate?.toDate?.())
 
       if (hwDate) {
-        activities.push({
-          id: `homework-${hw.id}`,
+        activities?.push({
+          id: `homework-${hw?.id}`,
           type: 'homework',
-          title: `${hw.studentName} - ${hw.title}`,
-          subtitle: hw.status === 'completed'
-            ? `Завършено${hw.grade ? ` • Оценка: ${hw.grade}` : ''}`
-            : `Зададено • Краен срок: ${formatDate(hw.dueDate)}`,
+          title: `${hw?.studentName} - ${hw?.title}`,
+          subtitle: hw?.status === 'completed'
+            ? `Завършено${hw?.grade ? ` • Оценка: ${hw?.grade}` : ''}`
+            : `Зададено • Краен срок: ${formatDate(hw?.dueDate)}`,
           timestamp: hwDate,
           icon: BookOpen,
-          color: hw.status === 'completed' ? 'text-blue-600' : 'text-orange-600',
-          bgColor: hw.status === 'completed' ? 'bg-blue-50' : 'bg-orange-50'
+          color: hw?.status === 'completed' ? 'text-blue-600' : 'text-orange-600',
+          bgColor: hw?.status === 'completed' ? 'bg-blue-50' : 'bg-orange-50'
         })
       }
     })
 
     // Add attendance (filtered by role)
-    visibleAttendance.slice(0, 10).forEach(att => {
-      const attDate = att.date instanceof Date ? att.date : att.date?.toDate?.()
+    visibleAttendance?.slice(0, 10).forEach(att => {
+      const attDate = att?.date instanceof Date ? att?.date : att?.date?.toDate?.()
       if (attDate) {
         const statusConfig = {
           present: { icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50', label: 'Присъствал' },
@@ -150,29 +150,29 @@ export default function DashboardPage() {
           late: { icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50', label: 'Закъснял' },
           excused: { icon: CheckCircle, color: 'text-blue-600', bgColor: 'bg-blue-50', label: 'Извинено' }
         }
-        const config = statusConfig[att.status]
+        const config = statusConfig[att?.status]
 
-        activities.push({
-          id: `attendance-${att.id}`,
+        activities?.push({
+          id: `attendance-${att?.id}`,
           type: 'attendance',
-          title: `${att.studentName} - Присъствие`,
-          subtitle: `${config.label}${att.notes ? ` • ${att.notes}` : ''}`,
+          title: `${att?.studentName} - Присъствие`,
+          subtitle: `${config?.label}${att?.notes ? ` • ${att?.notes}` : ''}`,
           timestamp: attDate,
-          icon: config.icon,
-          color: config.color,
-          bgColor: config.bgColor
+          icon: config?.icon,
+          color: config?.color,
+          bgColor: config?.bgColor
         })
       }
     })
 
     // Sort by timestamp descending
-    return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+    return activities?.sort((a, b) => b?.timestamp.getTime() - a?.timestamp.getTime())
   }, [visiblePayments, visibleHomework, visibleAttendance])
 
   // Filter activities
   const filteredActivities = useMemo(() => {
     if (activityFilter === 'all') return recentActivity
-    return recentActivity.filter(a => a.type === activityFilter)
+    return recentActivity?.filter(a => a?.type === activityFilter)
   }, [recentActivity, activityFilter])
 
   // Quick actions for admins/teachers
@@ -236,7 +236,7 @@ export default function DashboardPage() {
     },
     {
       name: 'Активни ученици',
-      value: activeStudents.length.toString(),
+      value: activeStudents?.length.toString(),
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -244,7 +244,7 @@ export default function DashboardPage() {
   ] : [
     {
       name: 'Активни ученици',
-      value: activeStudents.length.toString(),
+      value: activeStudents?.length.toString(),
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -267,16 +267,16 @@ export default function DashboardPage() {
             Бързи действия
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {quickActions.map((action) => (
+            {quickActions?.map((action) => (
               <button
-                key={action.label}
-                onClick={action.onClick}
-                className={`flex items-center gap-3 p-4 ${action.bgColor} ${action.hoverColor} rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-md group`}
+                key={action?.label}
+                onClick={action?.onClick}
+                className={`flex items-center gap-3 p-4 ${action?.bgColor} ${action?.hoverColor} rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-md group`}
               >
-                <div className={`p-2 bg-white rounded-lg ${action.color} group-hover:scale-110 transition-transform`}>
-                  <action.icon className="w-5 h-5" />
+                <div className={`p-2 bg-white rounded-lg ${action?.color} group-hover:scale-110 transition-transform`}>
+                  <action?.icon className="w-5 h-5" />
                 </div>
-                <span className="font-medium text-gray-900 text-sm">{action.label}</span>
+                <span className="font-medium text-gray-900 text-sm">{action?.label}</span>
               </button>
             ))}
           </div>
@@ -285,15 +285,15 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <div key={stat.name} className="card card-hover">
+        {stats?.map((stat) => (
+          <div key={stat?.name} className="card card-hover">
             <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-xl ${stat.bgColor}`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+              <div className={`p-3 rounded-xl ${stat?.bgColor}`}>
+                <stat?.icon className={`w-6 h-6 ${stat?.color}`} />
               </div>
               <div>
-                <p className="text-sm text-gray-600">{stat.name}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm text-gray-600">{stat?.name}</p>
+                <p className="text-2xl font-bold text-gray-900">{stat?.value}</p>
               </div>
             </div>
           </div>
@@ -301,7 +301,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts - Only admins see financial charts */}
-      {isAdmin && (payments.length > 0 || expenses.length > 0) && (
+      {isAdmin && (payments?.length > 0 || expenses?.length > 0) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <RevenueExpensesChart />
           <ExpensesByCategoryChart />
@@ -319,36 +319,36 @@ export default function DashboardPage() {
             <h2 className="text-lg font-semibold text-gray-900">Днешни уроци</h2>
           </div>
           <div className="space-y-3">
-            {todayEvents.length === 0 ? (
+            {todayEvents?.length === 0 ? (
               <div className="text-center py-6 text-gray-500">
                 <Calendar className="w-10 h-10 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Няма уроци за днес</p>
               </div>
             ) : (
-              todayEvents.slice(0, 3).map((event) => {
-                const startTime = event.startTime instanceof Date
-                  ? event.startTime
-                  : event.startTime.toDate()
+              todayEvents?.slice(0, 3).map((event) => {
+                const startTime = event?.startTime instanceof Date
+                  ? event?.startTime
+                  : event?.startTime.toDate()
                 return (
                   <div
-                    key={event.id}
+                    key={event?.id}
                     className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                   >
-                    <p className="font-medium text-gray-900">{event.title}</p>
+                    <p className="font-medium text-gray-900">{event?.title}</p>
                     <p className="text-sm text-gray-600">
-                      {startTime.toLocaleTimeString('bg-BG', {
+                      {startTime?.toLocaleTimeString('bg-BG', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}
-                      {event.group && ` • ${event.group}`}
+                      {event?.group && ` • ${event?.group}`}
                     </p>
                   </div>
                 )
               })
             )}
-            {todayEvents.length > 3 && (
+            {todayEvents?.length > 3 && (
               <Link to="/events" className="block text-center text-primary hover:text-primary-hover text-sm font-medium">
-                Виж всички ({todayEvents.length})
+                Виж всички ({todayEvents?.length})
               </Link>
             )}
           </div>
@@ -365,27 +365,27 @@ export default function DashboardPage() {
             </h2>
           </div>
           <div className="space-y-3">
-            {overduePayments.length === 0 ? (
+            {overduePayments?.length === 0 ? (
               <div className="text-center py-6 text-gray-500">
                 <CreditCard className="w-10 h-10 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Няма просрочени плащания</p>
               </div>
             ) : (
-              overduePayments.slice(0, 3).map((student) => (
+              overduePayments?.slice(0, 3).map((student) => (
                 <div
-                  key={student.id}
+                  key={student?.id}
                   className="p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                 >
-                  <p className="font-medium text-gray-900">{student.name}</p>
+                  <p className="font-medium text-gray-900">{student?.name}</p>
                   <p className="text-sm text-red-600">
-                    Падеж: {formatDate(student.dueDate)} • {formatCurrency(student.fee)}
+                    Падеж: {formatDate(student?.dueDate)} • {formatCurrency(student?.fee)}
                   </p>
                 </div>
               ))
             )}
-            {overduePayments.length > 3 && (
+            {overduePayments?.length > 3 && (
               <Link to="/students" className="block text-center text-red-600 hover:text-red-700 text-sm font-medium">
-                Виж всички ({overduePayments.length})
+                Виж всички ({overduePayments?.length})
               </Link>
             )}
           </div>
@@ -402,27 +402,27 @@ export default function DashboardPage() {
             </h2>
           </div>
           <div className="space-y-3">
-            {upcomingPayments.length === 0 ? (
+            {upcomingPayments?.length === 0 ? (
               <div className="text-center py-6 text-gray-500">
                 <Calendar className="w-10 h-10 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Няма предстоящи плащания</p>
               </div>
             ) : (
-              upcomingPayments.slice(0, 3).map((student) => (
+              upcomingPayments?.slice(0, 3).map((student) => (
                 <div
-                  key={student.id}
+                  key={student?.id}
                   className="p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors"
                 >
-                  <p className="font-medium text-gray-900">{student.name}</p>
+                  <p className="font-medium text-gray-900">{student?.name}</p>
                   <p className="text-sm text-yellow-700">
-                    Падеж: {formatDate(student.dueDate)} • {formatCurrency(student.fee)}
+                    Падеж: {formatDate(student?.dueDate)} • {formatCurrency(student?.fee)}
                   </p>
                 </div>
               ))
             )}
-            {upcomingPayments.length > 3 && (
+            {upcomingPayments?.length > 3 && (
               <Link to="/students" className="block text-center text-yellow-600 hover:text-yellow-700 text-sm font-medium">
-                Виж всички ({upcomingPayments.length})
+                Виж всички ({upcomingPayments?.length})
               </Link>
             )}
           </div>
@@ -445,7 +445,7 @@ export default function DashboardPage() {
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setActivityFilter('all')}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1?.5 rounded-lg text-sm font-medium transition-colors ${
                 activityFilter === 'all'
                   ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -455,7 +455,7 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => setActivityFilter('payment')}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1?.5 rounded-lg text-sm font-medium transition-colors ${
                 activityFilter === 'payment'
                   ? 'bg-green-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -465,7 +465,7 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => setActivityFilter('homework')}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1?.5 rounded-lg text-sm font-medium transition-colors ${
                 activityFilter === 'homework'
                   ? 'bg-purple-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -475,7 +475,7 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => setActivityFilter('attendance')}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1?.5 rounded-lg text-sm font-medium transition-colors ${
                 activityFilter === 'attendance'
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -487,7 +487,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="space-y-3">
-          {filteredActivities.length === 0 ? (
+          {filteredActivities?.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p>Няма активност за показване</p>
@@ -497,29 +497,29 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {filteredActivities.slice(0, 10).map((activity) => {
-                const Icon = activity.icon
+              {filteredActivities?.slice(0, 10).map((activity) => {
+                const Icon = activity?.icon
                 return (
                   <div
-                    key={activity.id}
-                    className={`flex items-center gap-4 p-3 ${activity.bgColor} rounded-lg hover:shadow-sm transition-shadow`}
+                    key={activity?.id}
+                    className={`flex items-center gap-4 p-3 ${activity?.bgColor} rounded-lg hover:shadow-sm transition-shadow`}
                   >
-                    <div className={`p-2 bg-white rounded-lg ${activity.color}`}>
+                    <div className={`p-2 bg-white rounded-lg ${activity?.color}`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{activity.title}</p>
-                      <p className="text-sm text-gray-600 truncate">{activity.subtitle}</p>
+                      <p className="font-medium text-gray-900 truncate">{activity?.title}</p>
+                      <p className="text-sm text-gray-600 truncate">{activity?.subtitle}</p>
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p className="text-xs text-gray-500">
-                        {activity.timestamp.toLocaleDateString('bg-BG', {
+                        {activity?.timestamp.toLocaleDateString('bg-BG', {
                           day: 'numeric',
                           month: 'short'
                         })}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {activity.timestamp.toLocaleTimeString('bg-BG', {
+                        {activity?.timestamp.toLocaleTimeString('bg-BG', {
                           hour: '2-digit',
                           minute: '2-digit'
                         })}
@@ -528,10 +528,10 @@ export default function DashboardPage() {
                   </div>
                 )
               })}
-              {recentActivity.length > 10 && (
+              {recentActivity?.length > 10 && (
                 <div className="text-center pt-3">
                   <p className="text-sm text-gray-500">
-                    Показани {Math.min(10, filteredActivities.length)} от {recentActivity.length} активности
+                    Показани {Math?.min(10, filteredActivities?.length)} от {recentActivity?.length} активности
                   </p>
                 </div>
               )}
@@ -541,7 +541,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Getting Started Guide */}
-      {students.length === 0 && payments.length === 0 && (
+      {students?.length === 0 && payments?.length === 0 && (
         <div className="card bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
             🚀 Първи стъпки

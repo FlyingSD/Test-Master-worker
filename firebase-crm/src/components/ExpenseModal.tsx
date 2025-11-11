@@ -25,29 +25,29 @@ export default function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
   useEffect(() => {
     if (expense) {
       setFormData({
-        category: expense.category,
-        amount: expense.amount,
-        description: expense.description,
-        date: expense.date instanceof Timestamp
-          ? expense.date.toDate()
-          : expense.date,
-        receiptNumber: expense.receiptNumber || '',
+        category: expense?.category,
+        amount: expense?.amount,
+        description: expense?.description,
+        date: expense?.date instanceof Timestamp
+          ? expense?.date.toDate()
+          : expense?.date,
+        receiptNumber: expense?.receiptNumber || '',
       })
     }
   }, [expense])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     if (expense) {
       // Update existing expense
-      await updateExpense.mutateAsync({
-        id: expense.id,
+      await updateExpense?.mutateAsync({
+        id: expense?.id,
         data: formData,
       })
     } else {
       // Add new expense
-      await addExpense.mutateAsync(formData)
+      await addExpense?.mutateAsync(formData)
     }
 
     onClose()
@@ -79,11 +79,11 @@ export default function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
             <select
               required
               className="input"
-              value={formData.category}
+              value={formData?.category}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  category: e.target.value as typeof formData.category,
+                  category: e?.target.value as typeof formData?.category,
                 })
               }
             >
@@ -109,14 +109,14 @@ export default function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
                 type="number"
                 required
                 min="0"
-                step="0.01"
+                step="0?.01"
                 className="input pl-10"
-                placeholder="0.00"
-                value={formData.amount || ''}
+                placeholder="0?.00"
+                value={formData?.amount || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    amount: Number(e.target.value),
+                    amount: Number(e?.target.value),
                   })
                 }
               />
@@ -132,9 +132,9 @@ export default function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
               required
               className="input min-h-[100px] resize-y"
               placeholder="Подробно описание на разхода..."
-              value={formData.description}
+              value={formData?.description}
               onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData({ ...formData, description: e?.target.value })
               }
             />
           </div>
@@ -151,12 +151,12 @@ export default function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
                 required
                 className="input pl-10"
                 value={
-                  formData.date instanceof Date
-                    ? formData.date.toISOString().split('T')[0]
+                  formData?.date instanceof Date
+                    ? formData?.date?.toISOString().split('T')[0]
                     : ''
                 }
                 onChange={(e) =>
-                  setFormData({ ...formData, date: new Date(e.target.value) })
+                  setFormData({ ...formData, date: new Date(e?.target.value) })
                 }
               />
             </div>
@@ -169,9 +169,9 @@ export default function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
               type="text"
               className="input"
               placeholder="INV-001, БЛ-123, и т.н."
-              value={formData.receiptNumber}
+              value={formData?.receiptNumber}
               onChange={(e) =>
-                setFormData({ ...formData, receiptNumber: e.target.value })
+                setFormData({ ...formData, receiptNumber: e?.target.value })
               }
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -190,10 +190,10 @@ export default function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
             </button>
             <button
               type="submit"
-              disabled={addExpense.isPending || updateExpense.isPending}
+              disabled={addExpense?.isPending || updateExpense?.isPending}
               className="btn btn-primary flex-1"
             >
-              {addExpense.isPending || updateExpense.isPending ? (
+              {addExpense?.isPending || updateExpense?.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Запазване...

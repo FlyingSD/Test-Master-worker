@@ -38,33 +38,33 @@ export default function ErrorAlert({ error, onClose, className = '' }: ErrorAler
     },
   }
 
-  const Icon = icons[error.type]
-  const color = colors[error.type]
+  const Icon = icons[error?.type]
+  const color = colors[error?.type]
 
   return (
     <div
-      className={`${color.bg} ${color.border} border rounded-lg p-4 ${className} animate-slide-in`}
+      className={`${color?.bg} ${color?.border} border rounded-lg p-4 ${className} animate-slide-in`}
       role="alert"
     >
       <div className="flex gap-3">
         {/* Icon */}
         <div className="flex-shrink-0">
-          <Icon className={`w-5 h-5 ${color.icon}`} />
+          <Icon className={`w-5 h-5 ${color?.icon}`} />
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Title */}
-          <h3 className={`font-semibold ${color.title} mb-1`}>{error.title}</h3>
+          <h3 className={`font-semibold ${color?.title} mb-1`}>{error?.title}</h3>
 
           {/* Message */}
-          <p className={`text-sm ${color.text} mb-2`}>{error.message}</p>
+          <p className={`text-sm ${color?.text} mb-2`}>{error?.message}</p>
 
           {/* Solution */}
           <div className="flex items-start gap-2 mt-2">
-            <CheckCircle className={`w-4 h-4 ${color.icon} flex-shrink-0 mt-0.5`} />
-            <p className={`text-sm font-medium ${color.text}`}>
-              <span className="font-semibold">Решение:</span> {error.solution}
+            <CheckCircle className={`w-4 h-4 ${color?.icon} flex-shrink-0 mt-0?.5`} />
+            <p className={`text-sm font-medium ${color?.text}`}>
+              <span className="font-semibold">Решение:</span> {error?.solution}
             </p>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default function ErrorAlert({ error, onClose, className = '' }: ErrorAler
         {onClose && (
           <button
             onClick={onClose}
-            className={`flex-shrink-0 p-1 rounded hover:bg-white/50 transition-colors ${color.text}`}
+            className={`flex-shrink-0 p-1 rounded hover:bg-white/50 transition-colors ${color?.text}`}
             aria-label="Затвори"
           >
             <X className="w-4 h-4" />

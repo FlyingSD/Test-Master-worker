@@ -32,23 +32,23 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
   useEffect(() => {
     if (item) {
       setFormData({
-        sku: item.sku,
-        name: item.name,
-        category: item.category,
-        description: item.description || '',
-        purchasePrice: item.purchasePrice,
-        salePrice: item.salePrice,
-        currentStock: item.currentStock,
-        minimumStock: item.minimumStock,
-        location: item.location || '',
-        supplier: item.supplier || '',
-        isActive: item.isActive,
+        sku: item?.sku,
+        name: item?.name,
+        category: item?.category,
+        description: item?.description || '',
+        purchasePrice: item?.purchasePrice,
+        salePrice: item?.salePrice,
+        currentStock: item?.currentStock,
+        minimumStock: item?.minimumStock,
+        location: item?.location || '',
+        supplier: item?.supplier || '',
+        isActive: item?.isActive,
       })
     }
   }, [item])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     if (!user) {
       return
@@ -57,22 +57,22 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
     if (item) {
       // Update existing item (don't update currentStock here, use stock transactions)
       const { currentStock, ...updateData } = formData
-      await updateItem.mutateAsync({
-        id: item.id,
+      await updateItem?.mutateAsync({
+        id: item?.id,
         data: updateData,
       })
     } else {
       // Add new item
-      await addItem.mutateAsync(formData)
+      await addItem?.mutateAsync(formData)
     }
 
     onClose()
   }
 
   const calculateProfit = () => {
-    const profit = formData.salePrice - formData.purchasePrice
-    const profitPercent = formData.purchasePrice > 0
-      ? ((profit / formData.purchasePrice) * 100).toFixed(1)
+    const profit = formData?.salePrice - formData?.purchasePrice
+    const profitPercent = formData?.purchasePrice > 0
+      ? ((profit / formData?.purchasePrice) * 100).toFixed(1)
       : '0'
     return { profit, profitPercent }
   }
@@ -108,9 +108,9 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 required
                 className="input"
                 placeholder="Абакус 13 реда"
-                value={formData.name}
+                value={formData?.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData({ ...formData, name: e?.target.value })
                 }
               />
             </div>
@@ -124,9 +124,9 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 required
                 className="input"
                 placeholder="ABA-001"
-                value={formData.sku}
+                value={formData?.sku}
                 onChange={(e) =>
-                  setFormData({ ...formData, sku: e.target.value })
+                  setFormData({ ...formData, sku: e?.target.value })
                 }
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -143,11 +143,11 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
             <select
               required
               className="input"
-              value={formData.category}
+              value={formData?.category}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  category: e.target.value as typeof formData.category,
+                  category: e?.target.value as typeof formData?.category,
                 })
               }
             >
@@ -165,9 +165,9 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
             <textarea
               className="input min-h-[80px] resize-y"
               placeholder="Подробно описание на артикула..."
-              value={formData.description}
+              value={formData?.description}
               onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData({ ...formData, description: e?.target.value })
               }
             />
           </div>
@@ -182,14 +182,14 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 type="number"
                 required
                 min="0"
-                step="0.01"
+                step="0?.01"
                 className="input"
-                placeholder="0.00"
-                value={formData.purchasePrice || ''}
+                placeholder="0?.00"
+                value={formData?.purchasePrice || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    purchasePrice: Number(e.target.value),
+                    purchasePrice: Number(e?.target.value),
                   })
                 }
               />
@@ -203,14 +203,14 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 type="number"
                 required
                 min="0"
-                step="0.01"
+                step="0?.01"
                 className="input"
-                placeholder="0.00"
-                value={formData.salePrice || ''}
+                placeholder="0?.00"
+                value={formData?.salePrice || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    salePrice: Number(e.target.value),
+                    salePrice: Number(e?.target.value),
                   })
                 }
               />
@@ -218,11 +218,11 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
           </div>
 
           {/* Profit Calculation */}
-          {formData.purchasePrice > 0 && formData.salePrice > 0 && (
+          {formData?.purchasePrice > 0 && formData?.salePrice > 0 && (
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
               <p className="text-sm text-gray-700">
                 <span className="font-semibold">Печалба:</span>{' '}
-                {profit.toFixed(2)} BGN ({profitPercent}%)
+                {profit?.toFixed(2)} BGN ({profitPercent}%)
               </p>
             </div>
           )}
@@ -239,11 +239,11 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 min="0"
                 className="input"
                 placeholder="0"
-                value={formData.currentStock || ''}
+                value={formData?.currentStock || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    currentStock: Number(e.target.value),
+                    currentStock: Number(e?.target.value),
                   })
                 }
                 disabled={!!item} // Disable if editing
@@ -265,11 +265,11 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 min="0"
                 className="input"
                 placeholder="5"
-                value={formData.minimumStock || ''}
+                value={formData?.minimumStock || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    minimumStock: Number(e.target.value),
+                    minimumStock: Number(e?.target.value),
                   })
                 }
               />
@@ -287,9 +287,9 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 type="text"
                 className="input"
                 placeholder="Рафт А-3"
-                value={formData.location}
+                value={formData?.location}
                 onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
+                  setFormData({ ...formData, location: e?.target.value })
                 }
               />
             </div>
@@ -300,9 +300,9 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 type="text"
                 className="input"
                 placeholder="Име на доставчик"
-                value={formData.supplier}
+                value={formData?.supplier}
                 onChange={(e) =>
-                  setFormData({ ...formData, supplier: e.target.value })
+                  setFormData({ ...formData, supplier: e?.target.value })
                 }
               />
             </div>
@@ -313,9 +313,9 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={formData.isActive}
+                checked={formData?.isActive}
                 onChange={(e) =>
-                  setFormData({ ...formData, isActive: e.target.checked })
+                  setFormData({ ...formData, isActive: e?.target.checked })
                 }
                 className="w-4 h-4 text-primary rounded"
               />
@@ -337,10 +337,10 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
             </button>
             <button
               type="submit"
-              disabled={addItem.isPending || updateItem.isPending}
+              disabled={addItem?.isPending || updateItem?.isPending}
               className="btn btn-primary flex-1"
             >
-              {addItem.isPending || updateItem.isPending ? (
+              {addItem?.isPending || updateItem?.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Запазване...

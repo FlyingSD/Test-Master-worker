@@ -43,11 +43,11 @@ export default function ErrorDashboardPage() {
 
   const filteredIssues = filter === 'all'
     ? issues
-    : issues.filter((issue) => issue.type === filter)
+    : issues?.filter((issue) => issue?.type === filter)
 
-  const errorCount = issues.filter((i) => i.type === 'error').length
-  const warningCount = issues.filter((i) => i.type === 'warning').length
-  const infoCount = issues.filter((i) => i.type === 'info').length
+  const errorCount = issues?.filter((i) => i?.type === 'error').length
+  const warningCount = issues?.filter((i) => i?.type === 'warning').length
+  const infoCount = issues?.filter((i) => i?.type === 'info').length
 
   const getIcon = (type: 'error' | 'warning' | 'info') => {
     switch (type) {
@@ -122,7 +122,7 @@ export default function ErrorDashboardPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Общо проблеми</p>
-              <p className="text-2xl font-bold text-gray-900">{issues.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{issues?.length}</p>
             </div>
           </div>
         </div>
@@ -171,7 +171,7 @@ export default function ErrorDashboardPage() {
             onClick={() => setFilter('all')}
             className={`btn ${filter === 'all' ? 'btn-primary' : 'btn-ghost'}`}
           >
-            Всички ({issues.length})
+            Всички ({issues?.length})
           </button>
           <button
             onClick={() => setFilter('error')}
@@ -195,7 +195,7 @@ export default function ErrorDashboardPage() {
       </div>
 
       {/* Issues List */}
-      {filteredIssues.length === 0 ? (
+      {filteredIssues?.length === 0 ? (
         <div className="card text-center py-12">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -209,33 +209,33 @@ export default function ErrorDashboardPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredIssues.map((issue) => {
-            const colors = getColorClasses(issue.type)
+          {filteredIssues?.map((issue) => {
+            const colors = getColorClasses(issue?.type)
             return (
               <div
-                key={issue.id}
-                className={`${colors.bg} ${colors.border} border rounded-lg p-4 animate-slide-up`}
+                key={issue?.id}
+                className={`${colors?.bg} ${colors?.border} border rounded-lg p-4 animate-slide-up`}
               >
                 <div className="flex gap-3">
                   {/* Icon */}
-                  <div className="flex-shrink-0 pt-0.5">{getIcon(issue.type)}</div>
+                  <div className="flex-shrink-0 pt-0?.5">{getIcon(issue?.type)}</div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     {/* Title */}
-                    <h3 className={`font-semibold ${colors.title} mb-1`}>{issue.title}</h3>
+                    <h3 className={`font-semibold ${colors?.title} mb-1`}>{issue?.title}</h3>
 
                     {/* Description */}
-                    <p className={`text-sm ${colors.text} mb-2`}>{issue.description}</p>
+                    <p className={`text-sm ${colors?.text} mb-2`}>{issue?.description}</p>
 
                     {/* Solution */}
                     <div className="flex items-start gap-2 mt-2 p-3 bg-white/50 rounded-lg">
-                      <CheckCircle className={`w-4 h-4 flex-shrink-0 mt-0.5 ${issue.type === 'error' ? 'text-red-600' : issue.type === 'warning' ? 'text-yellow-600' : 'text-blue-600'}`} />
+                      <CheckCircle className={`w-4 h-4 flex-shrink-0 mt-0?.5 ${issue?.type === 'error' ? 'text-red-600' : issue?.type === 'warning' ? 'text-yellow-600' : 'text-blue-600'}`} />
                       <div>
-                        <p className={`text-sm font-semibold ${colors.text} mb-1`}>
+                        <p className={`text-sm font-semibold ${colors?.text} mb-1`}>
                           Решение:
                         </p>
-                        <p className={`text-sm ${colors.text}`}>{issue.solution}</p>
+                        <p className={`text-sm ${colors?.text}`}>{issue?.solution}</p>
                       </div>
                     </div>
                   </div>

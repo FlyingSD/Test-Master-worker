@@ -24,7 +24,7 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
-const groupsCollection = collection(db, COLLECTIONS.GROUPS)
+const groupsCollection = collection(db, COLLECTIONS?.GROUPS)
 
 /**
  * Hook to get all groups with real-time updates
@@ -47,9 +47,9 @@ const groupsCollection = collection(db, COLLECTIONS.GROUPS)
  *   const { groups, loading, error } = useGroups()
  *
  *   if (loading) return <Spinner />
- *   if (error) return <Error message={error.message} />
+ *   if (error) return <Error message={error?.message} />
  *
- *   return groups.map(group => <GroupCard key={group.id} {...group} />)
+ *   return groups?.map(group => <GroupCard key={group?.id} {...group} />)
  * }
  * ```
  */
@@ -80,7 +80,7 @@ export function useGroups() {
     if (isTeacher) {
       q = query(
         groupsCollection,
-        where('teacherId', '==', userData.uid),
+        where('teacherId', '==', userData?.uid),
         orderBy('createdAt', 'desc')
       )
     }
@@ -90,10 +90,10 @@ export function useGroups() {
       q,
       (snapshot) => {
         const groupsData: Group[] = []
-        snapshot.forEach((doc) => {
-          groupsData.push({
-            id: doc.id,
-            ...doc.data(),
+        snapshot?.forEach((doc) => {
+          groupsData?.push({
+            id: doc?.id,
+            ...doc?.data(),
           } as Group)
         })
 
@@ -102,10 +102,10 @@ export function useGroups() {
         setError(null)
       },
       (err) => {
-        console.error('Error fetching groups:', err)
+        console?.error('Error fetching groups:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error('Грешка при зареждане на групи')
+        toast?.error('Грешка при зареждане на групи')
       }
     )
 
@@ -131,24 +131,24 @@ export function useGroups() {
  *   if (isLoading) return <Spinner />
  *   if (!group) return <NotFound />
  *
- *   return <Profile name={group.name} teacher={group.teacherName} />
+ *   return <Profile name={group?.name} teacher={group?.teacherName} />
  * }
  * ```
  */
 export function useGroup(groupId: string) {
   return useQuery({
-    queryKey: QUERY_KEYS.group(groupId),
+    queryKey: QUERY_KEYS?.group(groupId),
     queryFn: async () => {
-      const docRef = doc(db, COLLECTIONS.GROUPS, groupId)
+      const docRef = doc(db, COLLECTIONS?.GROUPS, groupId)
       const docSnap = await getDoc(docRef)
 
-      if (!docSnap.exists()) {
+      if (!docSnap?.exists()) {
         throw new Error('Групата не е намерена')
       }
 
       return {
-        id: docSnap.id,
-        ...docSnap.data(),
+        id: docSnap?.id,
+        ...docSnap?.data(),
       } as Group
     },
     enabled: !!groupId,
@@ -170,7 +170,7 @@ export function useGroup(groupId: string) {
  * function TeacherGroups({ teacherId }: { teacherId: string }) {
  *   const { groups, loading } = useGroupsByTeacher(teacherId)
  *
- *   return loading ? <Spinner /> : groups.map(g => <GroupCard {...g} />)
+ *   return loading ? <Spinner /> : groups?.map(g => <GroupCard {...g} />)
  * }
  * ```
  */
@@ -193,10 +193,10 @@ export function useGroupsByTeacher(teacherId: string) {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const groupsData: Group[] = []
-      snapshot.forEach((doc) => {
-        groupsData.push({
-          id: doc.id,
-          ...doc.data(),
+      snapshot?.forEach((doc) => {
+        groupsData?.push({
+          id: doc?.id,
+          ...doc?.data(),
         } as Group)
       })
       setGroups(groupsData)
@@ -220,7 +220,7 @@ export function useGroupsByTeacher(teacherId: string) {
  *   - isPending: True while request is in progress
  *   - isSuccess/isError: Status flags
  *
- * @security Populates createdBy field with current user.uid for ownership tracking
+ * @security Populates createdBy field with current user?.uid for ownership tracking
  *
  * @example
  * ```tsx
@@ -228,11 +228,11 @@ export function useGroupsByTeacher(teacherId: string) {
  *   const addGroup = useAddGroup()
  *
  *   const handleSubmit = async (data: Omit<Group, 'id' | 'createdAt' | 'createdBy'>) => {
- *     await addGroup.mutateAsync(data)
+ *     await addGroup?.mutateAsync(data)
  *     onClose()
  *   }
  *
- *   return <Form onSubmit={handleSubmit} loading={addGroup.isPending} />
+ *   return <Form onSubmit={handleSubmit} loading={addGroup?.isPending} />
  * }
  * ```
  */
@@ -243,26 +243,26 @@ export function useAddGroup() {
   return useMutation({
     mutationFn: async (groupData: Omit<Group, 'id' | 'createdAt' | 'createdBy' | 'updatedAt'>) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       const data = {
         ...groupData,
-        createdBy: user.uid, // 🔒 SECURITY: Track who created this group
+        createdBy: user?.uid, // 🔒 SECURITY: Track who created this group
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       }
 
       const docRef = await addDoc(groupsCollection, data)
-      return docRef.id
+      return docRef?.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.groups })
-      toast.success('Групата е добавена успешно')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.groups })
+      toast?.success('Групата е добавена успешно')
     },
     onError: (error: Error) => {
-      console.error('Error adding group:', error)
-      toast.error('Грешка при добавяне на група: ' + error.message)
+      console?.error('Error adding group:', error)
+      toast?.error('Грешка при добавяне на група: ' + error?.message)
     },
   })
 }
@@ -288,10 +288,10 @@ export function useAddGroup() {
  *   const updateGroup = useUpdateGroup()
  *
  *   const handleSubmit = async (data: Partial<Group>) => {
- *     await updateGroup.mutateAsync({ id: group.id, data })
+ *     await updateGroup?.mutateAsync({ id: group?.id, data })
  *   }
  *
- *   return <Form onSubmit={handleSubmit} disabled={updateGroup.isPending} />
+ *   return <Form onSubmit={handleSubmit} disabled={updateGroup?.isPending} />
  * }
  * ```
  */
@@ -302,45 +302,45 @@ export function useUpdateGroup() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<Group> }) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Fetch the group to validate access
-      const docRef = doc(db, COLLECTIONS.GROUPS, id)
+      const docRef = doc(db, COLLECTIONS?.GROUPS, id)
       const docSnap = await getDoc(docRef)
 
-      if (!docSnap.exists()) {
+      if (!docSnap?.exists()) {
         throw new Error('Групата не е намерена')
       }
 
-      const existingGroup = docSnap.data() as Group
+      const existingGroup = docSnap?.data() as Group
 
       // 🔒 SECURITY: Teachers can only edit THEIR groups
-      if (isTeacher && existingGroup.teacherId !== userData.uid) {
+      if (isTeacher && existingGroup?.teacherId !== userData?.uid) {
         throw new Error('Нямате права да редактирате тази група')
       }
 
       // 🔒 SECURITY: Teachers CANNOT change price or teacherId
       const updateData: any = { ...data }
       if (isTeacher) {
-        delete updateData.price
-        delete updateData.priceEUR
-        delete updateData.teacherId
-        delete updateData.teacherName
+        delete updateData?.price
+        delete updateData?.priceEUR
+        delete updateData?.teacherId
+        delete updateData?.teacherName
       }
 
-      updateData.updatedAt = serverTimestamp()
+      updateData?.updatedAt = serverTimestamp()
 
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.groups })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.group(variables.id) })
-      toast.success('Групата е актуализирана успешно')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.groups })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.group(variables?.id) })
+      toast?.success('Групата е актуализирана успешно')
     },
     onError: (error: Error) => {
-      console.error('Error updating group:', error)
-      toast.error('Грешка при актуализиране на група: ' + error.message)
+      console?.error('Error updating group:', error)
+      toast?.error('Грешка при актуализиране на група: ' + error?.message)
     },
   })
 }
@@ -366,11 +366,11 @@ export function useUpdateGroup() {
  *
  *   const handleDelete = () => {
  *     if (confirm('Сигурни ли сте?')) {
- *       deleteGroup.mutate(groupId)
+ *       deleteGroup?.mutate(groupId)
  *     }
  *   }
  *
- *   return <Button onClick={handleDelete} disabled={deleteGroup.isPending} />
+ *   return <Button onClick={handleDelete} disabled={deleteGroup?.isPending} />
  * }
  * ```
  */
@@ -381,7 +381,7 @@ export function useDeleteGroup() {
   return useMutation({
     mutationFn: async (groupId: string) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Only admins can delete groups
@@ -390,16 +390,16 @@ export function useDeleteGroup() {
       }
 
       // Delete group
-      const docRef = doc(db, COLLECTIONS.GROUPS, groupId)
+      const docRef = doc(db, COLLECTIONS?.GROUPS, groupId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.groups })
-      toast.success('Групата е изтрита успешно')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.groups })
+      toast?.success('Групата е изтрита успешно')
     },
     onError: (error: Error) => {
-      console.error('Error deleting group:', error)
-      toast.error('Грешка при изтриване на група: ' + error.message)
+      console?.error('Error deleting group:', error)
+      toast?.error('Грешка при изтриване на група: ' + error?.message)
     },
   })
 }
@@ -423,5 +423,5 @@ export function useDeleteGroup() {
  */
 export function useActiveGroupsCount() {
   const { groups } = useGroups()
-  return groups.filter((g) => g.status === 'active').length
+  return groups?.filter((g) => g?.status === 'active').length
 }

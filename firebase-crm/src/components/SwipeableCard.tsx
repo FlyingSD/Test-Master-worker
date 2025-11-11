@@ -73,18 +73,18 @@ export default function SwipeableCard({
     }
   }, [])
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = (e: React?.TouchEvent) => {
     if (!enableSwipe) return
-    startX.current = e.touches[0].clientX
-    currentX.current = startX.current
+    startX?.current = e?.touches[0].clientX
+    currentX?.current = startX?.current
     setIsDragging(true)
   }
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = (e: React?.TouchEvent) => {
     if (!enableSwipe || !isDragging) return
 
-    currentX.current = e.touches[0].clientX
-    const diff = currentX.current - startX.current
+    currentX?.current = e?.touches[0].clientX
+    const diff = currentX?.current - startX?.current
 
     // Only allow swipe if actions are available in that direction
     if (diff > 0 && !hasRightAction) return
@@ -92,7 +92,7 @@ export default function SwipeableCard({
 
     // Limit swipe distance
     const maxSwipe = 150
-    const limitedDiff = Math.max(-maxSwipe, Math.min(maxSwipe, diff))
+    const limitedDiff = Math?.max(-maxSwipe, Math?.min(maxSwipe, diff))
 
     setOffsetX(limitedDiff)
 
@@ -110,7 +110,7 @@ export default function SwipeableCard({
     if (!enableSwipe || !isDragging) return
 
     setIsDragging(false)
-    const diff = currentX.current - startX.current
+    const diff = currentX?.current - startX?.current
 
     // Trigger action if threshold met
     if (diff > actionThreshold && hasRightAction) {
@@ -123,7 +123,7 @@ export default function SwipeableCard({
     } else if (diff < -actionThreshold && hasLeftAction) {
       triggerHaptic('warning')
       onDelete?.()
-    } else if (Math.abs(diff) > swipeThreshold / 2) {
+    } else if (Math?.abs(diff) > swipeThreshold / 2) {
       // Give feedback but reset
       triggerHaptic('light')
     }
@@ -136,18 +136,18 @@ export default function SwipeableCard({
   // Handle click outside to reset
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (containerRef?.current && !containerRef?.current.contains(e?.target as Node)) {
         setOffsetX(0)
         setActionRevealed(null)
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('touchstart', handleClickOutside)
+    document?.addEventListener('mousedown', handleClickOutside)
+    document?.addEventListener('touchstart', handleClickOutside)
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('touchstart', handleClickOutside)
+      document?.removeEventListener('mousedown', handleClickOutside)
+      document?.removeEventListener('touchstart', handleClickOutside)
     }
   }, [])
 

@@ -20,8 +20,8 @@ import { createSwipeHandlers, type SwipeHandlers, type SwipeConfig } from '@/uti
  * @example
  * function MyComponent() {
  *   const swipeHandlers = useSwipe({
- *     onSwipeLeft: () => console.log('Swiped left!'),
- *     onSwipeRight: () => console.log('Swiped right!'),
+ *     onSwipeLeft: () => console?.log('Swiped left!'),
+ *     onSwipeRight: () => console?.log('Swiped right!'),
  *   })
  *
  *   return <div {...swipeHandlers}>Swipe me!</div>
@@ -32,24 +32,24 @@ export function useSwipe(handlers: SwipeHandlers, config?: SwipeConfig) {
   const configRef = useRef(config)
 
   // Update refs when handlers change
-  handlersRef.current = handlers
-  configRef.current = config
+  handlersRef?.current = handlers
+  configRef?.current = config
 
   // Create stable event handlers
   const swipeHandlers = useCallback(() => {
-    return createSwipeHandlers(handlersRef.current, configRef.current)
+    return createSwipeHandlers(handlersRef?.current, configRef?.current)
   }, [])()
 
   // Convert to React synthetic events
   return {
-    onTouchStart: useCallback((e: React.TouchEvent) => {
-      swipeHandlers.onTouchStart(e.nativeEvent)
+    onTouchStart: useCallback((e: React?.TouchEvent) => {
+      swipeHandlers?.onTouchStart(e?.nativeEvent)
     }, [swipeHandlers]),
-    onTouchMove: useCallback((e: React.TouchEvent) => {
-      swipeHandlers.onTouchMove(e.nativeEvent)
+    onTouchMove: useCallback((e: React?.TouchEvent) => {
+      swipeHandlers?.onTouchMove(e?.nativeEvent)
     }, [swipeHandlers]),
     onTouchEnd: useCallback(() => {
-      swipeHandlers.onTouchEnd()
+      swipeHandlers?.onTouchEnd()
     }, [swipeHandlers]),
   }
 }

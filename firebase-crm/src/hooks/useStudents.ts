@@ -28,7 +28,7 @@ import { toTimestamp } from '@/utils/date'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
-const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
+const studentsCollection = collection(db, COLLECTIONS?.STUDENTS)
 
 /**
  * Hook to get all students with real-time updates
@@ -44,7 +44,7 @@ const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
  * @security
  * - **Admins**: See ALL students
  * - **Teachers**: See ONLY students in their assigned groups (client-side filter)
- * - **Parents**: See ONLY their children via userData.studentIds (server-side filter)
+ * - **Parents**: See ONLY their children via userData?.studentIds (server-side filter)
  *   - Implements batching for 10+ children (Firestore 'in' query limit)
  *   - Prevents data leakage even if parent knows other student IDs
  *
@@ -54,9 +54,9 @@ const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
  *   const { students, loading, error } = useStudents()
  *
  *   if (loading) return <Spinner />
- *   if (error) return <Error message={error.message} />
+ *   if (error) return <Error message={error?.message} />
  *
- *   return students.map(student => <StudentCard key={student.id} {...student} />)
+ *   return students?.map(student => <StudentCard key={student?.id} {...student} />)
  * }
  * ```
  */
@@ -73,10 +73,10 @@ export function useStudents() {
       return
     }
 
-    // 🔒 SECURITY: Parents can ONLY see THEIR children (based on userData.studentIds)
+    // 🔒 SECURITY: Parents can ONLY see THEIR children (based on userData?.studentIds)
     // This prevents parents from accessing other students even if they know the IDs
     if (isParent) {
-      if (!userData.studentIds || userData.studentIds.length === 0) {
+      if (!userData?.studentIds || userData?.studentIds.length === 0) {
         setStudents([])
         setLoading(false)
         return
@@ -84,17 +84,17 @@ export function useStudents() {
 
       setLoading(true)
 
-      // 🔒 SECURITY: Query students WHERE id IN userData.studentIds
+      // 🔒 SECURITY: Query students WHERE id IN userData?.studentIds
       // Firestore 'in' query limit is 10, so we need to batch if more studentIds exist
       const studentIdBatches: string[][] = []
-      for (let i = 0; i < userData.studentIds.length; i += 10) {
-        studentIdBatches.push(userData.studentIds.slice(i, i + 10))
+      for (let i = 0; i < userData?.studentIds.length; i += 10) {
+        studentIdBatches?.push(userData?.studentIds.slice(i, i + 10))
       }
 
       const unsubscribes: (() => void)[] = []
       const allStudents: Student[] = []
 
-      studentIdBatches.forEach((batch) => {
+      studentIdBatches?.forEach((batch) => {
         const q = query(
           studentsCollection,
           where(documentId(), 'in', batch)
@@ -104,14 +104,14 @@ export function useStudents() {
           q,
           (snapshot) => {
             // Collect students from this batch
-            snapshot.forEach((doc) => {
-              const student = { id: doc.id, ...doc.data() } as Student
+            snapshot?.forEach((doc) => {
+              const student = { id: doc?.id, ...doc?.data() } as Student
               // Check if already in array (avoid duplicates across batches)
-              const existingIndex = allStudents.findIndex(s => s.id === student.id)
+              const existingIndex = allStudents?.findIndex(s => s?.id === student?.id)
               if (existingIndex >= 0) {
                 allStudents[existingIndex] = student
               } else {
-                allStudents.push(student)
+                allStudents?.push(student)
               }
             })
 
@@ -120,18 +120,18 @@ export function useStudents() {
             setError(null)
           },
           (err) => {
-            console.error('Error fetching students for parent:', err)
+            console?.error('Error fetching students for parent:', err)
             setError(err as Error)
             setLoading(false)
-            toast.error(ERROR_MESSAGES.LOAD_STUDENTS_ERROR)
+            toast?.error(ERROR_MESSAGES?.LOAD_STUDENTS_ERROR)
           }
         )
 
-        unsubscribes.push(unsubscribe)
+        unsubscribes?.push(unsubscribe)
       })
 
       return () => {
-        unsubscribes.forEach(unsub => unsub())
+        unsubscribes?.forEach(unsub => unsub())
       }
     }
 
@@ -144,17 +144,17 @@ export function useStudents() {
       q,
       (snapshot) => {
         let studentsData: Student[] = []
-        snapshot.forEach((doc) => {
-          studentsData.push({
-            id: doc.id,
-            ...doc.data(),
+        snapshot?.forEach((doc) => {
+          studentsData?.push({
+            id: doc?.id,
+            ...doc?.data(),
           } as Student)
         })
 
         // 🔒 SECURITY: Filter for teachers by assignedGroups
-        if (isTeacher && userData.assignedGroups && userData.assignedGroups.length > 0) {
-          studentsData = studentsData.filter(s =>
-            userData.assignedGroups?.includes(s.group)
+        if (isTeacher && userData?.assignedGroups && userData?.assignedGroups.length > 0) {
+          studentsData = studentsData?.filter(s =>
+            userData?.assignedGroups?.includes(s?.group)
           )
         }
         // Admins see all students (no filtering)
@@ -164,10 +164,10 @@ export function useStudents() {
         setError(null)
       },
       (err) => {
-        console.error('Error fetching students:', err)
+        console?.error('Error fetching students:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error(ERROR_MESSAGES.LOAD_STUDENTS_ERROR)
+        toast?.error(ERROR_MESSAGES?.LOAD_STUDENTS_ERROR)
       }
     )
 
@@ -193,24 +193,24 @@ export function useStudents() {
  *   if (isLoading) return <Spinner />
  *   if (!student) return <NotFound />
  *
- *   return <Profile name={student.name} group={student.group} />
+ *   return <Profile name={student?.name} group={student?.group} />
  * }
  * ```
  */
 export function useStudent(studentId: string) {
   return useQuery({
-    queryKey: QUERY_KEYS.student(studentId),
+    queryKey: QUERY_KEYS?.student(studentId),
     queryFn: async () => {
       const docRef = doc(db, 'students', studentId)
       const docSnap = await getDoc(docRef)
 
-      if (!docSnap.exists()) {
+      if (!docSnap?.exists()) {
         throw new Error('Student not found')
       }
 
       return {
-        id: docSnap.id,
-        ...docSnap.data(),
+        id: docSnap?.id,
+        ...docSnap?.data(),
       } as Student
     },
     enabled: !!studentId,
@@ -232,7 +232,7 @@ export function useStudent(studentId: string) {
  * function ParentStudents({ parentId }: { parentId: string }) {
  *   const { students, loading } = useStudentsByParent(parentId)
  *
- *   return loading ? <Spinner /> : students.map(s => <StudentCard {...s} />)
+ *   return loading ? <Spinner /> : students?.map(s => <StudentCard {...s} />)
  * }
  * ```
  */
@@ -255,10 +255,10 @@ export function useStudentsByParent(parentId: string) {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const studentsData: Student[] = []
-      snapshot.forEach((doc) => {
-        studentsData.push({
-          id: doc.id,
-          ...doc.data(),
+      snapshot?.forEach((doc) => {
+        studentsData?.push({
+          id: doc?.id,
+          ...doc?.data(),
         } as Student)
       })
       setStudents(studentsData)
@@ -282,7 +282,7 @@ export function useStudentsByParent(parentId: string) {
  *   - isPending: True while request is in progress
  *   - isSuccess/isError: Status flags
  *
- * @security Populates createdBy field with current user.uid for ownership tracking
+ * @security Populates createdBy field with current user?.uid for ownership tracking
  *
  * @example
  * ```tsx
@@ -290,11 +290,11 @@ export function useStudentsByParent(parentId: string) {
  *   const addStudent = useAddStudent()
  *
  *   const handleSubmit = async (data: StudentFormValues) => {
- *     await addStudent.mutateAsync(data)
+ *     await addStudent?.mutateAsync(data)
  *     onClose()
  *   }
  *
- *   return <Form onSubmit={handleSubmit} loading={addStudent.isPending} />
+ *   return <Form onSubmit={handleSubmit} loading={addStudent?.isPending} />
  * }
  * ```
  */
@@ -305,28 +305,28 @@ export function useAddStudent() {
   return useMutation({
     mutationFn: async (studentData: StudentFormValues) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // Convert dueDate to Timestamp if it's a Date
       const data = {
         ...studentData,
-        dueDate: toTimestamp(studentData.dueDate),
-        createdBy: user.uid, // 🔒 SECURITY: Track who created this student
+        dueDate: toTimestamp(studentData?.dueDate),
+        createdBy: user?.uid, // 🔒 SECURITY: Track who created this student
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       }
 
       const docRef = await addDoc(studentsCollection, data)
-      return docRef.id
+      return docRef?.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.students })
-      toast.success(SUCCESS_MESSAGES.STUDENT_ADDED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.students })
+      toast?.success(SUCCESS_MESSAGES?.STUDENT_ADDED)
     },
     onError: (error: Error) => {
-      console.error('Error adding student:', error)
-      toast.error(ERROR_MESSAGES.ADD_STUDENT_ERROR + ': ' + error.message)
+      console?.error('Error adding student:', error)
+      toast?.error(ERROR_MESSAGES?.ADD_STUDENT_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -353,10 +353,10 @@ export function useAddStudent() {
  *   const updateStudent = useUpdateStudent()
  *
  *   const handleSubmit = async (data: Partial<StudentFormValues>) => {
- *     await updateStudent.mutateAsync({ id: student.id, data })
+ *     await updateStudent?.mutateAsync({ id: student?.id, data })
  *   }
  *
- *   return <Form onSubmit={handleSubmit} disabled={updateStudent.isPending} />
+ *   return <Form onSubmit={handleSubmit} disabled={updateStudent?.isPending} />
  * }
  * ```
  */
@@ -367,37 +367,37 @@ export function useUpdateStudent() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<StudentFormValues> }) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Validate group access using centralized utility
-      await validateDocumentGroupAccess(COLLECTIONS.STUDENTS, id, userData, ERROR_MESSAGES.STUDENT_NOT_FOUND)
+      await validateDocumentGroupAccess(COLLECTIONS?.STUDENTS, id, userData, ERROR_MESSAGES?.STUDENT_NOT_FOUND)
 
       // Convert dueDate to Timestamp if it's a Date
       const updateData: any = {
         ...data,
         updatedAt: serverTimestamp(),
       }
-      if (updateData.dueDate) {
-        updateData.dueDate = toTimestamp(updateData.dueDate)
+      if (updateData?.dueDate) {
+        updateData?.dueDate = toTimestamp(updateData?.dueDate)
       }
 
-      const docRef = doc(db, COLLECTIONS.STUDENTS, id)
+      const docRef = doc(db, COLLECTIONS?.STUDENTS, id)
       await updateDoc(docRef, updateData)
 
       // 🎯 SSOT: Sync denormalized data if name changed
-      if (data.name) {
-        await syncAllStudentData(id, data.name)
+      if (data?.name) {
+        await syncAllStudentData(id, data?.name)
       }
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.students })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.student(variables.id) })
-      toast.success(SUCCESS_MESSAGES.STUDENT_UPDATED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.students })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.student(variables?.id) })
+      toast?.success(SUCCESS_MESSAGES?.STUDENT_UPDATED)
     },
     onError: (error: Error) => {
-      console.error('Error updating student:', error)
-      toast.error(ERROR_MESSAGES.UPDATE_STUDENT_ERROR + ': ' + error.message)
+      console?.error('Error updating student:', error)
+      toast?.error(ERROR_MESSAGES?.UPDATE_STUDENT_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -423,11 +423,11 @@ export function useUpdateStudent() {
  *
  *   const handleDelete = () => {
  *     if (confirm('Are you sure?')) {
- *       deleteStudent.mutate(studentId)
+ *       deleteStudent?.mutate(studentId)
  *     }
  *   }
  *
- *   return <Button onClick={handleDelete} disabled={deleteStudent.isPending} />
+ *   return <Button onClick={handleDelete} disabled={deleteStudent?.isPending} />
  * }
  * ```
  */
@@ -438,23 +438,23 @@ export function useDeleteStudent() {
   return useMutation({
     mutationFn: async (studentId: string) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Validate ownership using centralized utility
-      await validateDocumentOwnership(COLLECTIONS.STUDENTS, studentId, userData, ERROR_MESSAGES.STUDENT_NOT_FOUND)
+      await validateDocumentOwnership(COLLECTIONS?.STUDENTS, studentId, userData, ERROR_MESSAGES?.STUDENT_NOT_FOUND)
 
       // Delete student
-      const docRef = doc(db, COLLECTIONS.STUDENTS, studentId)
+      const docRef = doc(db, COLLECTIONS?.STUDENTS, studentId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.students })
-      toast.success(SUCCESS_MESSAGES.STUDENT_DELETED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.students })
+      toast?.success(SUCCESS_MESSAGES?.STUDENT_DELETED)
     },
     onError: (error: Error) => {
-      console.error('Error deleting student:', error)
-      toast.error(ERROR_MESSAGES.DELETE_STUDENT_ERROR + ': ' + error.message)
+      console?.error('Error deleting student:', error)
+      toast?.error(ERROR_MESSAGES?.DELETE_STUDENT_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -478,7 +478,7 @@ export function useDeleteStudent() {
  */
 export function useActiveStudentsCount() {
   const { students } = useStudents()
-  return students.filter((s) => s.status === 'active').length
+  return students?.filter((s) => s?.status === 'active').length
 }
 
 /**
@@ -499,7 +499,7 @@ export function useActiveStudentsCount() {
  *   return (
  *     <>
  *       <SearchInput value={query} onChange={setQuery} />
- *       {loading ? <Spinner /> : students.map(s => <StudentCard {...s} />)}
+ *       {loading ? <Spinner /> : students?.map(s => <StudentCard {...s} />)}
  *     </>
  *   )
  * }
@@ -508,8 +508,8 @@ export function useActiveStudentsCount() {
 export function useSearchStudents(searchTerm: string) {
   const { students, loading } = useStudents()
 
-  const filteredStudents = students.filter((student) =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStudents = students?.filter((student) =>
+    student?.name.toLowerCase().includes(searchTerm?.toLowerCase())
   )
 
   return { students: filteredStudents, loading }
@@ -523,9 +523,9 @@ export function useSearchStudents(searchTerm: string) {
  *
  * @returns {UseMutationResult} React Query mutation object
  *
- * @security Each student record is stamped with current user.uid as createdBy
+ * @security Each student record is stamped with current user?.uid as createdBy
  *
- * @performance Uses Promise.all for parallel writes to Firestore
+ * @performance Uses Promise?.all for parallel writes to Firestore
  *
  * @example
  * ```tsx
@@ -533,8 +533,8 @@ export function useSearchStudents(searchTerm: string) {
  *   const bulkAdd = useBulkAddStudents()
  *
  *   const handleImport = async (csvData: Array<Omit<Student, 'id' | 'createdAt' | 'createdBy'>>) => {
- *     await bulkAdd.mutateAsync(csvData)
- *     toast.success(`Imported ${csvData.length} students`)
+ *     await bulkAdd?.mutateAsync(csvData)
+ *     toast?.success(`Imported ${csvData?.length} students`)
  *   }
  *
  *   return <CSVUploader onParse={handleImport} />
@@ -548,28 +548,28 @@ export function useBulkAddStudents() {
   return useMutation({
     mutationFn: async (students: Array<Omit<Student, 'id' | 'createdAt' | 'createdBy'>>) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
-      const promises = students.map((studentData) => {
+      const promises = students?.map((studentData) => {
         const data = {
           ...studentData,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
-          createdBy: user.uid, // 🔒 SECURITY: Track who imported these students
+          createdBy: user?.uid, // 🔒 SECURITY: Track who imported these students
         }
         return addDoc(studentsCollection, data)
       })
 
-      await Promise.all(promises)
+      await Promise?.all(promises)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.students })
-      toast.success(SUCCESS_MESSAGES.STUDENTS_IMPORTED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.students })
+      toast?.success(SUCCESS_MESSAGES?.STUDENTS_IMPORTED)
     },
     onError: (error: Error) => {
-      console.error('Error bulk adding students:', error)
-      toast.error(ERROR_MESSAGES.IMPORT_STUDENTS_ERROR + ': ' + error.message)
+      console?.error('Error bulk adding students:', error)
+      toast?.error(ERROR_MESSAGES?.IMPORT_STUDENTS_ERROR + ': ' + error?.message)
     },
   })
 }

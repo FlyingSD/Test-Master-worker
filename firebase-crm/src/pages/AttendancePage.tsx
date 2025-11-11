@@ -31,25 +31,25 @@ export default function AttendancePage() {
   }
 
   // Get unique groups
-  const groups = Array.from(new Set(students.map((s) => s.group).filter(Boolean)))
+  const groups = Array?.from(new Set(students?.map((s) => s?.group).filter(Boolean)))
 
   // Filter students by group and active status
-  const filteredStudents = students.filter(
+  const filteredStudents = students?.filter(
     (student) =>
-      student.status === 'active' &&
-      (selectedGroup === 'all' || student.group === selectedGroup)
+      student?.status === 'active' &&
+      (selectedGroup === 'all' || student?.group === selectedGroup)
   )
 
   // Initialize attendance state
   const [attendanceRecords, setAttendanceRecords] = useState<StudentAttendance[]>(
-    filteredStudents.map((student) => {
+    filteredStudents?.map((student) => {
       // Check if attendance already exists for this student on this date
-      const existing = existingAttendance.find((a) => a.studentId === student.id)
+      const existing = existingAttendance?.find((a) => a?.studentId === student?.id)
       return {
-        studentId: student.id,
-        studentName: student.name,
-        status: existing ? existing.status : null,
-        notes: existing ? existing.notes || '' : '',
+        studentId: student?.id,
+        studentName: student?.name,
+        status: existing ? existing?.status : null,
+        notes: existing ? existing?.notes || '' : '',
       }
     })
   )
@@ -57,13 +57,13 @@ export default function AttendancePage() {
   // Update attendance records when students or date changes
   useState(() => {
     setAttendanceRecords(
-      filteredStudents.map((student) => {
-        const existing = existingAttendance.find((a) => a.studentId === student.id)
+      filteredStudents?.map((student) => {
+        const existing = existingAttendance?.find((a) => a?.studentId === student?.id)
         return {
-          studentId: student.id,
-          studentName: student.name,
-          status: existing ? existing.status : null,
-          notes: existing ? existing.notes || '' : '',
+          studentId: student?.id,
+          studentName: student?.name,
+          status: existing ? existing?.status : null,
+          notes: existing ? existing?.notes || '' : '',
         }
       })
     )
@@ -71,44 +71,44 @@ export default function AttendancePage() {
 
   const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
     setAttendanceRecords((prev) =>
-      prev.map((record) =>
-        record.studentId === studentId ? { ...record, status } : record
+      prev?.map((record) =>
+        record?.studentId === studentId ? { ...record, status } : record
       )
     )
   }
 
   const handleNotesChange = (studentId: string, notes: string) => {
     setAttendanceRecords((prev) =>
-      prev.map((record) =>
-        record.studentId === studentId ? { ...record, notes } : record
+      prev?.map((record) =>
+        record?.studentId === studentId ? { ...record, notes } : record
       )
     )
   }
 
   const handleMarkAll = (status: AttendanceStatus) => {
     setAttendanceRecords((prev) =>
-      prev.map((record) => ({ ...record, status }))
+      prev?.map((record) => ({ ...record, status }))
     )
   }
 
   const handleSave = async () => {
     const recordsToSave = attendanceRecords
-      .filter((record) => record.status !== null)
+      .filter((record) => record?.status !== null)
       .map((record) => ({
-        studentId: record.studentId,
-        studentName: record.studentName,
+        studentId: record?.studentId,
+        studentName: record?.studentName,
         eventId: '', // Can be linked to specific event if needed
         date: selectedDate,
-        status: record.status!,
-        notes: record.notes,
+        status: record?.status!,
+        notes: record?.notes,
       }))
 
-    if (recordsToSave.length === 0) {
+    if (recordsToSave?.length === 0) {
       alert('Моля отбележете поне един ученик')
       return
     }
 
-    await bulkAddAttendance.mutateAsync(recordsToSave)
+    await bulkAddAttendance?.mutateAsync(recordsToSave)
   }
 
   const getStatusIcon = (status: AttendanceStatus | null) => {
@@ -141,12 +141,12 @@ export default function AttendancePage() {
 
   // Calculate stats
   const stats = {
-    total: attendanceRecords.length,
-    present: attendanceRecords.filter((r) => r.status === 'present').length,
-    absent: attendanceRecords.filter((r) => r.status === 'absent').length,
-    late: attendanceRecords.filter((r) => r.status === 'late').length,
-    excused: attendanceRecords.filter((r) => r.status === 'excused').length,
-    unmarked: attendanceRecords.filter((r) => r.status === null).length,
+    total: attendanceRecords?.length,
+    present: attendanceRecords?.filter((r) => r?.status === 'present').length,
+    absent: attendanceRecords?.filter((r) => r?.status === 'absent').length,
+    late: attendanceRecords?.filter((r) => r?.status === 'late').length,
+    excused: attendanceRecords?.filter((r) => r?.status === 'excused').length,
+    unmarked: attendanceRecords?.filter((r) => r?.status === null).length,
   }
 
   return (
@@ -161,17 +161,17 @@ export default function AttendancePage() {
           <button
             onClick={() => exportAttendanceToExcel(existingAttendance)}
             className="btn btn-ghost"
-            disabled={existingAttendance.length === 0}
+            disabled={existingAttendance?.length === 0}
           >
             <FileDown className="w-5 h-5" />
             Експорт Excel
           </button>
           <button
             onClick={handleSave}
-            disabled={bulkAddAttendance.isPending || stats.unmarked === stats.total}
+            disabled={bulkAddAttendance?.isPending || stats?.unmarked === stats?.total}
             className="btn btn-primary"
           >
-            {bulkAddAttendance.isPending ? (
+            {bulkAddAttendance?.isPending ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 Запазване...
@@ -190,27 +190,27 @@ export default function AttendancePage() {
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         <div className="card">
           <p className="text-sm text-gray-600">Всички</p>
-          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+          <p className="text-2xl font-bold text-gray-900">{stats?.total}</p>
         </div>
         <div className="card bg-green-50">
           <p className="text-sm text-green-600">Присъстват</p>
-          <p className="text-2xl font-bold text-green-700">{stats.present}</p>
+          <p className="text-2xl font-bold text-green-700">{stats?.present}</p>
         </div>
         <div className="card bg-red-50">
           <p className="text-sm text-red-600">Отсъстват</p>
-          <p className="text-2xl font-bold text-red-700">{stats.absent}</p>
+          <p className="text-2xl font-bold text-red-700">{stats?.absent}</p>
         </div>
         <div className="card bg-orange-50">
           <p className="text-sm text-orange-600">Закъснели</p>
-          <p className="text-2xl font-bold text-orange-700">{stats.late}</p>
+          <p className="text-2xl font-bold text-orange-700">{stats?.late}</p>
         </div>
         <div className="card bg-blue-50">
           <p className="text-sm text-blue-600">Оправдани</p>
-          <p className="text-2xl font-bold text-blue-700">{stats.excused}</p>
+          <p className="text-2xl font-bold text-blue-700">{stats?.excused}</p>
         </div>
         <div className="card bg-gray-50">
           <p className="text-sm text-gray-600">Неотбелязани</p>
-          <p className="text-2xl font-bold text-gray-700">{stats.unmarked}</p>
+          <p className="text-2xl font-bold text-gray-700">{stats?.unmarked}</p>
         </div>
       </div>
 
@@ -225,8 +225,8 @@ export default function AttendancePage() {
               <input
                 type="date"
                 className="input pl-10"
-                value={selectedDate.toISOString().split('T')[0]}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                value={selectedDate?.toISOString().split('T')[0]}
+                onChange={(e) => setSelectedDate(new Date(e?.target.value))}
               />
             </div>
           </div>
@@ -237,10 +237,10 @@ export default function AttendancePage() {
             <select
               className="input"
               value={selectedGroup}
-              onChange={(e) => setSelectedGroup(e.target.value)}
+              onChange={(e) => setSelectedGroup(e?.target.value)}
             >
               <option value="all">Всички групи</option>
-              {groups.map((group) => (
+              {groups?.map((group) => (
                 <option key={group} value={group}>
                   {group}
                 </option>
@@ -273,7 +273,7 @@ export default function AttendancePage() {
 
       {/* Attendance List */}
       <div className="card">
-        {filteredStudents.length === 0 ? (
+        {filteredStudents?.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -285,31 +285,31 @@ export default function AttendancePage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {attendanceRecords.map((record) => (
+            {attendanceRecords?.map((record) => (
               <div
-                key={record.studentId}
+                key={record?.studentId}
                 className="flex flex-col md:flex-row md:items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-primary transition-colors"
               >
                 {/* Student Name */}
                 <div className="flex items-center gap-3 flex-1">
                   <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
-                    {record.studentName.charAt(0)}
+                    {record?.studentName.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{record.studentName}</p>
+                    <p className="font-medium text-gray-900">{record?.studentName}</p>
                     <p className="text-sm text-gray-500">
-                      {students.find((s) => s.id === record.studentId)?.group}
+                      {students?.find((s) => s?.id === record?.studentId)?.group}
                     </p>
                   </div>
-                  {getStatusIcon(record.status)}
+                  {getStatusIcon(record?.status)}
                 </div>
 
                 {/* Status Buttons */}
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleStatusChange(record.studentId, 'present')}
+                    onClick={() => handleStatusChange(record?.studentId, 'present')}
                     className={`btn ${
-                      record.status === 'present'
+                      record?.status === 'present'
                         ? 'bg-green-500 text-white'
                         : 'btn-ghost'
                     }`}
@@ -319,9 +319,9 @@ export default function AttendancePage() {
                     <span className="hidden md:inline">Присъства</span>
                   </button>
                   <button
-                    onClick={() => handleStatusChange(record.studentId, 'absent')}
+                    onClick={() => handleStatusChange(record?.studentId, 'absent')}
                     className={`btn ${
-                      record.status === 'absent' ? 'bg-red-500 text-white' : 'btn-ghost'
+                      record?.status === 'absent' ? 'bg-red-500 text-white' : 'btn-ghost'
                     }`}
                     title="Отсъства"
                   >
@@ -329,9 +329,9 @@ export default function AttendancePage() {
                     <span className="hidden md:inline">Отсъства</span>
                   </button>
                   <button
-                    onClick={() => handleStatusChange(record.studentId, 'late')}
+                    onClick={() => handleStatusChange(record?.studentId, 'late')}
                     className={`btn ${
-                      record.status === 'late'
+                      record?.status === 'late'
                         ? 'bg-orange-500 text-white'
                         : 'btn-ghost'
                     }`}
@@ -341,9 +341,9 @@ export default function AttendancePage() {
                     <span className="hidden md:inline">Закъснял</span>
                   </button>
                   <button
-                    onClick={() => handleStatusChange(record.studentId, 'excused')}
+                    onClick={() => handleStatusChange(record?.studentId, 'excused')}
                     className={`btn ${
-                      record.status === 'excused'
+                      record?.status === 'excused'
                         ? 'bg-blue-500 text-white'
                         : 'btn-ghost'
                     }`}
@@ -360,8 +360,8 @@ export default function AttendancePage() {
                     type="text"
                     className="input text-sm"
                     placeholder="Бележки..."
-                    value={record.notes}
-                    onChange={(e) => handleNotesChange(record.studentId, e.target.value)}
+                    value={record?.notes}
+                    onChange={(e) => handleNotesChange(record?.studentId, e?.target.value)}
                   />
                 </div>
               </div>
@@ -374,10 +374,10 @@ export default function AttendancePage() {
       <div className="block md:hidden">
         <button
           onClick={handleSave}
-          disabled={bulkAddAttendance.isPending || stats.unmarked === stats.total}
+          disabled={bulkAddAttendance?.isPending || stats?.unmarked === stats?.total}
           className="btn btn-primary w-full"
         >
-          {bulkAddAttendance.isPending ? (
+          {bulkAddAttendance?.isPending ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               Запазване...
@@ -385,7 +385,7 @@ export default function AttendancePage() {
           ) : (
             <>
               <Save className="w-5 h-5" />
-              Запази присъствия ({stats.total - stats.unmarked} от {stats.total})
+              Запази присъствия ({stats?.total - stats?.unmarked} от {stats?.total})
             </>
           )}
         </button>

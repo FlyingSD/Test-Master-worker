@@ -26,7 +26,7 @@ import toast from 'react-hot-toast'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
-const parentsCollection = collection(db, COLLECTIONS.PARENTS)
+const parentsCollection = collection(db, COLLECTIONS?.PARENTS)
 
 /**
  * Hook to get all parents with real-time updates
@@ -45,9 +45,9 @@ const parentsCollection = collection(db, COLLECTIONS.PARENTS)
  *   const { parents, loading, error } = useParents()
  *
  *   if (loading) return <Spinner />
- *   if (error) return <Error message={error.message} />
+ *   if (error) return <Error message={error?.message} />
  *
- *   return parents.map(parent => <ParentCard key={parent.id} {...parent} />)
+ *   return parents?.map(parent => <ParentCard key={parent?.id} {...parent} />)
  * }
  * ```
  */
@@ -66,10 +66,10 @@ export function useParents() {
       q,
       (snapshot) => {
         const parentsData: Parent[] = []
-        snapshot.forEach((doc) => {
-          parentsData.push({
-            id: doc.id,
-            ...doc.data(),
+        snapshot?.forEach((doc) => {
+          parentsData?.push({
+            id: doc?.id,
+            ...doc?.data(),
           } as Parent)
         })
         setParents(parentsData)
@@ -77,10 +77,10 @@ export function useParents() {
         setError(null)
       },
       (err) => {
-        console.error('Error fetching parents:', err)
+        console?.error('Error fetching parents:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error(ERROR_MESSAGES.LOAD_PARENTS_ERROR)
+        toast?.error(ERROR_MESSAGES?.LOAD_PARENTS_ERROR)
       }
     )
 
@@ -117,18 +117,18 @@ export function useParents() {
  */
 export function useParent(parentId: string) {
   return useQuery({
-    queryKey: QUERY_KEYS.parent(parentId),
+    queryKey: QUERY_KEYS?.parent(parentId),
     queryFn: async () => {
-      const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
+      const docRef = doc(db, COLLECTIONS?.PARENTS, parentId)
       const docSnap = await getDoc(docRef)
 
-      if (!docSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
+      if (!docSnap?.exists()) {
+        throw new Error(ERROR_MESSAGES?.PARENT_NOT_FOUND)
       }
 
       return {
-        id: docSnap.id,
-        ...docSnap.data(),
+        id: docSnap?.id,
+        ...docSnap?.data(),
       } as Parent
     },
     enabled: !!parentId,
@@ -176,11 +176,11 @@ export function useParentByStudentId(studentId: string) {
     )
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        const doc = snapshot.docs[0]
+      if (!snapshot?.empty) {
+        const doc = snapshot?.docs[0]
         setParent({
-          id: doc.id,
-          ...doc.data(),
+          id: doc?.id,
+          ...doc?.data(),
         } as Parent)
       } else {
         setParent(null)
@@ -205,7 +205,7 @@ export function useParentByStudentId(studentId: string) {
  *   - isPending: True while request is in progress
  *   - isSuccess/isError: Status flags
  *
- * @security Populates createdBy field with current user.uid for ownership tracking
+ * @security Populates createdBy field with current user?.uid for ownership tracking
  *
  * @example
  * ```tsx
@@ -213,12 +213,12 @@ export function useParentByStudentId(studentId: string) {
  *   const addParent = useAddParent()
  *
  *   const handleSubmit = async (data: ParentFormValues) => {
- *     const parentId = await addParent.mutateAsync(data)
- *     toast.success('Parent added!')
+ *     const parentId = await addParent?.mutateAsync(data)
+ *     toast?.success('Parent added!')
  *     navigate(`/parents/${parentId}`)
  *   }
  *
- *   return <Form onSubmit={handleSubmit} loading={addParent.isPending} />
+ *   return <Form onSubmit={handleSubmit} loading={addParent?.isPending} />
  * }
  * ```
  */
@@ -229,28 +229,28 @@ export function useAddParent() {
   return useMutation({
     mutationFn: async (parentData: ParentFormValues) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       const data = {
         ...parentData,
         studentIds: [], // Initialize empty, will be added when creating students
         videoUrls: [], // Initialize empty videos array
-        createdBy: user.uid,
+        createdBy: user?.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       }
 
       const docRef = await addDoc(parentsCollection, data)
-      return docRef.id
+      return docRef?.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
-      toast.success(SUCCESS_MESSAGES.PARENT_ADDED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parents })
+      toast?.success(SUCCESS_MESSAGES?.PARENT_ADDED)
     },
     onError: (error: Error) => {
-      console.error('Error adding parent:', error)
-      toast.error(ERROR_MESSAGES.ADD_PARENT_ERROR)
+      console?.error('Error adding parent:', error)
+      toast?.error(ERROR_MESSAGES?.ADD_PARENT_ERROR)
     },
   })
 }
@@ -262,8 +262,8 @@ export function useAddParent() {
  * Automatically updates updatedAt timestamp.
  *
  * @param {object} params - Update parameters
- * @param {string} params.id - The parent ID to update
- * @param {Partial<ParentFormValues>} params.data - Partial parent data to update
+ * @param {string} params?.id - The parent ID to update
+ * @param {Partial<ParentFormValues>} params?.data - Partial parent data to update
  *
  * @returns {UseMutationResult} React Query mutation object for parent update
  *
@@ -278,7 +278,7 @@ export function useAddParent() {
  *   const updateParent = useUpdateParent()
  *
  *   const handleSubmit = async (data: Partial<ParentFormValues>) => {
- *     await updateParent.mutateAsync({ id: parent.id, data })
+ *     await updateParent?.mutateAsync({ id: parent?.id, data })
  *   }
  *
  *   return <Form initialValues={parent} onSubmit={handleSubmit} />
@@ -296,17 +296,17 @@ export function useUpdateParent() {
       // - Teachers can only update parents THEY created
       // - Parents cannot update other parents
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       await validateDocumentOwnership(
-        COLLECTIONS.PARENTS,
+        COLLECTIONS?.PARENTS,
         id,
         userData,
-        ERROR_MESSAGES.PARENT_NOT_FOUND
+        ERROR_MESSAGES?.PARENT_NOT_FOUND
       )
 
-      const docRef = doc(db, COLLECTIONS.PARENTS, id)
+      const docRef = doc(db, COLLECTIONS?.PARENTS, id)
 
       const updateData = {
         ...data,
@@ -316,13 +316,13 @@ export function useUpdateParent() {
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.id) })
-      toast.success(SUCCESS_MESSAGES.PARENT_UPDATED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parents })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parent(variables?.id) })
+      toast?.success(SUCCESS_MESSAGES?.PARENT_UPDATED)
     },
     onError: (error: Error) => {
-      console.error('Error updating parent:', error)
-      toast.error(ERROR_MESSAGES.UPDATE_PARENT_ERROR)
+      console?.error('Error updating parent:', error)
+      toast?.error(ERROR_MESSAGES?.UPDATE_PARENT_ERROR)
     },
   })
 }
@@ -351,7 +351,7 @@ export function useUpdateParent() {
  *
  *   const handleDelete = async () => {
  *     if (confirm('Delete this parent and all their videos?')) {
- *       await deleteParent.mutateAsync(parent.id)
+ *       await deleteParent?.mutateAsync(parent?.id)
  *     }
  *   }
  *
@@ -370,40 +370,40 @@ export function useDeleteParent() {
       // - Teachers can only delete parents THEY created
       // - Parents cannot delete other parents
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       const parentData = await validateDocumentOwnership(
-        COLLECTIONS.PARENTS,
+        COLLECTIONS?.PARENTS,
         parentId,
         userData,
-        ERROR_MESSAGES.PARENT_NOT_FOUND
+        ERROR_MESSAGES?.PARENT_NOT_FOUND
       )
 
-      const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
+      const docRef = doc(db, COLLECTIONS?.PARENTS, parentId)
 
       // Delete all videos from Firebase Storage
-      if (parentData.videoUrls && parentData.videoUrls.length > 0) {
-        const deletePromises = parentData.videoUrls.map(async (videoUrl) => {
+      if (parentData?.videoUrls && parentData?.videoUrls.length > 0) {
+        const deletePromises = parentData?.videoUrls.map(async (videoUrl) => {
           try {
             const videoRef = ref(storage, videoUrl)
             await deleteObject(videoRef)
           } catch (error) {
-            console.error('Error deleting video:', error)
+            console?.error('Error deleting video:', error)
           }
         })
-        await Promise.all(deletePromises)
+        await Promise?.all(deletePromises)
       }
 
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
-      toast.success(SUCCESS_MESSAGES.PARENT_DELETED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parents })
+      toast?.success(SUCCESS_MESSAGES?.PARENT_DELETED)
     },
     onError: (error: Error) => {
-      console.error('Error deleting parent:', error)
-      toast.error(ERROR_MESSAGES.DELETE_PARENT_ERROR)
+      console?.error('Error deleting parent:', error)
+      toast?.error(ERROR_MESSAGES?.DELETE_PARENT_ERROR)
     },
   })
 }
@@ -416,17 +416,17 @@ export function useAddStudentToParent() {
 
   return useMutation({
     mutationFn: async ({ parentId, studentId }: { parentId: string; studentId: string }) => {
-      const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
+      const docRef = doc(db, COLLECTIONS?.PARENTS, parentId)
       const parentSnap = await getDoc(docRef)
 
-      if (!parentSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
+      if (!parentSnap?.exists()) {
+        throw new Error(ERROR_MESSAGES?.PARENT_NOT_FOUND)
       }
 
-      const parentData = parentSnap.data() as Parent
-      const studentIds = parentData.studentIds || []
+      const parentData = parentSnap?.data() as Parent
+      const studentIds = parentData?.studentIds || []
 
-      if (studentIds.includes(studentId)) {
+      if (studentIds?.includes(studentId)) {
         return // Already added
       }
 
@@ -436,12 +436,12 @@ export function useAddStudentToParent() {
       })
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.parentId) })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parents })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parent(variables?.parentId) })
     },
     onError: (error: Error) => {
-      console.error('Error adding student to parent:', error)
-      toast.error(ERROR_MESSAGES.ADD_STUDENT_ERROR)
+      console?.error('Error adding student to parent:', error)
+      toast?.error(ERROR_MESSAGES?.ADD_STUDENT_ERROR)
     },
   })
 }
@@ -454,28 +454,28 @@ export function useRemoveStudentFromParent() {
 
   return useMutation({
     mutationFn: async ({ parentId, studentId }: { parentId: string; studentId: string }) => {
-      const docRef = doc(db, COLLECTIONS.PARENTS, parentId)
+      const docRef = doc(db, COLLECTIONS?.PARENTS, parentId)
       const parentSnap = await getDoc(docRef)
 
-      if (!parentSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
+      if (!parentSnap?.exists()) {
+        throw new Error(ERROR_MESSAGES?.PARENT_NOT_FOUND)
       }
 
-      const parentData = parentSnap.data() as Parent
-      const studentIds = parentData.studentIds || []
+      const parentData = parentSnap?.data() as Parent
+      const studentIds = parentData?.studentIds || []
 
       await updateDoc(docRef, {
-        studentIds: studentIds.filter((id) => id !== studentId),
+        studentIds: studentIds?.filter((id) => id !== studentId),
         updatedAt: serverTimestamp(),
       })
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.parentId) })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parents })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parent(variables?.parentId) })
     },
     onError: (error: Error) => {
-      console.error('Error removing student from parent:', error)
-      toast.error(ERROR_MESSAGES.DELETE_STUDENT_ERROR)
+      console?.error('Error removing student from parent:', error)
+      toast?.error(ERROR_MESSAGES?.DELETE_STUDENT_ERROR)
     },
   })
 }
@@ -489,35 +489,35 @@ export function useUploadVideoToParent() {
   return useMutation({
     mutationFn: async ({ parentId, videoFile }: { parentId: string; videoFile: File }) => {
       // Validate file type
-      if (!videoFile.type.startsWith('video/')) {
+      if (!videoFile?.type.startsWith('video/')) {
         throw new Error('Файлът трябва да е видео')
       }
 
       // Validate file size (max 100MB)
       const maxSize = 100 * 1024 * 1024 // 100MB
-      if (videoFile.size > maxSize) {
+      if (videoFile?.size > maxSize) {
         throw new Error('Видеото е твърде голямо (макс. 100MB)')
       }
 
       // Create unique filename
-      const timestamp = Date.now()
-      const filename = `parents/${parentId}/videos/${timestamp}_${videoFile.name}`
+      const timestamp = Date?.now()
+      const filename = `parents/${parentId}/videos/${timestamp}_${videoFile?.name}`
       const videoRef = ref(storage, filename)
 
       // Upload video
       const snapshot = await uploadBytes(videoRef, videoFile)
-      const downloadURL = await getDownloadURL(snapshot.ref)
+      const downloadURL = await getDownloadURL(snapshot?.ref)
 
       // Update parent document with video URL
-      const parentDocRef = doc(db, COLLECTIONS.PARENTS, parentId)
+      const parentDocRef = doc(db, COLLECTIONS?.PARENTS, parentId)
       const parentSnap = await getDoc(parentDocRef)
 
-      if (!parentSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
+      if (!parentSnap?.exists()) {
+        throw new Error(ERROR_MESSAGES?.PARENT_NOT_FOUND)
       }
 
-      const parentData = parentSnap.data() as Parent
-      const videoUrls = parentData.videoUrls || []
+      const parentData = parentSnap?.data() as Parent
+      const videoUrls = parentData?.videoUrls || []
 
       await updateDoc(parentDocRef, {
         videoUrls: [...videoUrls, downloadURL],
@@ -527,13 +527,13 @@ export function useUploadVideoToParent() {
       return downloadURL
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.parentId) })
-      toast.success('Видеото беше качено успешно!')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parents })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parent(variables?.parentId) })
+      toast?.success('Видеото беше качено успешно!')
     },
     onError: (error: Error) => {
-      console.error('Error uploading video:', error)
-      toast.error('Грешка при качване на видео: ' + error.message)
+      console?.error('Error uploading video:', error)
+      toast?.error('Грешка при качване на видео: ' + error?.message)
     },
   })
 }
@@ -551,29 +551,29 @@ export function useDeleteVideoFromParent() {
       await deleteObject(videoRef)
 
       // Remove URL from parent document
-      const parentDocRef = doc(db, COLLECTIONS.PARENTS, parentId)
+      const parentDocRef = doc(db, COLLECTIONS?.PARENTS, parentId)
       const parentSnap = await getDoc(parentDocRef)
 
-      if (!parentSnap.exists()) {
-        throw new Error(ERROR_MESSAGES.PARENT_NOT_FOUND)
+      if (!parentSnap?.exists()) {
+        throw new Error(ERROR_MESSAGES?.PARENT_NOT_FOUND)
       }
 
-      const parentData = parentSnap.data() as Parent
-      const videoUrls = parentData.videoUrls || []
+      const parentData = parentSnap?.data() as Parent
+      const videoUrls = parentData?.videoUrls || []
 
       await updateDoc(parentDocRef, {
-        videoUrls: videoUrls.filter((url) => url !== videoUrl),
+        videoUrls: videoUrls?.filter((url) => url !== videoUrl),
         updatedAt: serverTimestamp(),
       })
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parents })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.parent(variables.parentId) })
-      toast.success('Видеото беше изтрито успешно!')
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parents })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parent(variables?.parentId) })
+      toast?.success('Видеото беше изтрито успешно!')
     },
     onError: (error: Error) => {
-      console.error('Error deleting video:', error)
-      toast.error('Грешка при изтриване на видео: ' + error.message)
+      console?.error('Error deleting video:', error)
+      toast?.error('Грешка при изтриване на видео: ' + error?.message)
     },
   })
 }
@@ -599,7 +599,7 @@ export function useDeleteVideoFromParent() {
  *   return (
  *     <>
  *       <SearchInput value={search} onChange={setSearch} />
- *       {loading ? <Spinner /> : parents.map(p => <ParentRow key={p.id} {...p} />)}
+ *       {loading ? <Spinner /> : parents?.map(p => <ParentRow key={p?.id} {...p} />)}
  *     </>
  *   )
  * }
@@ -608,13 +608,13 @@ export function useDeleteVideoFromParent() {
 export function useSearchParents(searchTerm: string) {
   const { parents, loading } = useParents()
 
-  const filteredParents = parents.filter((parent) => {
-    const term = searchTerm.toLowerCase()
+  const filteredParents = parents?.filter((parent) => {
+    const term = searchTerm?.toLowerCase()
     return (
-      parent.name.toLowerCase().includes(term) ||
-      parent.phone?.toLowerCase().includes(term) ||
-      parent.phone2?.toLowerCase().includes(term) ||
-      parent.email?.toLowerCase().includes(term)
+      parent?.name.toLowerCase().includes(term) ||
+      parent?.phone?.toLowerCase().includes(term) ||
+      parent?.phone2?.toLowerCase().includes(term) ||
+      parent?.email?.toLowerCase().includes(term)
     )
   })
 

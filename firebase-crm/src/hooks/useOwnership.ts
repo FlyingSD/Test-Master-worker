@@ -25,8 +25,8 @@ export function useCanModifyPayment(payment?: Payment): boolean {
   if (isAdmin) return true
 
   // Teachers can modify payments they created
-  if (userData.role === 'teacher') {
-    return payment.createdBy === userData.id
+  if (userData?.role === 'teacher') {
+    return payment?.createdBy === userData?.id
   }
 
   // Parents cannot modify payments
@@ -43,13 +43,13 @@ export function useCanViewPayment(payment?: Payment): boolean {
   if (!userData || !payment) return false
 
   // Admins and teachers can view all payments
-  if (userData.role === 'admin' || userData.role === 'teacher') {
+  if (userData?.role === 'admin' || userData?.role === 'teacher') {
     return true
   }
 
   // Parents can only view payments for their children
   if (isParent) {
-    return myChildren.some(child => child.id === payment.studentId)
+    return myChildren?.some(child => child?.id === payment?.studentId)
   }
 
   return false
@@ -68,10 +68,10 @@ export function useCanModifyStudent(student?: Student): boolean {
   if (isAdmin) return true
 
   // Teachers can modify students ONLY in their assigned groups
-  if (userData.role === 'teacher') {
+  if (userData?.role === 'teacher') {
     // Check if teacher has assigned groups and student is in one of them
-    if (userData.assignedGroups && userData.assignedGroups.length > 0) {
-      return userData.assignedGroups.includes(student.group)
+    if (userData?.assignedGroups && userData?.assignedGroups.length > 0) {
+      return userData?.assignedGroups.includes(student?.group)
     }
     // If teacher has no assigned groups, they can't modify any students
     return false
@@ -94,16 +94,16 @@ export function useCanViewStudent(student?: Student): boolean {
   if (isAdmin) return true
 
   // Teachers can view students ONLY in their assigned groups
-  if (userData.role === 'teacher') {
-    if (userData.assignedGroups && userData.assignedGroups.length > 0) {
-      return userData.assignedGroups.includes(student.group)
+  if (userData?.role === 'teacher') {
+    if (userData?.assignedGroups && userData?.assignedGroups.length > 0) {
+      return userData?.assignedGroups.includes(student?.group)
     }
     return false
   }
 
   // Parents can only view their own children
   if (isParent && user) {
-    return student.parentId === user.uid
+    return student?.parentId === user?.uid
   }
 
   return false
@@ -121,8 +121,8 @@ export function useCanModifyHomework(homework?: Homework): boolean {
   if (isAdmin) return true
 
   // Teachers can modify homework they created
-  if (userData.role === 'teacher') {
-    return homework.createdBy === userData.id
+  if (userData?.role === 'teacher') {
+    return homework?.createdBy === userData?.id
   }
 
   // Parents cannot modify homework
@@ -139,13 +139,13 @@ export function useCanViewHomework(homework?: Homework): boolean {
   if (!userData || !homework) return false
 
   // Admins and teachers can view all homework
-  if (userData.role === 'admin' || userData.role === 'teacher') {
+  if (userData?.role === 'admin' || userData?.role === 'teacher') {
     return true
   }
 
   // Parents can view homework for their children only
   if (isParent) {
-    return myChildren.some(child => child.id === homework.studentId)
+    return myChildren?.some(child => child?.id === homework?.studentId)
   }
 
   return false
@@ -153,7 +153,7 @@ export function useCanViewHomework(homework?: Homework): boolean {
 
 /**
  * Generic ownership checker
- * Checks if entity.createdBy matches current user OR if user is admin
+ * Checks if entity?.createdBy matches current user OR if user is admin
  */
 export function useCanModifyEntity(entity?: { createdBy?: string }): boolean {
   const { userData, isAdmin } = useAuth()
@@ -164,7 +164,7 @@ export function useCanModifyEntity(entity?: { createdBy?: string }): boolean {
   if (isAdmin) return true
 
   // Check if user created this entity
-  return entity.createdBy === userData.id
+  return entity?.createdBy === userData?.id
 }
 
 /**

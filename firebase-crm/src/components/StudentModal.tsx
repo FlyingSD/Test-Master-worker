@@ -23,8 +23,8 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
     fee: 0,
     feeEUR: 0,
     dueDate: new Date(),
-    status: STUDENT_STATUS.ACTIVE,
-    studyType: STUDY_TYPES.GROUP,
+    status: STUDENT_STATUS?.ACTIVE,
+    studyType: STUDY_TYPES?.GROUP,
     parentId: '',
     notes: '',
   })
@@ -36,33 +36,33 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
   useEffect(() => {
     if (student) {
       setFormData({
-        name: student.name,
-        group: student.group,
-        fee: student.fee,
-        feeEUR: student.feeEUR,
-        dueDate: student.dueDate instanceof Timestamp
-          ? student.dueDate.toDate()
-          : student.dueDate,
-        status: student.status,
-        studyType: student.studyType,
-        parentId: student.parentId,
-        notes: student.notes || '',
+        name: student?.name,
+        group: student?.group,
+        fee: student?.fee,
+        feeEUR: student?.feeEUR,
+        dueDate: student?.dueDate instanceof Timestamp
+          ? student?.dueDate.toDate()
+          : student?.dueDate,
+        status: student?.status,
+        studyType: student?.studyType,
+        parentId: student?.parentId,
+        notes: student?.notes || '',
       })
     }
   }, [student])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     if (student) {
       // Update existing student
-      await updateStudent.mutateAsync({
-        id: student.id,
+      await updateStudent?.mutateAsync({
+        id: student?.id,
         data: formData,
       })
     } else {
       // Add new student
-      await addStudent.mutateAsync(formData)
+      await addStudent?.mutateAsync(formData)
     }
 
     onClose()
@@ -112,9 +112,9 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
               required
               className="input"
               placeholder="Иван Петров"
-              value={formData.name}
+              value={formData?.name}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, name: e?.target.value })
               }
             />
           </div>
@@ -135,23 +135,23 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
                   <select
                     required={!customGroup}
                     className="input"
-                    value={customGroup ? '__custom__' : formData.group}
+                    value={customGroup ? '__custom__' : formData?.group}
                     onChange={(e) => {
-                      if (e.target.value === '__custom__') {
+                      if (e?.target.value === '__custom__') {
                         setCustomGroup(true)
                         setFormData({ ...formData, group: '' })
                       } else {
                         setCustomGroup(false)
-                        setFormData({ ...formData, group: e.target.value })
+                        setFormData({ ...formData, group: e?.target.value })
                       }
                     }}
                   >
                     <option value="">Изберете група</option>
                     {groups
-                      .filter(g => g.status === 'active')
+                      .filter(g => g?.status === 'active')
                       .map((group) => (
-                        <option key={group.id} value={group.name}>
-                          {group.name} {group.subject ? `(${group.subject})` : ''}
+                        <option key={group?.id} value={group?.name}>
+                          {group?.name} {group?.subject ? `(${group?.subject})` : ''}
                         </option>
                       ))}
                     <option value="__custom__">➕ Нова група (въведете име)</option>
@@ -162,9 +162,9 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
                       required
                       className="input mt-2"
                       placeholder="Име на нова група..."
-                      value={formData.group}
+                      value={formData?.group}
                       onChange={(e) =>
-                        setFormData({ ...formData, group: e.target.value })
+                        setFormData({ ...formData, group: e?.target.value })
                       }
                     />
                   )}
@@ -179,15 +179,15 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
               <select
                 required
                 className="input"
-                value={formData.studyType}
+                value={formData?.studyType}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    studyType: e.target.value as typeof STUDY_TYPES[keyof typeof STUDY_TYPES],
+                    studyType: e?.target.value as typeof STUDY_TYPES[keyof typeof STUDY_TYPES],
                   })
                 }
               >
-                {STUDY_TYPE_OPTIONS.map((type) => (
+                {STUDY_TYPE_OPTIONS?.map((type) => (
                   <option key={type} value={type}>
                     {type}
                   </option>
@@ -208,12 +208,12 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
                     type="number"
                     required
                     min="0"
-                    step="0.01"
+                    step="0?.01"
                     className="input"
-                    placeholder="0.00"
-                    value={formData.fee || ''}
+                    placeholder="0?.00"
+                    value={formData?.fee || ''}
                     onChange={(e) =>
-                      handleFeeChange(Number(e.target.value), 'BGN')
+                      handleFeeChange(Number(e?.target.value), 'BGN')
                     }
                     onFocus={() => setCurrencyInput('BGN')}
                   />
@@ -229,12 +229,12 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
                     type="number"
                     required
                     min="0"
-                    step="0.01"
+                    step="0?.01"
                     className="input"
-                    placeholder="0.00"
-                    value={formData.feeEUR || ''}
+                    placeholder="0?.00"
+                    value={formData?.feeEUR || ''}
                     onChange={(e) =>
-                      handleFeeChange(Number(e.target.value), 'EUR')
+                      handleFeeChange(Number(e?.target.value), 'EUR')
                     }
                     onFocus={() => setCurrencyInput('EUR')}
                   />
@@ -245,7 +245,7 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              💡 Промените в една валута автоматично обновяват другата (курс: 1 EUR = {CURRENCY.BGN_TO_EUR_RATE} BGN)
+              💡 Промените в една валута автоматично обновяват другата (курс: 1 EUR = {CURRENCY?.BGN_TO_EUR_RATE} BGN)
             </p>
           </div>
 
@@ -261,12 +261,12 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
                 required
                 className="input pl-10"
                 value={
-                  formData.dueDate instanceof Date
-                    ? formData.dueDate.toISOString().split('T')[0]
+                  formData?.dueDate instanceof Date
+                    ? formData?.dueDate?.toISOString().split('T')[0]
                     : ''
                 }
                 onChange={(e) =>
-                  setFormData({ ...formData, dueDate: new Date(e.target.value) })
+                  setFormData({ ...formData, dueDate: new Date(e?.target.value) })
                 }
               />
             </div>
@@ -282,9 +282,9 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
               type="text"
               className="input"
               placeholder="parent_123"
-              value={formData.parentId}
+              value={formData?.parentId}
               onChange={(e) =>
-                setFormData({ ...formData, parentId: e.target.value })
+                setFormData({ ...formData, parentId: e?.target.value })
               }
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -300,27 +300,27 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
                 <input
                   type="radio"
                   name="status"
-                  value={STUDENT_STATUS.ACTIVE}
-                  checked={formData.status === STUDENT_STATUS.ACTIVE}
+                  value={STUDENT_STATUS?.ACTIVE}
+                  checked={formData?.status === STUDENT_STATUS?.ACTIVE}
                   onChange={(e) =>
-                    setFormData({ ...formData, status: STUDENT_STATUS.ACTIVE })
+                    setFormData({ ...formData, status: STUDENT_STATUS?.ACTIVE })
                   }
                   className="w-4 h-4 text-primary"
                 />
-                <span className="text-gray-700">{STUDENT_STATUS_LABELS[STUDENT_STATUS.ACTIVE]}</span>
+                <span className="text-gray-700">{STUDENT_STATUS_LABELS[STUDENT_STATUS?.ACTIVE]}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="status"
-                  value={STUDENT_STATUS.INACTIVE}
-                  checked={formData.status === STUDENT_STATUS.INACTIVE}
+                  value={STUDENT_STATUS?.INACTIVE}
+                  checked={formData?.status === STUDENT_STATUS?.INACTIVE}
                   onChange={(e) =>
-                    setFormData({ ...formData, status: STUDENT_STATUS.INACTIVE })
+                    setFormData({ ...formData, status: STUDENT_STATUS?.INACTIVE })
                   }
                   className="w-4 h-4 text-primary"
                 />
-                <span className="text-gray-700">{STUDENT_STATUS_LABELS[STUDENT_STATUS.INACTIVE]}</span>
+                <span className="text-gray-700">{STUDENT_STATUS_LABELS[STUDENT_STATUS?.INACTIVE]}</span>
               </label>
             </div>
           </div>
@@ -331,9 +331,9 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
             <textarea
               className="input min-h-[100px] resize-y"
               placeholder="Допълнителна информация..."
-              value={formData.notes}
+              value={formData?.notes}
               onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
+                setFormData({ ...formData, notes: e?.target.value })
               }
             />
           </div>
@@ -349,10 +349,10 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
             </button>
             <button
               type="submit"
-              disabled={addStudent.isPending || updateStudent.isPending}
+              disabled={addStudent?.isPending || updateStudent?.isPending}
               className="btn btn-primary flex-1"
             >
-              {addStudent.isPending || updateStudent.isPending ? (
+              {addStudent?.isPending || updateStudent?.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Запазване...

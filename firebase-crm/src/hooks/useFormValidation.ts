@@ -44,7 +44,7 @@ export function useFormValidation<T extends Record<string, any>>(
     const newErrors: FormErrors = {}
     let hasErrors = false
 
-    Object.keys(rules).forEach((fieldName) => {
+    Object?.keys(rules).forEach((fieldName) => {
       const error = validateField(fieldName, values[fieldName])
       if (error) {
         newErrors[fieldName] = error
@@ -114,9 +114,9 @@ export function useFormValidation<T extends Record<string, any>>(
  */
 export const CommonValidations = {
   required: (fieldName: string): ValidationRule<any> => (value) => {
-    if (!value || (typeof value === 'string' && value.trim() === '')) {
+    if (!value || (typeof value === 'string' && value?.trim() === '')) {
       return {
-        ...ValidationErrors.REQUIRED_FIELD,
+        ...ValidationErrors?.REQUIRED_FIELD,
         message: `${fieldName} е задължително поле`,
       }
     }
@@ -126,7 +126,7 @@ export const CommonValidations = {
   minAmount: (min: number): ValidationRule<number> => (value) => {
     if (value < min) {
       return {
-        ...ValidationErrors.AMOUNT_ZERO,
+        ...ValidationErrors?.AMOUNT_ZERO,
         solution: `Въведете сума по-голяма или равна на ${min}`,
       }
     }
@@ -136,7 +136,7 @@ export const CommonValidations = {
   maxAmount: (max: number): ValidationRule<number> => (value) => {
     if (value > max) {
       return {
-        ...ValidationErrors.AMOUNT_TOO_LARGE,
+        ...ValidationErrors?.AMOUNT_TOO_LARGE,
         message: `Сумата не може да е по-голяма от ${max} лв`,
         solution: `Въведете сума по-малка от ${max} лв`,
       }
@@ -146,10 +146,10 @@ export const CommonValidations = {
 
   positiveNumber: (): ValidationRule<number> => (value) => {
     if (value < 0) {
-      return ValidationErrors.AMOUNT_NEGATIVE
+      return ValidationErrors?.AMOUNT_NEGATIVE
     }
     if (value === 0) {
-      return ValidationErrors.AMOUNT_ZERO
+      return ValidationErrors?.AMOUNT_ZERO
     }
     return null
   },
@@ -158,7 +158,7 @@ export const CommonValidations = {
     if (!value) return null
     const date = value instanceof Date ? value : new Date(value)
     if (date > new Date()) {
-      return ValidationErrors.DATE_FUTURE
+      return ValidationErrors?.DATE_FUTURE
     }
     return null
   },
@@ -167,10 +167,10 @@ export const CommonValidations = {
     if (!value) return null
     const date = value instanceof Date ? value : new Date(value)
     const maxAge = new Date()
-    maxAge.setFullYear(maxAge.getFullYear() - years)
+    maxAge?.setFullYear(maxAge?.getFullYear() - years)
 
     if (date < maxAge) {
-      return ValidationErrors.DATE_TOO_OLD
+      return ValidationErrors?.DATE_TOO_OLD
     }
     return null
   },
@@ -178,11 +178,11 @@ export const CommonValidations = {
   email: (): ValidationRule<string> => (value) => {
     if (!value) return null
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(value)) {
+    if (!emailRegex?.test(value)) {
       return {
         title: 'Невалиден email',
         message: 'Email адресът не е в правилен формат',
-        solution: 'Въведете валиден email (например: name@example.com)',
+        solution: 'Въведете валиден email (например: name@example?.com)',
         type: 'error',
       }
     }
@@ -192,7 +192,7 @@ export const CommonValidations = {
   phone: (): ValidationRule<string> => (value) => {
     if (!value) return null
     const phoneRegex = /^[0-9+\s()-]{6,}$/
-    if (!phoneRegex.test(value)) {
+    if (!phoneRegex?.test(value)) {
       return {
         title: 'Невалиден телефон',
         message: 'Телефонният номер не е в правилен формат',
@@ -209,14 +209,14 @@ export const CommonValidations = {
     const eur = allValues[eurField]
 
     if (bgn && eur) {
-      const expectedEUR = bgn / 1.96
-      const difference = Math.abs(eur - expectedEUR)
+      const expectedEUR = bgn / 1?.96
+      const difference = Math?.abs(eur - expectedEUR)
 
-      if (difference > 0.5) {
-        // More than 0.50 EUR difference
+      if (difference > 0?.5) {
+        // More than 0?.50 EUR difference
         return {
-          ...ValidationErrors.CURRENCY_MISMATCH,
-          solution: `Очакваната стойност в EUR е ${expectedEUR.toFixed(2)}. Коригирайте сумите или използвайте автоматичния калкулатор`,
+          ...ValidationErrors?.CURRENCY_MISMATCH,
+          solution: `Очакваната стойност в EUR е ${expectedEUR?.toFixed(2)}. Коригирайте сумите или използвайте автоматичния калкулатор`,
         }
       }
     }

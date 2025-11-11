@@ -23,15 +23,15 @@ export default function DiscountsPage() {
   const [editingDiscount, setEditingDiscount] = useState<Discount | null>(null)
 
   // Filter discounts
-  const filteredDiscounts = discounts.filter((discount) =>
-    discount.studentName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDiscounts = discounts?.filter((discount) =>
+    discount?.studentName.toLowerCase().includes(searchTerm?.toLowerCase())
   )
 
   // Active discounts
-  const activeDiscounts = discounts.filter(d => {
+  const activeDiscounts = discounts?.filter(d => {
     const now = new Date()
-    const endDate = d.endDate instanceof Date ? d.endDate : d.endDate.toDate()
-    return d.isActive && endDate >= now
+    const endDate = d?.endDate instanceof Date ? d?.endDate : d?.endDate.toDate()
+    return d?.isActive && endDate >= now
   })
 
   const handleEdit = (discount: Discount) => {
@@ -40,8 +40,8 @@ export default function DiscountsPage() {
   }
 
   const handleDelete = async (discountId: string, studentName: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете отстъпката за ${studentName}?`)) {
-      await deleteDiscount.mutateAsync(discountId)
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете отстъпката за ${studentName}?`)) {
+      await deleteDiscount?.mutateAsync(discountId)
     }
   }
 
@@ -87,7 +87,7 @@ export default function DiscountsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Общо отстъпки</p>
-              <p className="text-2xl font-bold text-gray-900">{discounts.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{discounts?.length}</p>
             </div>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function DiscountsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Активни отстъпки</p>
-              <p className="text-2xl font-bold text-gray-900">{activeDiscounts.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{activeDiscounts?.length}</p>
             </div>
           </div>
         </div>
@@ -113,14 +113,14 @@ export default function DiscountsPage() {
             placeholder="Търсене по име на ученик..."
             className="input pl-10 w-full"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e?.target.value)}
           />
         </div>
       </div>
 
       {/* Discounts Table */}
       <div className="card overflow-hidden">
-        {filteredDiscounts.length === 0 ? (
+        {filteredDiscounts?.length === 0 ? (
           <div className="text-center py-12">
             <Percent className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -156,47 +156,47 @@ export default function DiscountsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredDiscounts.map((discount) => {
+                {filteredDiscounts?.map((discount) => {
                   const now = new Date()
-                  const endDate = discount.endDate instanceof Date
-                    ? discount.endDate
-                    : discount.endDate.toDate()
-                  const isActive = discount.isActive && endDate >= now
+                  const endDate = discount?.endDate instanceof Date
+                    ? discount?.endDate
+                    : discount?.endDate.toDate()
+                  const isActive = discount?.isActive && endDate >= now
 
                   return (
-                    <tr key={discount.id}>
+                    <tr key={discount?.id}>
                       <td>
                         <p className="font-medium text-gray-900">
-                          {discount.studentName}
+                          {discount?.studentName}
                         </p>
                       </td>
                       <td>
                         <span className="badge badge-primary">
-                          {discount.type}
+                          {discount?.type}
                         </span>
                       </td>
                       <td>
                         <div>
-                          {discount.type === 'Процент' ? (
+                          {discount?.type === 'Процент' ? (
                             <p className="font-medium text-accent">
-                              {discount.value}%
+                              {discount?.value}%
                             </p>
                           ) : (
                             <p className="font-medium text-accent">
-                              {formatCurrency(discount.value)}
+                              {formatCurrency(discount?.value)}
                             </p>
                           )}
                         </div>
                       </td>
                       <td>
                         <div className="text-sm">
-                          <p>{formatDate(discount.startDate)}</p>
-                          <p className="text-gray-500">до {formatDate(discount.endDate)}</p>
+                          <p>{formatDate(discount?.startDate)}</p>
+                          <p className="text-gray-500">до {formatDate(discount?.endDate)}</p>
                         </div>
                       </td>
                       <td>
                         <p className="text-sm text-gray-600 max-w-xs truncate">
-                          {discount.reason}
+                          {discount?.reason}
                         </p>
                       </td>
                       <td>
@@ -220,7 +220,7 @@ export default function DiscountsPage() {
                             <Edit className="w-4 h-4 text-gray-600" />
                           </button>
                           <button
-                            onClick={() => handleDelete(discount.id, discount.studentName)}
+                            onClick={() => handleDelete(discount?.id, discount?.studentName)}
                             className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                             title="Изтриване"
                           >

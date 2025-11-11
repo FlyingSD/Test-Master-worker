@@ -18,11 +18,11 @@ export default function AdminLoginPage() {
   const { signInWithEmail } = useAuth()
   const navigate = useNavigate()
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleLogin = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     if (!email || !password) {
-      toast.error('Моля, попълнете всички полета')
+      toast?.error('Моля, попълнете всички полета')
       return
     }
 
@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e?.target.value)}
                 placeholder="Email"
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 disabled={loading}
@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e?.target.value)}
                 placeholder="Password"
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 disabled={loading}

@@ -8,13 +8,13 @@ import {
   Tooltip,
   Legend,
   Filler,
-} from 'chart.js'
+} from 'chart?.js'
 import { Line } from 'react-chartjs-2'
 import { usePayments } from '@/hooks/usePayments'
 import { useExpenses } from '@/hooks/useExpenses'
 import { startOfMonth, endOfMonth, format, subMonths } from 'date-fns'
 
-ChartJS.register(
+ChartJS?.register(
   CategoryScale,
   LinearScale,
   PointElement,
@@ -30,7 +30,7 @@ export default function RevenueExpensesChart() {
   const { expenses } = useExpenses()
 
   // Get last 6 months data
-  const months = Array.from({ length: 6 }, (_, i) => {
+  const months = Array?.from({ length: 6 }, (_, i) => {
     const date = subMonths(new Date(), 5 - i)
     return {
       label: format(date, 'MMM yyyy'),
@@ -39,52 +39,52 @@ export default function RevenueExpensesChart() {
     }
   })
 
-  const revenueData = months.map((month) => {
-    const monthPayments = payments.filter((payment) => {
+  const revenueData = months?.map((month) => {
+    const monthPayments = payments?.filter((payment) => {
       const paymentDate =
-        payment.date instanceof Date ? payment.date : payment.date.toDate()
-      return paymentDate >= month.start && paymentDate <= month.end
+        payment?.date instanceof Date ? payment?.date : payment?.date.toDate()
+      return paymentDate >= month?.start && paymentDate <= month?.end
     })
-    return monthPayments.reduce((sum, payment) => sum + payment.amount, 0)
+    return monthPayments?.reduce((sum, payment) => sum + payment?.amount, 0)
   })
 
-  const expenseData = months.map((month) => {
-    const monthExpenses = expenses.filter((expense) => {
+  const expenseData = months?.map((month) => {
+    const monthExpenses = expenses?.filter((expense) => {
       const expenseDate =
-        expense.date instanceof Date ? expense.date : expense.date.toDate()
-      return expenseDate >= month.start && expenseDate <= month.end
+        expense?.date instanceof Date ? expense?.date : expense?.date.toDate()
+      return expenseDate >= month?.start && expenseDate <= month?.end
     })
-    return monthExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+    return monthExpenses?.reduce((sum, expense) => sum + expense?.amount, 0)
   })
 
-  const profitData = revenueData.map((revenue, index) => revenue - expenseData[index])
+  const profitData = revenueData?.map((revenue, index) => revenue - expenseData[index])
 
   const data = {
-    labels: months.map((m) => m.label),
+    labels: months?.map((m) => m?.label),
     datasets: [
       {
         label: 'Приходи',
         data: revenueData,
         borderColor: 'rgb(34, 197, 94)',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        backgroundColor: 'rgba(34, 197, 94, 0?.1)',
         fill: true,
-        tension: 0.4,
+        tension: 0?.4,
       },
       {
         label: 'Разходи',
         data: expenseData,
         borderColor: 'rgb(239, 68, 68)',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        backgroundColor: 'rgba(239, 68, 68, 0?.1)',
         fill: true,
-        tension: 0.4,
+        tension: 0?.4,
       },
       {
         label: 'Печалба',
         data: profitData,
         borderColor: 'rgb(109, 40, 217)',
-        backgroundColor: 'rgba(109, 40, 217, 0.1)',
+        backgroundColor: 'rgba(109, 40, 217, 0?.1)',
         fill: true,
-        tension: 0.4,
+        tension: 0?.4,
       },
     ],
   }
@@ -101,17 +101,17 @@ export default function RevenueExpensesChart() {
         position: 'top' as const,
         onClick: (e: any, legendItem: any, legend: any) => {
           // Default click behavior (toggle dataset visibility)
-          const index = legendItem.datasetIndex
-          const chart = legend.chart
-          const meta = chart.getDatasetMeta(index)
-          meta.hidden = !meta.hidden
-          chart.update()
+          const index = legendItem?.datasetIndex
+          const chart = legend?.chart
+          const meta = chart?.getDatasetMeta(index)
+          meta?.hidden = !meta?.hidden
+          chart?.update()
         },
         onHover: (e: any) => {
-          e.native.target.style.cursor = 'pointer'
+          e?.native.target?.style.cursor = 'pointer'
         },
         onLeave: (e: any) => {
-          e.native.target.style.cursor = 'default'
+          e?.native.target?.style.cursor = 'default'
         },
         labels: {
           usePointStyle: true,
@@ -136,35 +136,35 @@ export default function RevenueExpensesChart() {
       },
       tooltip: {
         enabled: true,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'rgba(0, 0, 0, 0?.8)',
         titleColor: '#fff',
         bodyColor: '#fff',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: 'rgba(255, 255, 255, 0?.1)',
         borderWidth: 1,
         padding: 12,
         displayColors: true,
         callbacks: {
           label: function (context: any) {
-            let label = context.dataset.label || ''
+            let label = context?.dataset.label || ''
             if (label) {
               label += ': '
             }
-            if (context.parsed.y !== null) {
-              label += new Intl.NumberFormat('bg-BG', {
+            if (context?.parsed.y !== null) {
+              label += new Intl?.NumberFormat('bg-BG', {
                 style: 'currency',
                 currency: 'BGN',
                 minimumFractionDigits: 2,
-              }).format(context.parsed.y)
+              }).format(context?.parsed.y)
             }
             return label
           },
           footer: function (tooltipItems: any[]) {
             const revenueIndex = 0
             const expenseIndex = 1
-            const revenue = tooltipItems.find(item => item.datasetIndex === revenueIndex)?.parsed.y || 0
-            const expense = tooltipItems.find(item => item.datasetIndex === expenseIndex)?.parsed.y || 0
+            const revenue = tooltipItems?.find(item => item?.datasetIndex === revenueIndex)?.parsed?.y || 0
+            const expense = tooltipItems?.find(item => item?.datasetIndex === expenseIndex)?.parsed?.y || 0
             const profit = revenue - expense
-            return `Нетна печалба: ${new Intl.NumberFormat('bg-BG', {
+            return `Нетна печалба: ${new Intl?.NumberFormat('bg-BG', {
               style: 'currency',
               currency: 'BGN',
               minimumFractionDigits: 2,
@@ -178,7 +178,7 @@ export default function RevenueExpensesChart() {
         beginAtZero: true,
         ticks: {
           callback: function (value: any) {
-            return new Intl.NumberFormat('bg-BG', {
+            return new Intl?.NumberFormat('bg-BG', {
               style: 'currency',
               currency: 'BGN',
               minimumFractionDigits: 0,
@@ -186,7 +186,7 @@ export default function RevenueExpensesChart() {
           },
         },
         grid: {
-          color: 'rgba(0, 0, 0, 0.05)',
+          color: 'rgba(0, 0, 0, 0?.05)',
         },
       },
       x: {

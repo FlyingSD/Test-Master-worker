@@ -58,30 +58,30 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
   useEffect(() => {
     if (invoice) {
       setFormData({
-        type: invoice.type,
-        status: invoice.status,
-        clientType: invoice.clientType,
-        clientName: invoice.clientName,
-        clientAddress: invoice.clientAddress || '',
-        clientVAT: invoice.clientVAT || '',
-        clientPhone: invoice.clientPhone || '',
-        clientEmail: invoice.clientEmail || '',
-        items: invoice.items,
-        vatRate: invoice.vatRate,
-        paymentMethod: invoice.paymentMethod,
-        issueDate: invoice.issueDate instanceof Date ? invoice.issueDate : invoice.issueDate.toDate(),
-        dueDate: invoice.dueDate
-          ? invoice.dueDate instanceof Date
-            ? invoice.dueDate
-            : invoice.dueDate.toDate()
+        type: invoice?.type,
+        status: invoice?.status,
+        clientType: invoice?.clientType,
+        clientName: invoice?.clientName,
+        clientAddress: invoice?.clientAddress || '',
+        clientVAT: invoice?.clientVAT || '',
+        clientPhone: invoice?.clientPhone || '',
+        clientEmail: invoice?.clientEmail || '',
+        items: invoice?.items,
+        vatRate: invoice?.vatRate,
+        paymentMethod: invoice?.paymentMethod,
+        issueDate: invoice?.issueDate instanceof Date ? invoice?.issueDate : invoice?.issueDate.toDate(),
+        dueDate: invoice?.dueDate
+          ? invoice?.dueDate instanceof Date
+            ? invoice?.dueDate
+            : invoice?.dueDate.toDate()
           : null,
-        notes: invoice.notes || '',
+        notes: invoice?.notes || '',
       })
     }
   }, [invoice])
 
   const handleItemChange = (index: number, field: keyof InvoiceItem, value: string | number) => {
-    const newItems = [...formData.items]
+    const newItems = [...formData?.items]
     newItems[index] = {
       ...newItems[index],
       [field]: value,
@@ -99,7 +99,7 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
     setFormData({
       ...formData,
       items: [
-        ...formData.items,
+        ...formData?.items,
         {
           description: '',
           quantity: 1,
@@ -111,28 +111,28 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
   }
 
   const removeItem = (index: number) => {
-    if (formData.items.length === 1) return
-    const newItems = formData.items.filter((_, i) => i !== index)
+    if (formData?.items.length === 1) return
+    const newItems = formData?.items.filter((_, i) => i !== index)
     setFormData({ ...formData, items: newItems })
   }
 
   const calculateTotals = () => {
-    const subtotal = formData.items.reduce((sum, item) => sum + item.total, 0)
-    const vatAmount = (subtotal * formData.vatRate) / 100
+    const subtotal = formData?.items.reduce((sum, item) => sum + item?.total, 0)
+    const vatAmount = (subtotal * formData?.vatRate) / 100
     const total = subtotal + vatAmount
     return { subtotal, vatAmount, total }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     // Validation
-    if (!formData.clientName.trim()) {
+    if (!formData?.clientName.trim()) {
       alert('Моля въведете име на клиент')
       return
     }
 
-    if (formData.items.some((item) => !item.description.trim())) {
+    if (formData?.items.some((item) => !item?.description.trim())) {
       alert('Моля попълнете описание на всички артикули')
       return
     }
@@ -150,16 +150,16 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
 
     try {
       if (invoice) {
-        await updateInvoice.mutateAsync({
-          id: invoice.id,
+        await updateInvoice?.mutateAsync({
+          id: invoice?.id,
           data: invoiceData,
         })
       } else {
-        await addInvoice.mutateAsync(invoiceData)
+        await addInvoice?.mutateAsync(invoiceData)
       }
       onClose()
     } catch (error) {
-      console.error('Error saving invoice:', error)
+      console?.error('Error saving invoice:', error)
       alert('Грешка при запазване на документа')
     }
   }
@@ -195,11 +195,11 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
               <label className="label">Тип документ *</label>
               <select
                 className="input"
-                value={formData.type}
+                value={formData?.type}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    type: e.target.value as InvoiceFormValues['type'],
+                    type: e?.target.value as InvoiceFormValues['type'],
                   })
                 }
                 required
@@ -214,11 +214,11 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
               <label className="label">Статус</label>
               <select
                 className="input"
-                value={formData.status}
+                value={formData?.status}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    status: e.target.value as InvoiceFormValues['status'],
+                    status: e?.target.value as InvoiceFormValues['status'],
                   })
                 }
               >
@@ -232,11 +232,11 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
               <label className="label">Тип клиент</label>
               <select
                 className="input"
-                value={formData.clientType}
+                value={formData?.clientType}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    clientType: e.target.value as InvoiceFormValues['clientType'],
+                    clientType: e?.target.value as InvoiceFormValues['clientType'],
                   })
                 }
               >
@@ -253,25 +253,25 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="label">
-                  {formData.clientType === 'Фирма' ? 'Име на фирма' : 'Име и фамилия'} *
+                  {formData?.clientType === 'Фирма' ? 'Име на фирма' : 'Име и фамилия'} *
                 </label>
                 <input
                   type="text"
                   className="input"
-                  value={formData.clientName}
-                  onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
+                  value={formData?.clientName}
+                  onChange={(e) => setFormData({ ...formData, clientName: e?.target.value })}
                   required
                 />
               </div>
 
-              {formData.clientType === 'Фирма' && (
+              {formData?.clientType === 'Фирма' && (
                 <div>
                   <label className="label">ЕИК/БУЛСТАТ</label>
                   <input
                     type="text"
                     className="input"
-                    value={formData.clientVAT}
-                    onChange={(e) => setFormData({ ...formData, clientVAT: e.target.value })}
+                    value={formData?.clientVAT}
+                    onChange={(e) => setFormData({ ...formData, clientVAT: e?.target.value })}
                   />
                 </div>
               )}
@@ -281,8 +281,8 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                 <input
                   type="text"
                   className="input"
-                  value={formData.clientAddress}
-                  onChange={(e) => setFormData({ ...formData, clientAddress: e.target.value })}
+                  value={formData?.clientAddress}
+                  onChange={(e) => setFormData({ ...formData, clientAddress: e?.target.value })}
                 />
               </div>
 
@@ -291,8 +291,8 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                 <input
                   type="tel"
                   className="input"
-                  value={formData.clientPhone}
-                  onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
+                  value={formData?.clientPhone}
+                  onChange={(e) => setFormData({ ...formData, clientPhone: e?.target.value })}
                 />
               </div>
 
@@ -301,8 +301,8 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                 <input
                   type="email"
                   className="input"
-                  value={formData.clientEmail}
-                  onChange={(e) => setFormData({ ...formData, clientEmail: e.target.value })}
+                  value={formData?.clientEmail}
+                  onChange={(e) => setFormData({ ...formData, clientEmail: e?.target.value })}
                 />
               </div>
             </div>
@@ -323,7 +323,7 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
             </div>
 
             <div className="space-y-3">
-              {formData.items.map((item, index) => (
+              {formData?.items.map((item, index) => (
                 <div key={index} className="p-4 border rounded-lg space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
                     <div className="md:col-span-5">
@@ -331,9 +331,9 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                       <input
                         type="text"
                         className="input"
-                        value={item.description}
+                        value={item?.description}
                         onChange={(e) =>
-                          handleItemChange(index, 'description', e.target.value)
+                          handleItemChange(index, 'description', e?.target.value)
                         }
                         required
                       />
@@ -346,9 +346,9 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                         min="1"
                         step="1"
                         className="input"
-                        value={item.quantity}
+                        value={item?.quantity}
                         onChange={(e) =>
-                          handleItemChange(index, 'quantity', parseFloat(e.target.value) || 1)
+                          handleItemChange(index, 'quantity', parseFloat(e?.target.value) || 1)
                         }
                       />
                     </div>
@@ -358,11 +358,11 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                       <input
                         type="number"
                         min="0"
-                        step="0.01"
+                        step="0?.01"
                         className="input"
-                        value={item.unitPrice}
+                        value={item?.unitPrice}
                         onChange={(e) =>
-                          handleItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)
+                          handleItemChange(index, 'unitPrice', parseFloat(e?.target.value) || 0)
                         }
                       />
                     </div>
@@ -372,7 +372,7 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                       <input
                         type="text"
                         className="input bg-gray-50"
-                        value={item.total.toFixed(2)}
+                        value={item?.total.toFixed(2)}
                         readOnly
                       />
                     </div>
@@ -382,7 +382,7 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                         type="button"
                         onClick={() => removeItem(index)}
                         className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                        disabled={formData.items.length === 1}
+                        disabled={formData?.items.length === 1}
                       >
                         <Trash2 className="w-4 h-4 text-red-600" />
                       </button>
@@ -397,15 +397,15 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
           <div className="bg-gray-50 p-4 rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Сума без ДДС:</span>
-              <span className="font-medium">{subtotal.toFixed(2)} лв.</span>
+              <span className="font-medium">{subtotal?.toFixed(2)} лв.</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">ДДС ({formData.vatRate}%):</span>
-              <span className="font-medium">{vatAmount.toFixed(2)} лв.</span>
+              <span className="text-gray-600">ДДС ({formData?.vatRate}%):</span>
+              <span className="font-medium">{vatAmount?.toFixed(2)} лв.</span>
             </div>
             <div className="flex justify-between text-lg font-bold border-t pt-2">
               <span>ОБЩО:</span>
-              <span className="text-primary">{total.toFixed(2)} лв.</span>
+              <span className="text-primary">{total?.toFixed(2)} лв.</span>
             </div>
           </div>
 
@@ -415,11 +415,11 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
               <label className="label">Метод на плащане</label>
               <select
                 className="input"
-                value={formData.paymentMethod}
+                value={formData?.paymentMethod}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    paymentMethod: e.target.value as InvoiceFormValues['paymentMethod'],
+                    paymentMethod: e?.target.value as InvoiceFormValues['paymentMethod'],
                   })
                 }
               >
@@ -434,9 +434,9 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
               <input
                 type="date"
                 className="input"
-                value={formatDate(formData.issueDate, 'yyyy-MM-dd')}
+                value={formatDate(formData?.issueDate, 'yyyy-MM-dd')}
                 onChange={(e) =>
-                  setFormData({ ...formData, issueDate: new Date(e.target.value) })
+                  setFormData({ ...formData, issueDate: new Date(e?.target.value) })
                 }
               />
             </div>
@@ -446,11 +446,11 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
               <input
                 type="date"
                 className="input"
-                value={formData.dueDate ? formatDate(formData.dueDate, 'yyyy-MM-dd') : ''}
+                value={formData?.dueDate ? formatDate(formData?.dueDate, 'yyyy-MM-dd') : ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    dueDate: e.target.value ? new Date(e.target.value) : null,
+                    dueDate: e?.target.value ? new Date(e?.target.value) : null,
                   })
                 }
               />
@@ -466,9 +466,9 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
               max="100"
               step="1"
               className="input"
-              value={formData.vatRate}
+              value={formData?.vatRate}
               onChange={(e) =>
-                setFormData({ ...formData, vatRate: parseFloat(e.target.value) || 0 })
+                setFormData({ ...formData, vatRate: parseFloat(e?.target.value) || 0 })
               }
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -482,8 +482,8 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
             <textarea
               className="input"
               rows={3}
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              value={formData?.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e?.target.value })}
               placeholder="Допълнителна информация..."
             />
           </div>
@@ -496,9 +496,9 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
             <button
               type="submit"
               className="btn btn-primary flex-1"
-              disabled={addInvoice.isPending || updateInvoice.isPending}
+              disabled={addInvoice?.isPending || updateInvoice?.isPending}
             >
-              {addInvoice.isPending || updateInvoice.isPending
+              {addInvoice?.isPending || updateInvoice?.isPending
                 ? 'Записване...'
                 : invoice
                 ? 'Запази промените'

@@ -25,7 +25,7 @@ import { validateDocumentOwnership } from '@/utils/security'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 
 // Collection reference
-const invoicesCollection = collection(db, COLLECTIONS.INVOICES)
+const invoicesCollection = collection(db, COLLECTIONS?.INVOICES)
 
 /**
  * Hook to get all invoices with real-time updates
@@ -44,9 +44,9 @@ const invoicesCollection = collection(db, COLLECTIONS.INVOICES)
  *   const { invoices, loading, error } = useInvoices()
  *
  *   if (loading) return <Spinner />
- *   if (error) return <Error message={error.message} />
+ *   if (error) return <Error message={error?.message} />
  *
- *   return invoices.map(invoice => <InvoiceCard key={invoice.id} {...invoice} />)
+ *   return invoices?.map(invoice => <InvoiceCard key={invoice?.id} {...invoice} />)
  * }
  * ```
  */
@@ -65,10 +65,10 @@ export function useInvoices() {
       q,
       (snapshot) => {
         const invoicesData: Invoice[] = []
-        snapshot.forEach((doc) => {
-          invoicesData.push({
-            id: doc.id,
-            ...doc.data(),
+        snapshot?.forEach((doc) => {
+          invoicesData?.push({
+            id: doc?.id,
+            ...doc?.data(),
           } as Invoice)
         })
         setInvoices(invoicesData)
@@ -76,10 +76,10 @@ export function useInvoices() {
         setError(null)
       },
       (err) => {
-        console.error('Error fetching invoices:', err)
+        console?.error('Error fetching invoices:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error(ERROR_MESSAGES.LOAD_INVOICES_ERROR)
+        toast?.error(ERROR_MESSAGES?.LOAD_INVOICES_ERROR)
       }
     )
 
@@ -116,18 +116,18 @@ export function useInvoices() {
  */
 export function useInvoice(invoiceId: string) {
   return useQuery({
-    queryKey: QUERY_KEYS.invoice(invoiceId),
+    queryKey: QUERY_KEYS?.invoice(invoiceId),
     queryFn: async () => {
       const docRef = doc(db, 'invoices', invoiceId)
       const docSnap = await getDoc(docRef)
 
-      if (!docSnap.exists()) {
+      if (!docSnap?.exists()) {
         throw new Error('Invoice not found')
       }
 
       return {
-        id: docSnap.id,
-        ...docSnap.data(),
+        id: docSnap?.id,
+        ...docSnap?.data(),
       } as Invoice
     },
     enabled: !!invoiceId,
@@ -153,7 +153,7 @@ export function useInvoice(invoiceId: string) {
  *
  *   if (loading) return <Spinner />
  *
- *   return invoices.map(inv => <InvoiceRow key={inv.id} {...inv} />)
+ *   return invoices?.map(inv => <InvoiceRow key={inv?.id} {...inv} />)
  * }
  * ```
  */
@@ -176,10 +176,10 @@ export function useInvoicesByParent(parentId: string) {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const invoicesData: Invoice[] = []
-      snapshot.forEach((doc) => {
-        invoicesData.push({
-          id: doc.id,
-          ...doc.data(),
+      snapshot?.forEach((doc) => {
+        invoicesData?.push({
+          id: doc?.id,
+          ...doc?.data(),
         } as Invoice)
       })
       setInvoices(invoicesData)
@@ -199,15 +199,15 @@ export async function getNextInvoiceNumber(): Promise<string> {
   const q = query(invoicesCollection, orderBy('invoiceNumber', 'desc'))
   const snapshot = await getDocs(q)
 
-  if (snapshot.empty) {
+  if (snapshot?.empty) {
     return '0000001'
   }
 
-  const lastInvoice = snapshot.docs[0].data() as Invoice
-  const lastNumber = parseInt(lastInvoice.invoiceNumber)
+  const lastInvoice = snapshot?.docs[0].data() as Invoice
+  const lastNumber = parseInt(lastInvoice?.invoiceNumber)
   const nextNumber = lastNumber + 1
 
-  return nextNumber.toString().padStart(7, '0')
+  return nextNumber?.toString().padStart(7, '0')
 }
 
 /**
@@ -221,7 +221,7 @@ export async function getNextInvoiceNumber(): Promise<string> {
  *   - isPending: True while request is in progress
  *   - isSuccess/isError: Status flags
  *
- * @security Populates createdBy field with current user.uid for ownership tracking
+ * @security Populates createdBy field with current user?.uid for ownership tracking
  *
  * @note Invoice number is auto-generated sequentially (7-digit padded format)
  *
@@ -231,12 +231,12 @@ export async function getNextInvoiceNumber(): Promise<string> {
  *   const addInvoice = useAddInvoice()
  *
  *   const handleSubmit = async (data: InvoiceFormValues) => {
- *     await addInvoice.mutateAsync(data)
- *     toast.success('Invoice created!')
+ *     await addInvoice?.mutateAsync(data)
+ *     toast?.success('Invoice created!')
  *     onClose()
  *   }
  *
- *   return <Form onSubmit={handleSubmit} loading={addInvoice.isPending} />
+ *   return <Form onSubmit={handleSubmit} loading={addInvoice?.isPending} />
  * }
  * ```
  */
@@ -247,14 +247,14 @@ export function useAddInvoice() {
   return useMutation({
     mutationFn: async (data: InvoiceFormValues) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
       // Get next invoice number
       const invoiceNumber = await getNextInvoiceNumber()
 
       // Calculate totals
-      const subtotal = data.items.reduce((sum, item) => sum + item.total, 0)
-      const vatAmount = subtotal * (data.vatRate / 100)
+      const subtotal = data?.items.reduce((sum, item) => sum + item?.total, 0)
+      const vatAmount = subtotal * (data?.vatRate / 100)
       const total = subtotal + vatAmount
 
       const invoiceData = {
@@ -263,21 +263,21 @@ export function useAddInvoice() {
         subtotal,
         vatAmount,
         total,
-        createdBy: user.uid,
+        createdBy: user?.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       }
 
       const docRef = await addDoc(invoicesCollection, invoiceData)
-      return docRef.id
+      return docRef?.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoices })
-      toast.success(SUCCESS_MESSAGES.INVOICE_ADDED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.invoices })
+      toast?.success(SUCCESS_MESSAGES?.INVOICE_ADDED)
     },
     onError: (error: Error) => {
-      console.error('Error adding invoice:', error)
-      toast.error(ERROR_MESSAGES.ADD_INVOICE_ERROR + ': ' + error.message)
+      console?.error('Error adding invoice:', error)
+      toast?.error(ERROR_MESSAGES?.ADD_INVOICE_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -296,22 +296,22 @@ export function useUpdateInvoice() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<InvoiceFormValues> }) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Validate ownership before update
       await validateDocumentOwnership(
-        COLLECTIONS.INVOICES,
+        COLLECTIONS?.INVOICES,
         id,
         userData,
-        ERROR_MESSAGES.INVOICE_NOT_FOUND
+        ERROR_MESSAGES?.INVOICE_NOT_FOUND
       )
 
       // Recalculate totals if items changed
       let updateData: any = { ...data }
-      if (data.items) {
-        const subtotal = data.items.reduce((sum, item) => sum + item.total, 0)
-        const vatRate = data.vatRate || 0
+      if (data?.items) {
+        const subtotal = data?.items.reduce((sum, item) => sum + item?.total, 0)
+        const vatRate = data?.vatRate || 0
         const vatAmount = subtotal * (vatRate / 100)
         const total = subtotal + vatAmount
 
@@ -323,19 +323,19 @@ export function useUpdateInvoice() {
         }
       }
 
-      updateData.updatedAt = serverTimestamp()
+      updateData?.updatedAt = serverTimestamp()
 
-      const docRef = doc(db, COLLECTIONS.INVOICES, id)
+      const docRef = doc(db, COLLECTIONS?.INVOICES, id)
       await updateDoc(docRef, updateData)
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoices })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoice(variables.id) })
-      toast.success(SUCCESS_MESSAGES.INVOICE_UPDATED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.invoices })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.invoice(variables?.id) })
+      toast?.success(SUCCESS_MESSAGES?.INVOICE_UPDATED)
     },
     onError: (error: Error) => {
-      console.error('Error updating invoice:', error)
-      toast.error(ERROR_MESSAGES.UPDATE_INVOICE_ERROR + ': ' + error.message)
+      console?.error('Error updating invoice:', error)
+      toast?.error(ERROR_MESSAGES?.UPDATE_INVOICE_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -354,28 +354,28 @@ export function useDeleteInvoice() {
   return useMutation({
     mutationFn: async (invoiceId: string) => {
       if (!userData) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       // 🔒 SECURITY: Validate ownership before deletion
       await validateDocumentOwnership(
-        COLLECTIONS.INVOICES,
+        COLLECTIONS?.INVOICES,
         invoiceId,
         userData,
-        ERROR_MESSAGES.INVOICE_NOT_FOUND
+        ERROR_MESSAGES?.INVOICE_NOT_FOUND
       )
 
       // Delete invoice
-      const docRef = doc(db, COLLECTIONS.INVOICES, invoiceId)
+      const docRef = doc(db, COLLECTIONS?.INVOICES, invoiceId)
       await deleteDoc(docRef)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoices })
-      toast.success(SUCCESS_MESSAGES.INVOICE_DELETED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.invoices })
+      toast?.success(SUCCESS_MESSAGES?.INVOICE_DELETED)
     },
     onError: (error: Error) => {
-      console.error('Error deleting invoice:', error)
-      toast.error(ERROR_MESSAGES.DELETE_INVOICE_ERROR + ': ' + error.message)
+      console?.error('Error deleting invoice:', error)
+      toast?.error(ERROR_MESSAGES?.DELETE_INVOICE_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -396,11 +396,11 @@ export function useDeleteInvoice() {
  *   const markPaid = useMarkInvoicePaid()
  *
  *   const handleMarkPaid = async () => {
- *     await markPaid.mutateAsync(invoice.id)
- *     toast.success('Invoice marked as paid!')
+ *     await markPaid?.mutateAsync(invoice?.id)
+ *     toast?.success('Invoice marked as paid!')
  *   }
  *
- *   if (invoice.isPaid) return null
+ *   if (invoice?.isPaid) return null
  *   return <Button onClick={handleMarkPaid}>Mark as Paid</Button>
  * }
  * ```
@@ -419,13 +419,13 @@ export function useMarkInvoicePaid() {
       })
     },
     onSuccess: (_, invoiceId) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoices })
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.invoice(invoiceId) })
-      toast.success(SUCCESS_MESSAGES.INVOICE_MARKED_PAID)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.invoices })
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.invoice(invoiceId) })
+      toast?.success(SUCCESS_MESSAGES?.INVOICE_MARKED_PAID)
     },
     onError: (error: Error) => {
-      console.error('Error marking invoice as paid:', error)
-      toast.error(ERROR_MESSAGES.GENERIC_ERROR + ': ' + error.message)
+      console?.error('Error marking invoice as paid:', error)
+      toast?.error(ERROR_MESSAGES?.GENERIC_ERROR + ': ' + error?.message)
     },
   })
 }
@@ -450,10 +450,10 @@ export function useMarkInvoicePaid() {
  *
  *   return (
  *     <div className="stats-grid">
- *       <StatCard label="Total Revenue" value={`${stats.totalRevenue.toFixed(2)} BGN`} />
- *       <StatCard label="Pending" value={`${stats.pendingRevenue.toFixed(2)} BGN`} />
- *       <StatCard label="Paid" value={stats.paidInvoices} variant="success" />
- *       <StatCard label="Unpaid" value={stats.unpaidInvoices} variant="warning" />
+ *       <StatCard label="Total Revenue" value={`${stats?.totalRevenue.toFixed(2)} BGN`} />
+ *       <StatCard label="Pending" value={`${stats?.pendingRevenue.toFixed(2)} BGN`} />
+ *       <StatCard label="Paid" value={stats?.paidInvoices} variant="success" />
+ *       <StatCard label="Unpaid" value={stats?.unpaidInvoices} variant="warning" />
  *     </div>
  *   )
  * }
@@ -463,15 +463,15 @@ export function useInvoiceStats() {
   const { invoices } = useInvoices()
 
   const stats = {
-    totalInvoices: invoices.length,
-    paidInvoices: invoices.filter((inv) => inv.isPaid).length,
-    unpaidInvoices: invoices.filter((inv) => !inv.isPaid && inv.status !== 'Анулирана').length,
+    totalInvoices: invoices?.length,
+    paidInvoices: invoices?.filter((inv) => inv?.isPaid).length,
+    unpaidInvoices: invoices?.filter((inv) => !inv?.isPaid && inv?.status !== 'Анулирана').length,
     totalRevenue: invoices
-      .filter((inv) => inv.isPaid)
-      .reduce((sum, inv) => sum + inv.total, 0),
+      .filter((inv) => inv?.isPaid)
+      .reduce((sum, inv) => sum + inv?.total, 0),
     pendingRevenue: invoices
-      .filter((inv) => !inv.isPaid && inv.status !== 'Анулирана')
-      .reduce((sum, inv) => sum + inv.total, 0),
+      .filter((inv) => !inv?.isPaid && inv?.status !== 'Анулирана')
+      .reduce((sum, inv) => sum + inv?.total, 0),
   }
 
   return stats
