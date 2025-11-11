@@ -54,7 +54,7 @@ export default function EventModal({ event, onClose }: EventModalProps) {
     }
   }, [event])
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     // Validate that end time is after start time

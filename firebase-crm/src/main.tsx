@@ -84,8 +84,8 @@ window?.addEventListener('appinstalled', () => {
   deferredPrompt = null
 })
 
-ReactDOM?.createRoot(document?.getElementById('root')!).render(
-  <React?.StrictMode>
+ReactDOM.createRoot(document?.getElementById('root')!).render(
+  <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <App />
       <Toaster
@@ -111,5 +111,5 @@ ReactDOM?.createRoot(document?.getElementById('root')!).render(
         }}
       />
     </QueryClientProvider>
-  </React?.StrictMode>,
+  </React.StrictMode>,
 )

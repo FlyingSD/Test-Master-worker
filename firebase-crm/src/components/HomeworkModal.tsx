@@ -234,7 +234,7 @@ export default function HomeworkModal({
    * 4. Submit via hooks (with automatic PoLP enforcement)
    * 5. Close modal on success
    */
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     // Step 1: Validate

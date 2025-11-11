@@ -20,12 +20,12 @@ export default function DateRangePicker({
     return date?.toISOString().split('T')[0]
   }
 
-  const handleStartChange = (e: React?.ChangeEvent<HTMLInputElement>) => {
+  const handleStartChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e?.target.value
     onStartDateChange(value ? new Date(value) : null)
   }
 
-  const handleEndChange = (e: React?.ChangeEvent<HTMLInputElement>) => {
+  const handleEndChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e?.target.value
     onEndDateChange(value ? new Date(value) : null)
   }

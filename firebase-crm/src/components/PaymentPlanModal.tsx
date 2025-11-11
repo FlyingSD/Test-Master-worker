@@ -61,7 +61,7 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
     setInstallments(newInstallments)
   }
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     if (!formData?.studentId) {

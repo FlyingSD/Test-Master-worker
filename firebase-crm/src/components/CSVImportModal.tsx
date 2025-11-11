@@ -14,7 +14,7 @@ export default function CSVImportModal({ onClose }: CSVImportModalProps) {
 
   const bulkAddStudents = useBulkAddStudents()
 
-  const handleFileChange = (e: React?.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e?.target?.files?.[0]
     if (selectedFile && selectedFile?.type === 'text/csv') {
       setFile(selectedFile)

@@ -92,8 +92,8 @@ export function useRealtimeCollection<T extends DocumentData>(
     )
 
     return () => unsubscribe()
-    // Use queryKey instead of spreading queryConstraints
-  }, [collectionName, enabled, errorMessage, queryKey, queryConstraints])
+    // Use queryKey instead of spreading queryConstraints (CRITICAL FIX: removed queryConstraints to prevent infinite re-renders)
+  }, [collectionName, enabled, errorMessage, queryKey])
 
   return { data, loading, error }
 }

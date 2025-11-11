@@ -24,7 +24,7 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
     notes: '',
   })
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     if (!user) {

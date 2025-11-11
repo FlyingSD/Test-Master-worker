@@ -41,7 +41,7 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
     }
   }
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     if (selectedStudentIds?.size === 0) {

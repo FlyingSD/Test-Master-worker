@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
   const loginPath = isParent ? '/login/parent' : '/login/teacher'
   const roleText = isParent ? 'Родител' : 'Учител'
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     if (!email) {

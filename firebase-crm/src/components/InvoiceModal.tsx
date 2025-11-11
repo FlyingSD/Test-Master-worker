@@ -123,7 +123,7 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
     return { subtotal, vatAmount, total }
   }
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     // Validation

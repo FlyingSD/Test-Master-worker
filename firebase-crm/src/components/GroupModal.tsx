@@ -118,7 +118,7 @@ export default function GroupModal({ group, onClose }: GroupModalProps) {
     }
   }, [group])
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     const groupData = {

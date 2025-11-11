@@ -47,7 +47,7 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
     }
   }, [item])
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     if (!user) {

@@ -53,7 +53,7 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
     }
   }, [payment])
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     // Get student name from selected student

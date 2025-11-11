@@ -287,12 +287,36 @@ export function useUpdateInventoryItem() {
         updatedAt: serverTimestamp(),
       }
 
-      const docRef = doc(db, COLLECTIONS?.INVENTORY, id)
-      await updateDoc(docRef, updateData)
-
-      // 🎯 SSOT: Sync denormalized data if name changed
+      // 🔒 ATOMICITY FIX: If name changed, use writeBatch to update inventory + all stock transactions atomically
       if (data?.name) {
-        await syncAllInventoryData(id, data?.name)
+        // Read all stock transactions for this item first
+        const transactionsQuery = query(
+          collection(db, COLLECTIONS?.STOCK_TRANSACTIONS),
+          where('inventoryItemId', '==', id)
+        )
+        const transactionsSnapshot = await getDocs(transactionsQuery)
+
+        // Create batch for atomic updates
+        const batch = writeBatch(db)
+
+        // 1. Update inventory item
+        const inventoryRef = doc(db, COLLECTIONS?.INVENTORY, id)
+        batch.update(inventoryRef, updateData)
+
+        // 2. Update all related stock transactions
+        transactionsSnapshot?.forEach((transactionDoc) => {
+          const transactionRef = doc(db, COLLECTIONS?.STOCK_TRANSACTIONS, transactionDoc?.id)
+          batch.update(transactionRef, { inventoryItemName: data?.name })
+        })
+
+        // Commit all updates atomically (all succeed or all fail)
+        await batch.commit()
+
+        console?.log(`✅ Atomically updated inventory + ${transactionsSnapshot?.size} stock transactions`)
+      } else {
+        // If name didn't change, just update inventory normally
+        const docRef = doc(db, COLLECTIONS?.INVENTORY, id)
+        await updateDoc(docRef, updateData)
       }
     },
     onSuccess: (_, variables) => {

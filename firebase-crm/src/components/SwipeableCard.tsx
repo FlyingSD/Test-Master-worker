@@ -73,14 +73,14 @@ export default function SwipeableCard({
     }
   }, [])
 
-  const handleTouchStart = (e: React?.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     if (!enableSwipe) return
     startX?.current = e?.touches[0].clientX
     currentX?.current = startX?.current
     setIsDragging(true)
   }
 
-  const handleTouchMove = (e: React?.TouchEvent) => {
+  const handleTouchMove = (e: React.TouchEvent) => {
     if (!enableSwipe || !isDragging) return
 
     currentX?.current = e?.touches[0].clientX

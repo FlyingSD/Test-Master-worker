@@ -42,10 +42,10 @@ export function useSwipe(handlers: SwipeHandlers, config?: SwipeConfig) {
 
   // Convert to React synthetic events
   return {
-    onTouchStart: useCallback((e: React?.TouchEvent) => {
+    onTouchStart: useCallback((e: React.TouchEvent) => {
       swipeHandlers?.onTouchStart(e?.nativeEvent)
     }, [swipeHandlers]),
-    onTouchMove: useCallback((e: React?.TouchEvent) => {
+    onTouchMove: useCallback((e: React.TouchEvent) => {
       swipeHandlers?.onTouchMove(e?.nativeEvent)
     }, [swipeHandlers]),
     onTouchEnd: useCallback(() => {

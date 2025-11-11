@@ -72,7 +72,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
   }, [mode, onScan])
 
   // Handle manual code submission
-  const handleManualSubmit = (e: React?.FormEvent) => {
+  const handleManualSubmit = (e: React.FormEvent) => {
     e?.preventDefault()
     const normalized = normalizeStudentCode(manualCode)
 

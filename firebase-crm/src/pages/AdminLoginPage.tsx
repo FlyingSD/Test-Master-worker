@@ -18,7 +18,7 @@ export default function AdminLoginPage() {
   const { signInWithEmail } = useAuth()
   const navigate = useNavigate()
 
-  const handleLogin = async (e: React?.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     if (!email || !password) {

@@ -553,6 +553,10 @@ export function usePaymentsByParent(parentId: string) {
 
     setLoading(true)
 
+    // Track ALL subscriptions at the same level to prevent memory leaks
+    const allUnsubscribes: (() => void)[] = []
+    let paymentUnsubscribes: (() => void)[] = []
+
     // First, we need to get the parent's students to know which studentIds to filter by
     // We'll query students and then query payments for those students
     const studentsQuery = query(
@@ -569,6 +573,10 @@ export function usePaymentsByParent(parentId: string) {
           studentIds?.push(doc?.id)
         })
 
+        // 🔒 MEMORY LEAK FIX: Cleanup old payment subscriptions before creating new ones
+        paymentUnsubscribes?.forEach((unsub) => unsub())
+        paymentUnsubscribes = []
+
         if (studentIds?.length === 0) {
           setPayments([])
           setLoading(false)
@@ -584,8 +592,6 @@ export function usePaymentsByParent(parentId: string) {
           batches?.push(studentIds?.slice(i, i + batchSize))
         }
 
-        // Subscribe to payments for all batches
-        const unsubscribePayments: (() => void)[] = []
         const allPayments = new Map<string, Payment>()
 
         batches?.forEach((batch) => {
@@ -617,13 +623,8 @@ export function usePaymentsByParent(parentId: string) {
             }
           )
 
-          unsubscribePayments?.push(unsubscribe)
+          paymentUnsubscribes?.push(unsubscribe)
         })
-
-        // Cleanup function for payment subscriptions
-        return () => {
-          unsubscribePayments?.forEach((unsub) => unsub())
-        }
       },
       (err) => {
         console?.error('Error fetching parent students:', err)
@@ -632,8 +633,12 @@ export function usePaymentsByParent(parentId: string) {
       }
     )
 
+    allUnsubscribes?.push(unsubscribeStudents)
+
+    // 🔒 MEMORY LEAK FIX: Cleanup ALL subscriptions (students + payments)
     return () => {
-      unsubscribeStudents()
+      allUnsubscribes?.forEach((unsub) => unsub())
+      paymentUnsubscribes?.forEach((unsub) => unsub())
     }
   }, [parentId])
 

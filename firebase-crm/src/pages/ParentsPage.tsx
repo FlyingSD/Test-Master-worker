@@ -106,7 +106,7 @@ export default function ParentsPage() {
     }
   }
 
-  const handleVideoFileSelect = (e: React?.ChangeEvent<HTMLInputElement>, parentId: string) => {
+  const handleVideoFileSelect = (e: React.ChangeEvent<HTMLInputElement>, parentId: string) => {
     const file = e?.target?.files?.[0]
     if (file) {
       handleVideoUpload(parentId, file)

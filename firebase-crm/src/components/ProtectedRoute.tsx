@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { UserRole } from '@/types'
 
 interface ProtectedRouteProps {
-  children: React?.ReactNode
+  children: React.ReactNode
   allowedRoles?: UserRole[] // If not specified, any authenticated user can access
   redirectTo?: string // Custom redirect path
 }

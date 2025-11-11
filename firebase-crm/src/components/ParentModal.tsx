@@ -50,7 +50,7 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
     }
   }, [parent])
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     if (parent) {

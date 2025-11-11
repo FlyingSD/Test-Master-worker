@@ -46,7 +46,7 @@ export default function DiscountModal({ discount, onClose }: DiscountModalProps)
     }
   }, [discount])
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     // Get student name from selected student

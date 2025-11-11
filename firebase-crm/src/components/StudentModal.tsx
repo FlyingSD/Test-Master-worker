@@ -72,7 +72,7 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
     }
   }, [student])
 
-  const handleSubmit = async (e: React?.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e?.preventDefault()
 
     if (student) {
