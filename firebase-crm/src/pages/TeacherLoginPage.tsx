@@ -6,7 +6,7 @@
 
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, validateRoleAccess } from '@/hooks/useAuth'
 import { Mail, Lock, ArrowLeft, GraduationCap } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -15,7 +15,7 @@ export default function TeacherLoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signInWithEmail } = useAuth()
+  const { signInWithEmail, userData } = useAuth()
   const navigate = useNavigate()
 
   const handleLogin = async (e: React?.FormEvent) => {
@@ -29,7 +29,16 @@ export default function TeacherLoginPage() {
     try {
       setLoading(true)
       await signInWithEmail(email, password)
-      navigate('/dashboard')
+
+      // SECURITY: Validate role after login
+      setTimeout(() => {
+        if (userData && !validateRoleAccess('teacher', userData?.role)) {
+          toast?.error('Достъпът отказан: Това е вход само за учители')
+          navigate('/login/parent')
+        } else if (userData?.role === 'teacher') {
+          navigate('/dashboard')
+        }
+      }, 500)
     } catch (error) {
       // Error handled by useAuth
     } finally {

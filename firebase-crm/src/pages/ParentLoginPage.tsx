@@ -5,7 +5,7 @@
 
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, validateRoleAccess } from '@/hooks/useAuth'
 import { Mail, Lock, ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -14,7 +14,7 @@ export default function ParentLoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signInWithEmail, signInWithGoogle } = useAuth()
+  const { signInWithEmail, signInWithGoogle, userData } = useAuth()
   const navigate = useNavigate()
 
   const handleEmailLogin = async (e: React?.FormEvent) => {
@@ -28,7 +28,20 @@ export default function ParentLoginPage() {
     try {
       setLoading(true)
       await signInWithEmail(email, password)
-      navigate('/my-children')
+
+      // SECURITY: Validate role after login
+      setTimeout(() => {
+        if (userData && !validateRoleAccess('parent', userData?.role)) {
+          toast?.error('Достъпът отказан: Това е вход само за родители')
+          if (userData?.role === 'teacher') {
+            navigate('/login/teacher')
+          } else {
+            navigate('/')
+          }
+        } else if (userData?.role === 'parent') {
+          navigate('/my-children')
+        }
+      }, 500)
     } catch (error) {
       // Error handled by useAuth
     } finally {
@@ -40,7 +53,20 @@ export default function ParentLoginPage() {
     try {
       setLoading(true)
       await signInWithGoogle()
-      navigate('/my-children')
+
+      // SECURITY: Validate role after login
+      setTimeout(() => {
+        if (userData && !validateRoleAccess('parent', userData?.role)) {
+          toast?.error('Достъпът отказан: Това е вход само за родители')
+          if (userData?.role === 'teacher') {
+            navigate('/login/teacher')
+          } else {
+            navigate('/')
+          }
+        } else if (userData?.role === 'parent') {
+          navigate('/my-children')
+        }
+      }, 500)
     } catch (error) {
       // Error handled by useAuth
     } finally {

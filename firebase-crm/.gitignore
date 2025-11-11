@@ -33,6 +33,7 @@ ui-debug.log
 # Environment
 .env
 .env.local
+.env.development
 .env.production
 
 # Build

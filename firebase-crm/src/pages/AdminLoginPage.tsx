@@ -6,7 +6,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, validateRoleAccess, checkAdminWhitelist } from '@/hooks/useAuth'
 import { Shield } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signInWithEmail } = useAuth()
+  const { signInWithEmail, userData } = useAuth()
   const navigate = useNavigate()
 
   const handleLogin = async (e: React?.FormEvent) => {
@@ -26,10 +26,27 @@ export default function AdminLoginPage() {
       return
     }
 
+    // SECURITY: Pre-check admin whitelist
+    if (!checkAdminWhitelist(email)) {
+      toast?.error('Достъпът отказан: Неоторизиран имейл')
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       await signInWithEmail(email, password)
-      navigate('/dashboard')
+
+      // SECURITY: Double-check role after login
+      // Wait a bit for userData to load
+      setTimeout(() => {
+        if (userData && !validateRoleAccess('admin', userData?.role)) {
+          toast?.error('Достъпът отказан: Нямате администраторски права')
+          navigate('/')
+        } else if (userData?.role === 'admin') {
+          navigate('/dashboard')
+        }
+      }, 500)
     } catch (error) {
       // Error handled by useAuth
     } finally {

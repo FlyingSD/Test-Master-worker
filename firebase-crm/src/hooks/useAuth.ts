@@ -13,6 +13,19 @@ import { auth, db, googleProvider } from '@/lib/firebase'
 import { User, UserRole } from '@/types'
 import toast from 'react-hot-toast'
 
+// Security: Admin Whitelist
+// Only emails in this list can have admin role
+const getAdminWhitelist = (): string[] => {
+  const adminEmails = import.meta.env.VITE_ADMIN_EMAILS || ''
+  return adminEmails.split(',').map((email: string) => email.trim()).filter(Boolean)
+}
+
+// Security: Validate admin access
+const isAdminWhitelisted = (email: string): boolean => {
+  const whitelist = getAdminWhitelist()
+  return whitelist.includes(email.toLowerCase())
+}
+
 export function useAuth() {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [userData, setUserData] = useState<User | null>(null)
@@ -28,18 +41,34 @@ export function useAuth() {
         const userDoc = await getDoc(userDocRef)
 
         if (userDoc?.exists()) {
-          setUserData(userDoc?.data() as User)
-        } else {
-          // Create user document if it doesn't exist
-          const newUser: User = {
-            id: firebaseUser?.uid,
-            email: firebaseUser?.email!,
-            name: firebaseUser?.displayName || firebaseUser?.email!.split('@')[0],
-            role: 'teacher', // Default role
-            createdAt: serverTimestamp(),
+          const data = userDoc?.data() as User
+
+          // SECURITY: Admin Whitelist Validation
+          // If user claims to be admin but email is not whitelisted, downgrade to teacher
+          if (data?.role === 'admin' && !isAdminWhitelisted(firebaseUser?.email || '')) {
+            console?.warn('Admin access denied for non-whitelisted email:', firebaseUser?.email)
+            toast?.error('Достъпът до администраторски панел беше отказан')
+
+            // Downgrade role to teacher in Firestore
+            await setDoc(userDocRef, { role: 'teacher' }, { merge: true })
+            setUserData({ ...data, role: 'teacher' })
+
+            // Sign out the user for security
+            await firebaseSignOut(auth)
+            setUserData(null)
+            setUser(null)
+            return
           }
-          await setDoc(userDocRef, newUser)
-          setUserData(newUser)
+
+          setUserData(data)
+        } else {
+          // SECURITY: No auto-creation of users
+          // Users MUST be created by admin through the admin panel
+          console?.warn('User document not found for:', firebaseUser?.email)
+          toast?.error('Потребителският профил не е намерен. Моля, свържете се с администратор.')
+          await firebaseSignOut(auth)
+          setUserData(null)
+          setUser(null)
         }
       } else {
         setUserData(null)
@@ -89,24 +118,30 @@ export function useAuth() {
       setLoading(true)
       const result = await signInWithPopup(auth, googleProvider)
 
-      // Check if user document exists, if not create it
+      // Check if user document exists
       const userDocRef = doc(db, 'users', result?.user.uid)
       const userDoc = await getDoc(userDocRef)
 
       if (!userDoc?.exists()) {
-        const newUser: User = {
-          id: result?.user.uid,
-          email: result?.user.email!,
-          name: result?.user?.displayName || result?.user?.email!.split('@')[0],
-          role: 'teacher', // Default role
-          createdAt: serverTimestamp(),
-          lastLogin: serverTimestamp(),
-        }
-        await setDoc(userDocRef, newUser)
-      } else {
-        // Update last login
-        await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true })
+        // SECURITY: No auto-creation for Google sign-in
+        // User must be created by admin first
+        toast?.error('Профилът не е намерен. Моля, свържете се с администратор.')
+        await firebaseSignOut(auth)
+        throw new Error('User profile not found')
       }
+
+      const userData = userDoc?.data() as User
+
+      // SECURITY: Admin Whitelist Validation
+      if (userData?.role === 'admin' && !isAdminWhitelisted(result?.user.email || '')) {
+        console?.warn('Admin access denied for non-whitelisted email:', result?.user.email)
+        toast?.error('Достъпът до администраторски панел беше отказан')
+        await firebaseSignOut(auth)
+        throw new Error('Admin access denied')
+      }
+
+      // Update last login
+      await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true })
 
       toast?.success('Влизането с Google беше успешно!')
       return result?.user
@@ -117,6 +152,8 @@ export function useAuth() {
         toast?.error('Влизането беше отменено')
       } else if (error?.code === 'auth/popup-blocked') {
         toast?.error('Popup прозорецът беше блокиран от браузъра')
+      } else if (error?.message === 'User profile not found' || error?.message === 'Admin access denied') {
+        // Already handled above
       } else {
         toast?.error('Грешка при влизане с Google: ' + error?.message)
       }
@@ -224,4 +261,30 @@ export function useAuth() {
     isTeacherOrAbove, // NEW: Use this for teacher OR admin access
     isParent,
   }
+}
+
+// SECURITY: Role Validation Helper
+// Use this in login pages to validate that the logged-in user has the expected role
+export const validateRoleAccess = (
+  expectedRole: UserRole,
+  actualRole: UserRole | undefined
+): boolean => {
+  if (!actualRole) return false
+
+  // Exact match for parent and teacher
+  if (expectedRole === 'parent' || expectedRole === 'teacher') {
+    return actualRole === expectedRole
+  }
+
+  // Admin can only access admin routes
+  if (expectedRole === 'admin') {
+    return actualRole === 'admin'
+  }
+
+  return false
+}
+
+// SECURITY: Check if email is admin whitelisted (for external use)
+export const checkAdminWhitelist = (email: string): boolean => {
+  return isAdminWhitelisted(email)
 }
