@@ -12,14 +12,37 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Get user data from users collection
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    // 🔒 CRITICAL #1 FIX: Use custom claims from JWT token
+    // Falls back to Firestore getUserData() if custom claims not set
+    // Custom claims avoid DoS vulnerability from excessive Firestore reads
+    function getUserRole() {
+      // Try custom claims first (from JWT token - no Firestore read!)
+      if (request.auth.token.role != null) {
+        return request.auth.token.role;
+      }
+      // Fallback to Firestore read (for backward compatibility during migration)
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
 
-    // Check if user has specific role
+    // Get user groups from custom claims or Firestore
+    function getUserGroups() {
+      if (request.auth.token.groups != null) {
+        return request.auth.token.groups;
+      }
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedGroups;
+    }
+
+    // Get user studentIds from custom claims or Firestore
+    function getUserStudentIds() {
+      if (request.auth.token.studentIds != null) {
+        return request.auth.token.studentIds;
+      }
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.studentIds;
+    }
+
+    // Check if user has specific role (using custom claims)
     function hasRole(role) {
-      return isAuthenticated() && getUserData().role == role;
+      return isAuthenticated() && getUserRole() == role;
     }
 
     // Check if user is admin
@@ -52,17 +75,17 @@ service cloud.firestore {
       return isAdmin() || ownsDocument();
     }
 
-    // Check if parent has access to student (updated for parentIds array in student)
+    // Check if parent has access to student (using custom claims)
     function parentHasStudent(studentId) {
       return isParent() && (
-        studentId in getUserData().studentIds ||
+        studentId in getUserStudentIds() ||
         request.auth.uid in get(/databases/$(database)/documents/students/$(studentId)).data.parentIds
       );
     }
 
-    // Check if teacher teaches student's group
+    // Check if teacher teaches student's group (using custom claims)
     function teacherTeachesGroup(groupId) {
-      return isTeacher() && groupId in getUserData().groups;
+      return isTeacher() && groupId in getUserGroups();
     }
 
     // ========================================
