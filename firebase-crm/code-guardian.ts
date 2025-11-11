@@ -380,6 +380,17 @@ class CodeGuardianAgent {
   }
 
   private async autoFixIssues(context: FileContext): Promise<number> {
+    // ⚠️ AUTO-FIX DISABLED FOR SAFETY
+    // Auto-fixing at text level is too risky and can break working code
+    // TODO: Reimplement using AST NodeTransformer for safe transformations
+
+    console.warn('⚠️  Auto-fix is currently disabled for safety reasons')
+    console.warn('   Issues detected but not automatically fixed')
+    console.warn('   Review the report and fix manually')
+
+    return 0
+
+    /* DISABLED CODE - DO NOT ENABLE WITHOUT AST-BASED REWRITES
     let fixedCount = 0
     let content = context.content
 
@@ -402,6 +413,7 @@ class CodeGuardianAgent {
     }
 
     return fixedCount
+    */
   }
 
   private applyFix(content: string, issue: CodeIssue): string | null {

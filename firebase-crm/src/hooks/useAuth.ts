@@ -24,17 +24,17 @@ export function useAuth() {
 
       if (firebaseUser) {
         // Fetch user data from Firestore
-        const userDocRef = doc(db, 'users', firebaseUser.uid)
+        const userDocRef = doc(db, 'users', firebaseUser?.uid)
         const userDoc = await getDoc(userDocRef)
 
-        if (userDoc.exists()) {
-          setUserData(userDoc.data() as User)
+        if (userDoc?.exists()) {
+          setUserData(userDoc?.data() as User)
         } else {
           // Create user document if it doesn't exist
           const newUser: User = {
-            id: firebaseUser.uid,
-            email: firebaseUser.email!,
-            name: firebaseUser.displayName || firebaseUser.email!.split('@')[0],
+            id: firebaseUser?.uid,
+            email: firebaseUser?.email!,
+            name: firebaseUser?.displayName || firebaseUser?.email!.split('@')[0],
             role: 'teacher', // Default role
             createdAt: serverTimestamp(),
           }
@@ -57,25 +57,25 @@ export function useAuth() {
       const result = await signInWithEmailAndPassword(auth, email, password)
 
       // Update last login
-      const userDocRef = doc(db, 'users', result.user.uid)
+      const userDocRef = doc(db, 'users', result?.user.uid)
       await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true })
 
-      toast.success('Влизането беше успешно!')
-      return result.user
+      toast?.success('Влизането беше успешно!')
+      return result?.user
     } catch (error: any) {
-      console.error('Sign in error:', error)
+      console?.error('Sign in error:', error)
 
       // User-friendly error messages
-      if (error.code === 'auth/user-not-found') {
-        toast.error('Потребителят не е намерен')
-      } else if (error.code === 'auth/wrong-password') {
-        toast.error('Грешна парола')
-      } else if (error.code === 'auth/invalid-email') {
-        toast.error('Невалиден имейл адрес')
-      } else if (error.code === 'auth/too-many-requests') {
-        toast.error('Твърде много опити. Опитайте по-късно')
+      if (error?.code === 'auth/user-not-found') {
+        toast?.error('Потребителят не е намерен')
+      } else if (error?.code === 'auth/wrong-password') {
+        toast?.error('Грешна парола')
+      } else if (error?.code === 'auth/invalid-email') {
+        toast?.error('Невалиден имейл адрес')
+      } else if (error?.code === 'auth/too-many-requests') {
+        toast?.error('Твърде много опити. Опитайте по-късно')
       } else {
-        toast.error('Грешка при влизане: ' + error.message)
+        toast?.error('Грешка при влизане: ' + error?.message)
       }
 
       throw error
@@ -90,14 +90,14 @@ export function useAuth() {
       const result = await signInWithPopup(auth, googleProvider)
 
       // Check if user document exists, if not create it
-      const userDocRef = doc(db, 'users', result.user.uid)
+      const userDocRef = doc(db, 'users', result?.user.uid)
       const userDoc = await getDoc(userDocRef)
 
-      if (!userDoc.exists()) {
+      if (!userDoc?.exists()) {
         const newUser: User = {
-          id: result.user.uid,
-          email: result.user.email!,
-          name: result.user.displayName || result.user.email!.split('@')[0],
+          id: result?.user.uid,
+          email: result?.user.email!,
+          name: result?.user?.displayName || result?.user?.email!.split('@')[0],
           role: 'teacher', // Default role
           createdAt: serverTimestamp(),
           lastLogin: serverTimestamp(),
@@ -108,17 +108,17 @@ export function useAuth() {
         await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true })
       }
 
-      toast.success('Влизането с Google беше успешно!')
-      return result.user
+      toast?.success('Влизането с Google беше успешно!')
+      return result?.user
     } catch (error: any) {
-      console.error('Google sign in error:', error)
+      console?.error('Google sign in error:', error)
 
-      if (error.code === 'auth/popup-closed-by-user') {
-        toast.error('Влизането беше отменено')
-      } else if (error.code === 'auth/popup-blocked') {
-        toast.error('Popup прозорецът беше блокиран от браузъра')
+      if (error?.code === 'auth/popup-closed-by-user') {
+        toast?.error('Влизането беше отменено')
+      } else if (error?.code === 'auth/popup-blocked') {
+        toast?.error('Popup прозорецът беше блокиран от браузъра')
       } else {
-        toast.error('Грешка при влизане с Google: ' + error.message)
+        toast?.error('Грешка при влизане с Google: ' + error?.message)
       }
 
       throw error
@@ -140,7 +140,7 @@ export function useAuth() {
 
       // Create user document
       const newUser: User = {
-        id: result.user.uid,
+        id: result?.user.uid,
         email: email,
         name: name,
         role: role,
@@ -149,22 +149,22 @@ export function useAuth() {
         ...additionalData,
       }
 
-      const userDocRef = doc(db, 'users', result.user.uid)
+      const userDocRef = doc(db, 'users', result?.user.uid)
       await setDoc(userDocRef, newUser)
 
-      toast.success('Регистрацията беше успешна!')
-      return result.user
+      toast?.success('Регистрацията беше успешна!')
+      return result?.user
     } catch (error: any) {
-      console.error('Sign up error:', error)
+      console?.error('Sign up error:', error)
 
-      if (error.code === 'auth/email-already-in-use') {
-        toast.error('Имейлът вече е използван')
-      } else if (error.code === 'auth/weak-password') {
-        toast.error('Паролата трябва да е поне 6 символа')
-      } else if (error.code === 'auth/invalid-email') {
-        toast.error('Невалиден имейл адрес')
+      if (error?.code === 'auth/email-already-in-use') {
+        toast?.error('Имейлът вече е използван')
+      } else if (error?.code === 'auth/weak-password') {
+        toast?.error('Паролата трябва да е поне 6 символа')
+      } else if (error?.code === 'auth/invalid-email') {
+        toast?.error('Невалиден имейл адрес')
       } else {
-        toast.error('Грешка при регистрация: ' + error.message)
+        toast?.error('Грешка при регистрация: ' + error?.message)
       }
 
       throw error
@@ -176,16 +176,16 @@ export function useAuth() {
   const resetPassword = async (email: string) => {
     try {
       await sendPasswordResetEmail(auth, email)
-      toast.success('Имейл за възстановяване на парола беше изпратен')
+      toast?.success('Имейл за възстановяване на парола беше изпратен')
     } catch (error: any) {
-      console.error('Password reset error:', error)
+      console?.error('Password reset error:', error)
 
-      if (error.code === 'auth/user-not-found') {
-        toast.error('Потребителят не е намерен')
-      } else if (error.code === 'auth/invalid-email') {
-        toast.error('Невалиден имейл адрес')
+      if (error?.code === 'auth/user-not-found') {
+        toast?.error('Потребителят не е намерен')
+      } else if (error?.code === 'auth/invalid-email') {
+        toast?.error('Невалиден имейл адрес')
       } else {
-        toast.error('Грешка при изпращане на имейл: ' + error.message)
+        toast?.error('Грешка при изпращане на имейл: ' + error?.message)
       }
 
       throw error
@@ -195,10 +195,10 @@ export function useAuth() {
   const signOut = async () => {
     try {
       await firebaseSignOut(auth)
-      toast.success('Излязохте успешно')
+      toast?.success('Излязохте успешно')
     } catch (error: any) {
-      console.error('Sign out error:', error)
-      toast.error('Грешка при излизане')
+      console?.error('Sign out error:', error)
+      toast?.error('Грешка при излизане')
       throw error
     }
   }

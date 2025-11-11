@@ -58,14 +58,14 @@ export function useFeaturePermissions() {
       const docRef = doc(db, 'settings', 'system')
       const docSnap = await getDoc(docRef)
 
-      if (docSnap.exists()) {
-        const data = docSnap.data()
-        if (data.featurePermissions) {
-          setPermissions(data.featurePermissions as RoleFeaturePermissions)
+      if (docSnap?.exists()) {
+        const data = docSnap?.data()
+        if (data?.featurePermissions) {
+          setPermissions(data?.featurePermissions as RoleFeaturePermissions)
         }
       }
     } catch (error) {
-      console.error('Error loading feature permissions:', error)
+      console?.error('Error loading feature permissions:', error)
       // Keep default permissions on error
     } finally {
       setLoading(false)
@@ -93,11 +93,11 @@ export function useFeaturePermissions() {
   const getEnabledFeatures = (role: UserRole): FeatureName[] => {
     if (role === 'admin') {
       // Admins have access to all features
-      return Object.keys(DEFAULT_PERMISSIONS.teacher) as FeatureName[]
+      return Object?.keys(DEFAULT_PERMISSIONS?.teacher) as FeatureName[]
     }
 
     if (role === 'teacher' || role === 'parent') {
-      return Object.entries(permissions[role])
+      return Object?.entries(permissions[role])
         .filter(([_, enabled]) => enabled)
         .map(([feature]) => feature as FeatureName)
     }

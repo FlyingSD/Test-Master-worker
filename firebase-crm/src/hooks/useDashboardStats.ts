@@ -12,7 +12,7 @@ import { DashboardStats } from '@/types'
  *
  * @example
  * const stats = useDashboardStats()
- * console.log(stats.profit) // totalRevenue - totalExpenses
+ * console?.log(stats?.profit) // totalRevenue - totalExpenses
  */
 export function useDashboardStats(): DashboardStats & { loading: boolean } {
   const { payments, loading: paymentsLoading } = usePayments()
@@ -23,13 +23,13 @@ export function useDashboardStats(): DashboardStats & { loading: boolean } {
 
   // Total revenue (all payments)
   const totalRevenue = useMemo(
-    () => payments.reduce((sum, p) => sum + p.amount, 0),
+    () => payments?.reduce((sum, p) => sum + p?.amount, 0),
     [payments]
   )
 
   // Total expenses
   const totalExpenses = useMemo(
-    () => expenses.reduce((sum, e) => sum + e.amount, 0),
+    () => expenses?.reduce((sum, e) => sum + e?.amount, 0),
     [expenses]
   )
 
@@ -41,20 +41,20 @@ export function useDashboardStats(): DashboardStats & { loading: boolean } {
 
   // Active students count
   const activeStudents = useMemo(
-    () => students.filter((s) => s.status === 'active').length,
+    () => students?.filter((s) => s?.status === 'active').length,
     [students]
   )
 
   // Total students count
-  const totalStudents = students.length
+  const totalStudents = students?.length
 
   // Overdue payments (students whose dueDate has passed)
   const overduePayments = useMemo(() => {
     const now = new Date()
-    return students.filter((s) => {
-      if (s.status !== 'active') return false
+    return students?.filter((s) => {
+      if (s?.status !== 'active') return false
 
-      const dueDate = s.dueDate instanceof Date ? s.dueDate : s.dueDate.toDate()
+      const dueDate = s?.dueDate instanceof Date ? s?.dueDate : s?.dueDate.toDate()
       return dueDate < now
     }).length
   }, [students])
@@ -62,12 +62,12 @@ export function useDashboardStats(): DashboardStats & { loading: boolean } {
   // Upcoming payments (due in next 7 days)
   const upcomingPayments = useMemo(() => {
     const now = new Date()
-    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+    const nextWeek = new Date(now?.getTime() + 7 * 24 * 60 * 60 * 1000)
 
-    return students.filter((s) => {
-      if (s.status !== 'active') return false
+    return students?.filter((s) => {
+      if (s?.status !== 'active') return false
 
-      const dueDate = s.dueDate instanceof Date ? s.dueDate : s.dueDate.toDate()
+      const dueDate = s?.dueDate instanceof Date ? s?.dueDate : s?.dueDate.toDate()
       return dueDate >= now && dueDate <= nextWeek
     }).length
   }, [students])
@@ -99,8 +99,8 @@ export function useMonthlyRevenueComparison() {
 
   const comparison = useMemo(() => {
     const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
+    const currentMonth = now?.getMonth()
+    const currentYear = now?.getFullYear()
 
     // Previous month calculation (handling year boundary)
     const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
@@ -109,24 +109,24 @@ export function useMonthlyRevenueComparison() {
     // Current month revenue
     const currentMonthRevenue = payments
       .filter((p) => {
-        const paymentDate = p.date instanceof Date ? p.date : p.date.toDate()
+        const paymentDate = p?.date instanceof Date ? p?.date : p?.date.toDate()
         return (
-          paymentDate.getMonth() === currentMonth &&
-          paymentDate.getFullYear() === currentYear
+          paymentDate?.getMonth() === currentMonth &&
+          paymentDate?.getFullYear() === currentYear
         )
       })
-      .reduce((sum, p) => sum + p.amount, 0)
+      .reduce((sum, p) => sum + p?.amount, 0)
 
     // Previous month revenue
     const previousMonthRevenue = payments
       .filter((p) => {
-        const paymentDate = p.date instanceof Date ? p.date : p.date.toDate()
+        const paymentDate = p?.date instanceof Date ? p?.date : p?.date.toDate()
         return (
-          paymentDate.getMonth() === prevMonth &&
-          paymentDate.getFullYear() === prevYear
+          paymentDate?.getMonth() === prevMonth &&
+          paymentDate?.getFullYear() === prevYear
         )
       })
-      .reduce((sum, p) => sum + p.amount, 0)
+      .reduce((sum, p) => sum + p?.amount, 0)
 
     // Calculate percentage change
     const percentageChange =

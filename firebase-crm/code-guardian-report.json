@@ -1,0 +1,835 @@
+{
+  "timestamp": "2025-11-11T10:51:06.864Z",
+  "projectRoot": "/home/user/Test-Master-worker/firebase-crm",
+  "files": [
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/main.tsx",
+      "issues": 67,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 7
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/App.tsx",
+      "issues": 249,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 7
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/touchGestures.ts",
+      "issues": 66,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 0
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/studentCode.ts",
+      "issues": 27,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 0
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/smsService.ts",
+      "issues": 55,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 2
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/security.ts",
+      "issues": 89,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/qrCode.ts",
+      "issues": 32,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 1
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/permissions.ts",
+      "issues": 22,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 1
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/pdfGenerator.ts",
+      "issues": 141,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 4
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/googleDrive.ts",
+      "issues": 74,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 1
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/formatters.ts",
+      "issues": 34,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/excelExport.ts",
+      "issues": 163,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/errorMessages.ts",
+      "issues": 62,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 0
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/emailService.ts",
+      "issues": 61,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/date.ts",
+      "issues": 74,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 2
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/utils/csvImport.ts",
+      "issues": 43,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/types/plugin.ts",
+      "issues": 19,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 1
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/types/index.ts",
+      "issues": 16,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 1
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/plugins/samplePlugin.tsx",
+      "issues": 53,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 2
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/TeacherLoginPage.tsx",
+      "issues": 72,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/StudentsPage.tsx",
+      "issues": 210,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 13
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/SettingsPage.tsx",
+      "issues": 374,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 8
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/ReportsPage.tsx",
+      "issues": 212,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 7
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/PaymentsPage.tsx",
+      "issues": 229,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 13
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/ParentsPage.tsx",
+      "issues": 366,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 11
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/ParentRegisterPage.tsx",
+      "issues": 108,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/ParentLoginPage.tsx",
+      "issues": 93,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/ParentDashboardPage.tsx",
+      "issues": 179,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 9
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/MyChildrenPage.tsx",
+      "issues": 223,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 11
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/MyChildDetailPage.tsx",
+      "issues": 502,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 13
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/LoginPage.tsx",
+      "issues": 107,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/LinkStudentPage.tsx",
+      "issues": 140,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 11
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/LandingPage.tsx",
+      "issues": 68,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 2
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/LabelsManagementPage.tsx",
+      "issues": 171,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 6
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/InvoicesPage.tsx",
+      "issues": 259,
+      "critical": 1,
+      "components": 0,
+      "hooks": 0,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/InventoryPage.tsx",
+      "issues": 245,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 9
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/HomeworkPage.tsx",
+      "issues": 280,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/GroupsPage.tsx",
+      "issues": 239,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 11
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/ForgotPasswordPage.tsx",
+      "issues": 77,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/ExpensesPage.tsx",
+      "issues": 228,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/EventsPage.tsx",
+      "issues": 217,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 8
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/ErrorDashboardPage.tsx",
+      "issues": 185,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 8
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/DiscountsPage.tsx",
+      "issues": 173,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 8
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/DashboardPage.tsx",
+      "issues": 333,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 13
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/AttendancePage.tsx",
+      "issues": 254,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 9
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/AdminPanelPage.tsx",
+      "issues": 329,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/pages/AdminLoginPage.tsx",
+      "issues": 50,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/lib/pluginManager.ts",
+      "issues": 80,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 2
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/lib/firebase.ts",
+      "issues": 28,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/lib/errorMessages.ts",
+      "issues": 16,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 0
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/lib/collections.ts",
+      "issues": 16,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 0
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/SwipeableCard.tsx",
+      "issues": 61,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/StudentModal.tsx",
+      "issues": 197,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 8
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/StockTransactionModal.tsx",
+      "issues": 195,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 6
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/RevenueExpensesChart.tsx",
+      "issues": 64,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/QRScanner.tsx",
+      "issues": 74,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/ProtectedRoute.tsx",
+      "issues": 45,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/PaymentPlanModal.tsx",
+      "issues": 156,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/PaymentModal.tsx",
+      "issues": 200,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 10
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/ParentModal.tsx",
+      "issues": 200,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 4
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/Pagination.tsx",
+      "issues": 59,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 1
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/Layout.tsx",
+      "issues": 162,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 10
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/InvoiceModal.tsx",
+      "issues": 265,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/InventoryModal.tsx",
+      "issues": 188,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/HomeworkModal.tsx",
+      "issues": 231,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 9
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/GroupModal.tsx",
+      "issues": 280,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 9
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/ExpensesByCategoryChart.tsx",
+      "issues": 66,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/ExpenseModal.tsx",
+      "issues": 128,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/EventModal.tsx",
+      "issues": 188,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 6
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/ErrorBoundary.tsx",
+      "issues": 74,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 2
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/ErrorAlert.tsx",
+      "issues": 51,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 2
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/DiscountModal.tsx",
+      "issues": 166,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 6
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/DateRangePicker.tsx",
+      "issues": 37,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 1
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/CSVImportModal.tsx",
+      "issues": 120,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 4
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/components/BulkPaymentModal.tsx",
+      "issues": 162,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 6
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/constants/queryKeys.ts",
+      "issues": 15,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 0
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/constants/messages.ts",
+      "issues": 15,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 0
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/constants/defaultLabels.ts",
+      "issues": 25,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 0
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/constants/appConstants.ts",
+      "issues": 96,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 0
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useSwipe.ts",
+      "issues": 30,
+      "critical": 0,
+      "components": 0,
+      "hooks": 1,
+      "imports": 2
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useStudents.ts",
+      "issues": 164,
+      "critical": 0,
+      "components": 0,
+      "hooks": 9,
+      "imports": 13
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useRealtimeCollection.ts",
+      "issues": 40,
+      "critical": 0,
+      "components": 0,
+      "hooks": 2,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/usePayments.ts",
+      "issues": 176,
+      "critical": 0,
+      "components": 0,
+      "hooks": 10,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/usePaymentStats.ts",
+      "issues": 78,
+      "critical": 0,
+      "components": 0,
+      "hooks": 2,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/usePaymentPlans.ts",
+      "issues": 86,
+      "critical": 0,
+      "components": 0,
+      "hooks": 6,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useParents.ts",
+      "issues": 161,
+      "critical": 0,
+      "components": 0,
+      "hooks": 11,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/usePagination.ts",
+      "issues": 20,
+      "critical": 0,
+      "components": 0,
+      "hooks": 1,
+      "imports": 1
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useOwnership.ts",
+      "issues": 90,
+      "critical": 0,
+      "components": 0,
+      "hooks": 8,
+      "imports": 3
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useNotifications.ts",
+      "issues": 64,
+      "critical": 0,
+      "components": 0,
+      "hooks": 1,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useLabels.ts",
+      "issues": 49,
+      "critical": 0,
+      "components": 0,
+      "hooks": 3,
+      "imports": 6
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useInvoices.ts",
+      "issues": 131,
+      "critical": 0,
+      "components": 0,
+      "hooks": 8,
+      "imports": 11
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useInventory.ts",
+      "issues": 175,
+      "critical": 0,
+      "components": 0,
+      "hooks": 11,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useHomework.ts",
+      "issues": 132,
+      "critical": 0,
+      "components": 0,
+      "hooks": 6,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useGroups.ts",
+      "issues": 113,
+      "critical": 0,
+      "components": 0,
+      "hooks": 7,
+      "imports": 10
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useFormValidation.ts",
+      "issues": 46,
+      "critical": 0,
+      "components": 0,
+      "hooks": 1,
+      "imports": 2
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useFeaturePermissions.ts",
+      "issues": 29,
+      "critical": 0,
+      "components": 0,
+      "hooks": 1,
+      "imports": 4
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useExpenses.ts",
+      "issues": 85,
+      "critical": 0,
+      "components": 0,
+      "hooks": 5,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useEvents.ts",
+      "issues": 113,
+      "critical": 0,
+      "components": 0,
+      "hooks": 8,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useDiscounts.ts",
+      "issues": 108,
+      "critical": 0,
+      "components": 0,
+      "hooks": 6,
+      "imports": 12
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useDenormalizedSync.ts",
+      "issues": 66,
+      "critical": 0,
+      "components": 0,
+      "hooks": 0,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useDashboardStats.ts",
+      "issues": 87,
+      "critical": 0,
+      "components": 0,
+      "hooks": 3,
+      "imports": 5
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useAuth.ts",
+      "issues": 82,
+      "critical": 0,
+      "components": 0,
+      "hooks": 1,
+      "imports": 6
+    },
+    {
+      "file": "/home/user/Test-Master-worker/firebase-crm/src/hooks/useAttendance.ts",
+      "issues": 133,
+      "critical": 0,
+      "components": 0,
+      "hooks": 8,
+      "imports": 12
+    }
+  ],
+  "summary": {
+    "totalFiles": 103,
+    "totalIssues": 13188,
+    "criticalIssues": 1
+  }
+}

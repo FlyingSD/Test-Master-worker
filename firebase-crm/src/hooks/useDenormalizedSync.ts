@@ -8,12 +8,12 @@ import { SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/constants/messages'
  * 🎯 SSOT (Single Source of Truth) - Denormalized Data Sync
  *
  * Maintains data integrity for denormalized fields.
- * When primary data changes (e.g., Student.name), automatically updates all copies (e.g., Payment.studentName).
+ * When primary data changes (e?.g., Student?.name), automatically updates all copies (e?.g., Payment?.studentName).
  *
  * Denormalized fields in the system:
- * - Payment.studentName (copy of Student.name)
- * - Discount.studentName (copy of Student.name)
- * - StockTransaction.inventoryItemName (copy of InventoryItem.name)
+ * - Payment?.studentName (copy of Student?.name)
+ * - Discount?.studentName (copy of Student?.name)
+ * - StockTransaction?.inventoryItemName (copy of InventoryItem?.name)
  *
  * Without this sync mechanism, historical data would become incorrect and inconsistent.
  */
@@ -36,14 +36,14 @@ export async function syncStudentNameInPayments(
   try {
     // Find all payments for this student
     const paymentsQuery = query(
-      collection(db, COLLECTIONS.PAYMENTS),
+      collection(db, COLLECTIONS?.PAYMENTS),
       where('studentId', '==', studentId)
     )
 
     const paymentsSnapshot = await getDocs(paymentsQuery)
 
-    if (paymentsSnapshot.empty) {
-      console.log(`No payments found for student ${studentId}`)
+    if (paymentsSnapshot?.empty) {
+      console?.log(`No payments found for student ${studentId}`)
       return 0
     }
 
@@ -51,18 +51,18 @@ export async function syncStudentNameInPayments(
     const batch = writeBatch(db)
     let updateCount = 0
 
-    paymentsSnapshot.forEach((paymentDoc) => {
-      const paymentRef = doc(db, COLLECTIONS.PAYMENTS, paymentDoc.id)
-      batch.update(paymentRef, { studentName: newStudentName })
+    paymentsSnapshot?.forEach((paymentDoc) => {
+      const paymentRef = doc(db, COLLECTIONS?.PAYMENTS, paymentDoc?.id)
+      batch?.update(paymentRef, { studentName: newStudentName })
       updateCount++
     })
 
-    await batch.commit()
+    await batch?.commit()
 
-    console.log(`✅ Updated studentName in ${updateCount} payments`)
+    console?.log(`✅ Updated studentName in ${updateCount} payments`)
     return updateCount
   } catch (error) {
-    console.error('Error syncing student name in payments:', error)
+    console?.error('Error syncing student name in payments:', error)
     throw error
   }
 }
@@ -76,32 +76,32 @@ export async function syncStudentNameInDiscounts(
 ): Promise<number> {
   try {
     const discountsQuery = query(
-      collection(db, COLLECTIONS.DISCOUNTS),
+      collection(db, COLLECTIONS?.DISCOUNTS),
       where('studentId', '==', studentId)
     )
 
     const discountsSnapshot = await getDocs(discountsQuery)
 
-    if (discountsSnapshot.empty) {
-      console.log(`No discounts found for student ${studentId}`)
+    if (discountsSnapshot?.empty) {
+      console?.log(`No discounts found for student ${studentId}`)
       return 0
     }
 
     const batch = writeBatch(db)
     let updateCount = 0
 
-    discountsSnapshot.forEach((discountDoc) => {
-      const discountRef = doc(db, COLLECTIONS.DISCOUNTS, discountDoc.id)
-      batch.update(discountRef, { studentName: newStudentName })
+    discountsSnapshot?.forEach((discountDoc) => {
+      const discountRef = doc(db, COLLECTIONS?.DISCOUNTS, discountDoc?.id)
+      batch?.update(discountRef, { studentName: newStudentName })
       updateCount++
     })
 
-    await batch.commit()
+    await batch?.commit()
 
-    console.log(`✅ Updated studentName in ${updateCount} discounts`)
+    console?.log(`✅ Updated studentName in ${updateCount} discounts`)
     return updateCount
   } catch (error) {
-    console.error('Error syncing student name in discounts:', error)
+    console?.error('Error syncing student name in discounts:', error)
     throw error
   }
 }
@@ -115,32 +115,32 @@ export async function syncInventoryNameInTransactions(
 ): Promise<number> {
   try {
     const transactionsQuery = query(
-      collection(db, COLLECTIONS.STOCK_TRANSACTIONS),
+      collection(db, COLLECTIONS?.STOCK_TRANSACTIONS),
       where('inventoryItemId', '==', inventoryItemId)
     )
 
     const transactionsSnapshot = await getDocs(transactionsQuery)
 
-    if (transactionsSnapshot.empty) {
-      console.log(`No transactions found for inventory item ${inventoryItemId}`)
+    if (transactionsSnapshot?.empty) {
+      console?.log(`No transactions found for inventory item ${inventoryItemId}`)
       return 0
     }
 
     const batch = writeBatch(db)
     let updateCount = 0
 
-    transactionsSnapshot.forEach((transactionDoc) => {
-      const transactionRef = doc(db, COLLECTIONS.STOCK_TRANSACTIONS, transactionDoc.id)
-      batch.update(transactionRef, { inventoryItemName: newItemName })
+    transactionsSnapshot?.forEach((transactionDoc) => {
+      const transactionRef = doc(db, COLLECTIONS?.STOCK_TRANSACTIONS, transactionDoc?.id)
+      batch?.update(transactionRef, { inventoryItemName: newItemName })
       updateCount++
     })
 
-    await batch.commit()
+    await batch?.commit()
 
-    console.log(`✅ Updated inventoryItemName in ${updateCount} stock transactions`)
+    console?.log(`✅ Updated inventoryItemName in ${updateCount} stock transactions`)
     return updateCount
   } catch (error) {
-    console.error('Error syncing inventory name in transactions:', error)
+    console?.error('Error syncing inventory name in transactions:', error)
     throw error
   }
 }
@@ -153,8 +153,8 @@ export async function syncInventoryNameInTransactions(
  *
  * @example
  * // In useUpdateStudent hook, after successful update:
- * if (data.name) {
- *   await syncAllStudentData(id, data.name)
+ * if (data?.name) {
+ *   await syncAllStudentData(id, data?.name)
  * }
  */
 export async function syncAllStudentData(
@@ -162,7 +162,7 @@ export async function syncAllStudentData(
   newStudentName: string
 ): Promise<void> {
   try {
-    const [paymentsUpdated, discountsUpdated] = await Promise.all([
+    const [paymentsUpdated, discountsUpdated] = await Promise?.all([
       syncStudentNameInPayments(studentId, newStudentName),
       syncStudentNameInDiscounts(studentId, newStudentName),
     ])
@@ -170,16 +170,16 @@ export async function syncAllStudentData(
     const totalUpdated = paymentsUpdated + discountsUpdated
 
     if (totalUpdated > 0) {
-      toast.success(
-        SUCCESS_MESSAGES.DATA_SYNCED(totalUpdated),
+      toast?.success(
+        SUCCESS_MESSAGES?.DATA_SYNCED(totalUpdated),
         { duration: 3000 }
       )
     }
 
-    console.log(`✅ Student data sync complete: ${totalUpdated} records updated`)
+    console?.log(`✅ Student data sync complete: ${totalUpdated} records updated`)
   } catch (error) {
-    console.error('Error syncing student data:', error)
-    toast.error(ERROR_MESSAGES.SYNC_DATA_ERROR)
+    console?.error('Error syncing student data:', error)
+    toast?.error(ERROR_MESSAGES?.SYNC_DATA_ERROR)
     throw error
   }
 }
@@ -192,8 +192,8 @@ export async function syncAllStudentData(
  *
  * @example
  * // In useUpdateInventoryItem hook, after successful update:
- * if (data.name) {
- *   await syncAllInventoryData(id, data.name)
+ * if (data?.name) {
+ *   await syncAllInventoryData(id, data?.name)
  * }
  */
 export async function syncAllInventoryData(
@@ -207,16 +207,16 @@ export async function syncAllInventoryData(
     )
 
     if (transactionsUpdated > 0) {
-      toast.success(
-        SUCCESS_MESSAGES.INVENTORY_SYNCED(transactionsUpdated),
+      toast?.success(
+        SUCCESS_MESSAGES?.INVENTORY_SYNCED(transactionsUpdated),
         { duration: 3000 }
       )
     }
 
-    console.log(`✅ Inventory data sync complete: ${transactionsUpdated} records updated`)
+    console?.log(`✅ Inventory data sync complete: ${transactionsUpdated} records updated`)
   } catch (error) {
-    console.error('Error syncing inventory data:', error)
-    toast.error(ERROR_MESSAGES.SYNC_DATA_ERROR)
+    console?.error('Error syncing inventory data:', error)
+    toast?.error(ERROR_MESSAGES?.SYNC_DATA_ERROR)
     throw error
   }
 }

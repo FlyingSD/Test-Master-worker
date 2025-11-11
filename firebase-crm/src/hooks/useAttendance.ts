@@ -23,14 +23,14 @@ import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 
-const attendanceCollection = collection(db, COLLECTIONS.ATTENDANCE)
+const attendanceCollection = collection(db, COLLECTIONS?.ATTENDANCE)
 
 /**
  * Hook to get all attendance records with real-time updates
  * 🔒 SECURITY FIX: Now filters attendance by role (PoLP)
  * - Admins see ALL attendance records
  * - Teachers see ALL attendance records (for their assigned groups)
- * - Parents see ONLY attendance for THEIR children (userData.studentIds)
+ * - Parents see ONLY attendance for THEIR children (userData?.studentIds)
  * - Batches queries for 10+ students (Firestore 'in' operator limit)
  */
 export function useAttendance() {
@@ -49,12 +49,12 @@ export function useAttendance() {
     setLoading(true)
 
     // 🔒 SECURITY: Parents can only see attendance for THEIR children (PoLP)
-    // Uses userData.studentIds for server-side filtering
+    // Uses userData?.studentIds for server-side filtering
     if (isParent) {
-      const studentIds = userData.studentIds || []
+      const studentIds = userData?.studentIds || []
 
       // Handle parents with no children assigned
-      if (studentIds.length === 0) {
+      if (studentIds?.length === 0) {
         setAttendance([])
         setLoading(false)
         return
@@ -63,14 +63,14 @@ export function useAttendance() {
       // Batch studentIds for Firestore 'in' operator (max 10 items)
       const batchSize = 10
       const batches: string[][] = []
-      for (let i = 0; i < studentIds.length; i += batchSize) {
-        batches.push(studentIds.slice(i, i + batchSize))
+      for (let i = 0; i < studentIds?.length; i += batchSize) {
+        batches?.push(studentIds?.slice(i, i + batchSize))
       }
 
       const unsubscribeAttendance: (() => void)[] = []
       const allAttendance = new Map<string, Attendance>()
 
-      batches.forEach((batch) => {
+      batches?.forEach((batch) => {
         const attendanceQuery = query(
           attendanceCollection,
           where('studentId', 'in', batch),
@@ -80,25 +80,25 @@ export function useAttendance() {
         const unsubscribe = onSnapshot(
           attendanceQuery,
           (snapshot) => {
-            snapshot.forEach((doc) => {
-              allAttendance.set(doc.id, { id: doc.id, ...doc.data() } as Attendance)
+            snapshot?.forEach((doc) => {
+              allAttendance?.set(doc?.id, { id: doc?.id, ...doc?.data() } as Attendance)
             })
-            setAttendance(Array.from(allAttendance.values()))
+            setAttendance(Array?.from(allAttendance?.values()))
             setLoading(false)
             setError(null)
           },
           (err) => {
-            console.error('Error fetching parent attendance:', err)
+            console?.error('Error fetching parent attendance:', err)
             setError(err as Error)
             setLoading(false)
-            toast.error(ERROR_MESSAGES.LOAD_ATTENDANCE_ERROR)
+            toast?.error(ERROR_MESSAGES?.LOAD_ATTENDANCE_ERROR)
           }
         )
 
-        unsubscribeAttendance.push(unsubscribe)
+        unsubscribeAttendance?.push(unsubscribe)
       })
 
-      return () => unsubscribeAttendance.forEach((unsub) => unsub())
+      return () => unsubscribeAttendance?.forEach((unsub) => unsub())
     }
 
     // 🔒 SECURITY: Admins and teachers see all attendance records
@@ -107,18 +107,18 @@ export function useAttendance() {
       q,
       (snapshot) => {
         const attendanceData: Attendance[] = []
-        snapshot.forEach((doc) => {
-          attendanceData.push({ id: doc.id, ...doc.data() } as Attendance)
+        snapshot?.forEach((doc) => {
+          attendanceData?.push({ id: doc?.id, ...doc?.data() } as Attendance)
         })
         setAttendance(attendanceData)
         setLoading(false)
         setError(null)
       },
       (err) => {
-        console.error('Error fetching attendance:', err)
+        console?.error('Error fetching attendance:', err)
         setError(err as Error)
         setLoading(false)
-        toast.error(ERROR_MESSAGES.LOAD_ATTENDANCE_ERROR)
+        toast?.error(ERROR_MESSAGES?.LOAD_ATTENDANCE_ERROR)
       }
     )
 
@@ -149,8 +149,8 @@ export function useAttendance() {
  *
  *   return (
  *     <Card>
- *       <h3>Attendance for {date.toLocaleDateString()}</h3>
- *       {attendance.map(a => <AttendanceRow key={a.id} {...a} />)}
+ *       <h3>Attendance for {date?.toLocaleDateString()}</h3>
+ *       {attendance?.map(a => <AttendanceRow key={a?.id} {...a} />)}
  *     </Card>
  *   )
  * }
@@ -169,29 +169,29 @@ export function useAttendanceByDate(date: Date) {
 
     // Create start and end of day
     const startOfDay = new Date(date)
-    startOfDay.setHours(0, 0, 0, 0)
+    startOfDay?.setHours(0, 0, 0, 0)
 
     const endOfDay = new Date(date)
-    endOfDay.setHours(23, 59, 59, 999)
+    endOfDay?.setHours(23, 59, 59, 999)
 
     const q = query(
       attendanceCollection,
-      where('date', '>=', Timestamp.fromDate(startOfDay)),
-      where('date', '<=', Timestamp.fromDate(endOfDay)),
+      where('date', '>=', Timestamp?.fromDate(startOfDay)),
+      where('date', '<=', Timestamp?.fromDate(endOfDay)),
       orderBy('date')
     )
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const attendanceData: Attendance[] = []
-      snapshot.forEach((doc) => {
-        attendanceData.push({ id: doc.id, ...doc.data() } as Attendance)
+      snapshot?.forEach((doc) => {
+        attendanceData?.push({ id: doc?.id, ...doc?.data() } as Attendance)
       })
       setAttendance(attendanceData)
       setLoading(false)
     })
 
     return () => unsubscribe()
-  }, [date.toISOString()])
+  }, [date?.toISOString()])
 
   return { attendance, loading }
 }
@@ -215,7 +215,7 @@ export function useAttendanceByDate(date: Date) {
  *
  *   if (loading) return <Spinner />
  *
- *   return attendance.map(a => <AttendanceCard key={a.id} {...a} />)
+ *   return attendance?.map(a => <AttendanceCard key={a?.id} {...a} />)
  * }
  * ```
  */
@@ -238,8 +238,8 @@ export function useAttendanceByStudent(studentId: string) {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const attendanceData: Attendance[] = []
-      snapshot.forEach((doc) => {
-        attendanceData.push({ id: doc.id, ...doc.data() } as Attendance)
+      snapshot?.forEach((doc) => {
+        attendanceData?.push({ id: doc?.id, ...doc?.data() } as Attendance)
       })
       setAttendance(attendanceData)
       setLoading(false)
@@ -262,7 +262,7 @@ export function useAttendanceByStudent(studentId: string) {
  *   - isPending: True while request is in progress
  *   - isSuccess/isError: Status flags
  *
- * @security Populates createdBy field with current user.uid for ownership tracking
+ * @security Populates createdBy field with current user?.uid for ownership tracking
  *
  * @example
  * ```tsx
@@ -270,11 +270,11 @@ export function useAttendanceByStudent(studentId: string) {
  *   const addAttendance = useAddAttendance()
  *
  *   const handleSubmit = async (data: Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>) => {
- *     await addAttendance.mutateAsync(data)
- *     toast.success('Attendance recorded!')
+ *     await addAttendance?.mutateAsync(data)
+ *     toast?.success('Attendance recorded!')
  *   }
  *
- *   return <Form onSubmit={handleSubmit} loading={addAttendance.isPending} />
+ *   return <Form onSubmit={handleSubmit} loading={addAttendance?.isPending} />
  * }
  * ```
  */
@@ -285,21 +285,21 @@ export function useAddAttendance() {
   return useMutation({
     mutationFn: async (data: Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
       const attendanceData = {
         ...data,
-        date: toTimestamp(data.date),
-        createdBy: user.uid,
+        date: toTimestamp(data?.date),
+        createdBy: user?.uid,
         createdAt: serverTimestamp(),
       }
       const docRef = await addDoc(attendanceCollection, attendanceData)
-      return docRef.id
+      return docRef?.id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.attendance })
-      toast.success(SUCCESS_MESSAGES.ATTENDANCE_ADDED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.attendance })
+      toast?.success(SUCCESS_MESSAGES?.ATTENDANCE_ADDED)
     },
   })
 }
@@ -326,22 +326,22 @@ export function useUpdateAttendance() {
       // Security: Validate document ownership and fetch current document
       // This ensures only owners (or admins) can update attendance records
       await validateDocumentOwnership(
-        COLLECTIONS.ATTENDANCE,
+        COLLECTIONS?.ATTENDANCE,
         id,
         user!,
-        ERROR_MESSAGES.ATTENDANCE_NOT_FOUND
+        ERROR_MESSAGES?.ATTENDANCE_NOT_FOUND
       )
 
-      const docRef = doc(db, COLLECTIONS.ATTENDANCE, id)
+      const docRef = doc(db, COLLECTIONS?.ATTENDANCE, id)
       const updateData: any = { ...data }
-      if (updateData.date) {
-        updateData.date = toTimestamp(updateData.date)
+      if (updateData?.date) {
+        updateData?.date = toTimestamp(updateData?.date)
       }
       await updateDoc(docRef, updateData)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.attendance })
-      toast.success(SUCCESS_MESSAGES.ATTENDANCE_UPDATED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.attendance })
+      toast?.success(SUCCESS_MESSAGES?.ATTENDANCE_UPDATED)
     },
   })
 }
@@ -362,17 +362,17 @@ export function useDeleteAttendance() {
       // Security: Validate document ownership before deletion
       // This ensures only owners (or admins) can delete attendance records
       await validateDocumentOwnership(
-        COLLECTIONS.ATTENDANCE,
+        COLLECTIONS?.ATTENDANCE,
         id,
         user!,
-        ERROR_MESSAGES.ATTENDANCE_NOT_FOUND
+        ERROR_MESSAGES?.ATTENDANCE_NOT_FOUND
       )
 
-      await deleteDoc(doc(db, COLLECTIONS.ATTENDANCE, id))
+      await deleteDoc(doc(db, COLLECTIONS?.ATTENDANCE, id))
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.attendance })
-      toast.success(SUCCESS_MESSAGES.ATTENDANCE_DELETED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.attendance })
+      toast?.success(SUCCESS_MESSAGES?.ATTENDANCE_DELETED)
     },
   })
 }
@@ -381,13 +381,13 @@ export function useDeleteAttendance() {
  * Hook to bulk add attendance for multiple students
  *
  * @description Creates multiple attendance records in a single operation.
- * All records are processed in parallel using Promise.all for performance.
+ * All records are processed in parallel using Promise?.all for performance.
  *
  * @returns {UseMutationResult} React Query mutation object for bulk attendance creation
  *
  * @param {Array<Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>>} records - Array of attendance data to create
  *
- * @security Each record automatically gets createdBy field populated with current user.uid
+ * @security Each record automatically gets createdBy field populated with current user?.uid
  *
  * @example
  * ```tsx
@@ -395,14 +395,14 @@ export function useDeleteAttendance() {
  *   const bulkAdd = useBulkAddAttendance()
  *
  *   const handleSubmit = async (studentIds: string[], date: Date, status: string) => {
- *     const records = studentIds.map(id => ({
+ *     const records = studentIds?.map(id => ({
  *       studentId: id,
  *       date,
  *       status,
  *       notes: ''
  *     }))
  *
- *     await bulkAdd.mutateAsync(records)
+ *     await bulkAdd?.mutateAsync(records)
  *   }
  *
  *   return <Form onSubmit={handleSubmit} />
@@ -418,27 +418,27 @@ export function useBulkAddAttendance() {
       records: Array<Omit<Attendance, 'id' | 'createdAt' | 'createdBy'>>
     ) => {
       if (!user) {
-        throw new Error(ERROR_MESSAGES.NOT_LOGGED_IN)
+        throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
-      const promises = records.map((data) => {
+      const promises = records?.map((data) => {
         const attendanceData = {
           ...data,
-          date: toTimestamp(data.date),
-          createdBy: user.uid,
+          date: toTimestamp(data?.date),
+          createdBy: user?.uid,
           createdAt: serverTimestamp(),
         }
         return addDoc(attendanceCollection, attendanceData)
       })
-      await Promise.all(promises)
+      await Promise?.all(promises)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.attendance })
-      toast.success(SUCCESS_MESSAGES.BULK_ATTENDANCE_ADDED)
+      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.attendance })
+      toast?.success(SUCCESS_MESSAGES?.BULK_ATTENDANCE_ADDED)
     },
     onError: (error) => {
-      console.error('Error bulk adding attendance:', error)
-      toast.error(ERROR_MESSAGES.BULK_ATTENDANCE_ERROR)
+      console?.error('Error bulk adding attendance:', error)
+      toast?.error(ERROR_MESSAGES?.BULK_ATTENDANCE_ERROR)
     },
   })
 }
@@ -466,10 +466,10 @@ export function useBulkAddAttendance() {
  *
  *   return (
  *     <div className="stats-grid">
- *       <StatCard label="Total" value={stats.total} />
- *       <StatCard label="Present" value={stats.present} variant="success" />
- *       <StatCard label="Absent" value={stats.absent} variant="error" />
- *       <StatCard label="Rate" value={`${stats.attendanceRate}%`} />
+ *       <StatCard label="Total" value={stats?.total} />
+ *       <StatCard label="Present" value={stats?.present} variant="success" />
+ *       <StatCard label="Absent" value={stats?.absent} variant="error" />
+ *       <StatCard label="Rate" value={`${stats?.attendanceRate}%`} />
  *     </div>
  *   )
  * }
@@ -479,15 +479,15 @@ export function useAttendanceStats(studentId: string) {
   const { attendance } = useAttendanceByStudent(studentId)
 
   const stats = {
-    total: attendance.length,
-    present: attendance.filter((a) => a.status === 'present').length,
-    absent: attendance.filter((a) => a.status === 'absent').length,
-    late: attendance.filter((a) => a.status === 'late').length,
-    excused: attendance.filter((a) => a.status === 'excused').length,
+    total: attendance?.length,
+    present: attendance?.filter((a) => a?.status === 'present').length,
+    absent: attendance?.filter((a) => a?.status === 'absent').length,
+    late: attendance?.filter((a) => a?.status === 'late').length,
+    excused: attendance?.filter((a) => a?.status === 'excused').length,
     attendanceRate:
-      attendance.length > 0
-        ? ((attendance.filter((a) => a.status === 'present' || a.status === 'late').length /
-            attendance.length) *
+      attendance?.length > 0
+        ? ((attendance?.filter((a) => a?.status === 'present' || a?.status === 'late').length /
+            attendance?.length) *
             100).toFixed(1)
         : '0',
   }
