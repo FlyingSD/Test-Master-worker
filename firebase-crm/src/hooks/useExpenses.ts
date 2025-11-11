@@ -22,6 +22,7 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
 import { QUERY_KEYS } from '@/constants/queryKeys'
+import { mapSnapshotToArray, prepareUpdateData } from '@/utils/firestoreHelpers'
 
 const expensesCollection = collection(db, COLLECTIONS?.EXPENSES)
 
@@ -58,11 +59,7 @@ export function useExpenses() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const expensesData: Expense[] = []
-        snapshot?.forEach((doc) => {
-          expensesData?.push({ id: doc?.id, ...doc?.data() } as Expense)
-        })
-        setExpenses(expensesData)
+        setExpenses(mapSnapshotToArray<Expense>(snapshot))
         setLoading(false)
         setError(null)
       },
@@ -174,10 +171,7 @@ export function useUpdateExpense() {
       // 🔒 SECURITY: Validate ownership using centralized utility
       await validateDocumentOwnership(COLLECTIONS?.EXPENSES, id, userData, ERROR_MESSAGES?.EXPENSE_NOT_FOUND)
 
-      const updateData: Record<string, any> = { ...data }
-      if (updateData?.date) {
-        updateData?.date = toTimestamp(updateData?.date)
-      }
+      const updateData = prepareUpdateData(data, ['date'])
       const docRef = doc(db, COLLECTIONS?.EXPENSES, id)
       await updateDoc(docRef, updateData)
     },

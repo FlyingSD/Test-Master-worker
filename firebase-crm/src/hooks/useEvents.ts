@@ -24,6 +24,7 @@ import { COLLECTIONS } from '@/lib/collections'
 import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
 import { QUERY_KEYS } from '@/constants/queryKeys'
+import { mapSnapshotToArray, prepareUpdateData } from '@/utils/firestoreHelpers'
 
 // Collection reference
 const eventsCollection = collection(db, COLLECTIONS?.EVENTS)
@@ -59,14 +60,7 @@ export function useEvents() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const eventsData: Event[] = []
-        snapshot?.forEach((doc) => {
-          eventsData?.push({
-            id: doc?.id,
-            ...doc?.data(),
-          } as Event)
-        })
-        setEvents(eventsData)
+        setEvents(mapSnapshotToArray<Event>(snapshot))
         setLoading(false)
         setError(null)
       },
@@ -324,13 +318,7 @@ export function useUpdateEvent() {
       const docRef = doc(db, COLLECTIONS?.EVENTS, id)
 
       // Convert dates to Timestamps
-      const updateData: Record<string, any> = { ...data }
-      if (updateData?.startTime) {
-        updateData?.startTime = toTimestamp(updateData?.startTime)
-      }
-      if (updateData?.endTime) {
-        updateData?.endTime = toTimestamp(updateData?.endTime)
-      }
+      const updateData = prepareUpdateData(data, ['startTime', 'endTime'])
 
       await updateDoc(docRef, updateData)
     },
