@@ -23,6 +23,7 @@ import { validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 import { mapSnapshotToArray, prepareUpdateData } from '@/utils/firestoreHelpers'
+import { createMutationErrorHandler, createSnapshotErrorHandler } from '@/utils/errorHandling'
 
 const expensesCollection = collection(db, COLLECTIONS?.EXPENSES)
 
@@ -63,12 +64,7 @@ export function useExpenses() {
         setLoading(false)
         setError(null)
       },
-      (err) => {
-        console?.error('Error fetching expenses:', err)
-        setError(err as Error)
-        setLoading(false)
-        toast?.error(ERROR_MESSAGES?.LOAD_EXPENSES_ERROR || 'Error loading expenses')
-      }
+      createSnapshotErrorHandler('fetching expenses', ERROR_MESSAGES?.LOAD_EXPENSES_ERROR || 'Error loading expenses', setError, setLoading)
     )
     return () => unsubscribe()
   }, [])
@@ -179,10 +175,7 @@ export function useUpdateExpense() {
       queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.expenses })
       toast?.success(SUCCESS_MESSAGES?.EXPENSE_UPDATED)
     },
-    onError: (error: Error) => {
-      console?.error('Error updating expense:', error)
-      toast?.error(ERROR_MESSAGES?.UPDATE_EXPENSE_ERROR + ': ' + error?.message)
-    },
+    onError: createMutationErrorHandler('updating expense', ERROR_MESSAGES?.UPDATE_EXPENSE_ERROR),
   })
 }
 
@@ -235,10 +228,7 @@ export function useDeleteExpense() {
       queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.expenses })
       toast?.success(SUCCESS_MESSAGES?.EXPENSE_DELETED)
     },
-    onError: (error: Error) => {
-      console?.error('Error deleting expense:', error)
-      toast?.error(ERROR_MESSAGES?.DELETE_EXPENSE_ERROR + ': ' + error?.message)
-    },
+    onError: createMutationErrorHandler('deleting expense', ERROR_MESSAGES?.DELETE_EXPENSE_ERROR),
   })
 }
 
