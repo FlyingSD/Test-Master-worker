@@ -5,11 +5,12 @@ import {
   signInWithPopup,
   signOut as firebaseSignOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   User as FirebaseUser,
 } from 'firebase/auth'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db, googleProvider } from '@/lib/firebase'
-import { User } from '@/types'
+import { User, UserRole } from '@/types'
 import toast from 'react-hot-toast'
 
 export function useAuth() {
@@ -126,7 +127,13 @@ export function useAuth() {
     }
   }
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    name: string,
+    role: UserRole = 'parent',
+    additionalData?: Partial<User>
+  ) => {
     try {
       setLoading(true)
       const result = await createUserWithEmailAndPassword(auth, email, password)
@@ -136,9 +143,10 @@ export function useAuth() {
         id: result.user.uid,
         email: email,
         name: name,
-        role: 'teacher', // Default role
+        role: role,
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp(),
+        ...additionalData,
       }
 
       const userDocRef = doc(db, 'users', result.user.uid)
@@ -162,6 +170,25 @@ export function useAuth() {
       throw error
     } finally {
       setLoading(false)
+    }
+  }
+
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email)
+      toast.success('Имейл за възстановяване на парола беше изпратен')
+    } catch (error: any) {
+      console.error('Password reset error:', error)
+
+      if (error.code === 'auth/user-not-found') {
+        toast.error('Потребителят не е намерен')
+      } else if (error.code === 'auth/invalid-email') {
+        toast.error('Невалиден имейл адрес')
+      } else {
+        toast.error('Грешка при изпращане на имейл: ' + error.message)
+      }
+
+      throw error
     }
   }
 
@@ -191,6 +218,7 @@ export function useAuth() {
     signInWithGoogle,
     signUp,
     signOut,
+    resetPassword,
     isAdmin,
     isTeacher,
     isTeacherOrAbove, // NEW: Use this for teacher OR admin access

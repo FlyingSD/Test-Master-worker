@@ -17,14 +17,16 @@ export interface User {
 // Student interface
 export interface Student {
   id: string
+  studentCode: string // 🆕 Уникален код за свързване (6 символа: букви A-Z без O/I + цифри 2-9 без 0/1)
   name: string
+  dateOfBirth?: Date | Timestamp // 🆕 Дата на раждане (за статистика, възраст, групиране)
   group: string // Група (напр. "Група 1", "Група 2")
   fee: number // Месечна такса в BGN
   feeEUR: number // Месечна такса в EUR
   dueDate: Date | Timestamp // Дата на падеж (кога се плаща месечната такса)
   status: 'active' | 'inactive' // Активен/Неактивен
   studyType: 'Групово' | 'Индивидуално' // Тип обучение
-  parentId: string // ID на родителя
+  parentIds: string[] // 🔄 Масив от ID-та на родители (може да има 2+ родители)
   notes?: string // Бележки
   createdBy: string // User ID на създателя (за ownership validation)
   createdAt: Date | Timestamp

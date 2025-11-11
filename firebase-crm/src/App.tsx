@@ -6,6 +6,16 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 // Eager load critical components
 import LoginPage from '@/pages/LoginPage'
 import Layout from '@/components/Layout'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
+
+// New authentication pages (lazy loaded)
+const LandingPage = lazy(() => import('@/pages/LandingPage'))
+const ParentLoginPage = lazy(() => import('@/pages/ParentLoginPage'))
+const TeacherLoginPage = lazy(() => import('@/pages/TeacherLoginPage'))
+const AdminLoginPage = lazy(() => import('@/pages/AdminLoginPage'))
+const ParentRegisterPage = lazy(() => import('@/pages/ParentRegisterPage'))
+const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'))
+const LinkStudentPage = lazy(() => import('@/pages/LinkStudentPage'))
 
 // Lazy load all page components for code splitting
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
@@ -57,23 +67,63 @@ export default function App() {
       <Router>
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Public routes */}
-            <Route
-              path="/login"
-              element={user ? <Navigate to="/" replace /> : <LoginPage />}
-            />
-
-            {/* Protected routes */}
+            {/* Public routes - Authentication */}
             <Route
               path="/"
-              element={user ? <Layout /> : <Navigate to="/login" replace />}
+              element={!user ? <LandingPage /> : <Navigate to={isParent ? "/my-children" : "/dashboard"} replace />}
+            />
+            <Route
+              path="/login/parent"
+              element={!user ? <ParentLoginPage /> : <Navigate to="/my-children" replace />}
+            />
+            <Route
+              path="/login/teacher"
+              element={!user ? <TeacherLoginPage /> : <Navigate to="/dashboard" replace />}
+            />
+            <Route
+              path="/sys"
+              element={!user ? <AdminLoginPage /> : <Navigate to="/dashboard" replace />}
+            />
+            <Route
+              path="/register/parent"
+              element={!user ? <ParentRegisterPage /> : <Navigate to="/my-children" replace />}
+            />
+            <Route
+              path="/forgot-password"
+              element={!user ? <ForgotPasswordPage /> : <Navigate to="/" replace />}
+            />
+
+            {/* Legacy login route - redirect to new landing page */}
+            <Route
+              path="/login"
+              element={<Navigate to="/" replace />}
+            />
+
+            {/* Link Student - Protected for parents only */}
+            <Route
+              path="/link-student"
+              element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <Suspense fallback={<PageLoader />}>
+                    <LinkStudentPage />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Protected routes - Main App */}
+            <Route
+              path="/dashboard"
+              element={user ? <Layout /> : <Navigate to="/" replace />}
             >
               <Route
                 index
                 element={
-                  <Suspense fallback={<PageLoader />}>
-                    {isParent ? <ParentDashboardPage /> : <DashboardPage />}
-                  </Suspense>
+                  <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+                    <Suspense fallback={<PageLoader />}>
+                      <DashboardPage />
+                    </Suspense>
+                  </ProtectedRoute>
                 }
               />
               <Route

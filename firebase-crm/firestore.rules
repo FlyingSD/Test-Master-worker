@@ -52,9 +52,12 @@ service cloud.firestore {
       return isAdmin() || ownsDocument();
     }
 
-    // Check if parent has access to student
+    // Check if parent has access to student (updated for parentIds array in student)
     function parentHasStudent(studentId) {
-      return isParent() && studentId in getUserData().studentIds;
+      return isParent() && (
+        studentId in getUserData().studentIds ||
+        request.auth.uid in get(/databases/$(database)/documents/students/$(studentId)).data.parentIds
+      );
     }
 
     // Check if teacher teaches student's group
@@ -76,13 +79,24 @@ service cloud.firestore {
         isTeacher()
       );
 
-      // Only admins can create users (via Firebase Auth + Cloud Function)
-      allow create: if isAdmin();
+      // Allow user creation:
+      // 1. Admins can create any user
+      // 2. Authenticated users can create their own parent account (self-registration)
+      allow create: if isAdmin() ||
+        (
+          isAuthenticated() &&
+          request.auth.uid == userId &&
+          request.resource.data.role == 'parent'
+        );
 
       // Users can update their own profile (but not role!)
       // Admins can update any profile
+      // Parents can update their studentIds array (for linking children)
       allow update: if isAuthenticated() && (
-        (request.auth.uid == userId && request.resource.data.role == resource.data.role) ||
+        (
+          request.auth.uid == userId &&
+          request.resource.data.role == resource.data.role
+        ) ||
         isAdmin()
       );
 
@@ -109,8 +123,15 @@ service cloud.firestore {
       allow create: if isAdminOrTeacher() &&
         request.resource.data.createdBy == request.auth.uid;
 
-      // Update: Only admins or owner
-      allow update: if canModifyDocument();
+      // Update: Only admins, owner, or parents linking themselves
+      // Parents can only add themselves to parentIds array
+      allow update: if canModifyDocument() ||
+        (
+          isParent() &&
+          request.auth.uid in request.resource.data.parentIds &&
+          !(request.auth.uid in resource.data.parentIds) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['parentIds'])
+        );
 
       // Delete: Only admins or owner
       allow delete: if canModifyDocument();
