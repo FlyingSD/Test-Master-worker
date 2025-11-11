@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase'
 import { useAuth } from '@/hooks/useAuth'
 import { SystemSettings, RoleFeaturePermissions, FeatureName } from '@/types'
 import toast from 'react-hot-toast'
+import ImageUpload from '@/components/ImageUpload'
 
 export default function SettingsPage() {
   const { user, userData } = useAuth()
@@ -230,6 +231,22 @@ export default function SettingsPage() {
                 value={settings?.schoolAddress}
                 onChange={(e) => setSettings({ ...settings, schoolAddress: e?.target.value })}
               />
+            </div>
+
+            {/* Logo Upload */}
+            <div>
+              <ImageUpload
+                value={settings?.schoolLogo}
+                onChange={(url) => setSettings({ ...settings, schoolLogo: url })}
+                storagePath="logos/school-logo"
+                label="Лого на училището"
+                description="Drag & drop или кликнете за качване на лого"
+                maxSizeMB={2}
+                acceptedFormats={['image/png', 'image/jpeg', 'image/jpg', 'image/webp']}
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Препоръчителен размер: 200x200px. Логото ще се показва в навигацията.
+              </p>
             </div>
           </div>
         </div>

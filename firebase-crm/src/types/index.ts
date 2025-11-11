@@ -500,6 +500,7 @@ export interface RoleFeaturePermissions {
 export interface SystemSettings {
   id: string
   schoolName: string
+  schoolLogo?: string // URL to logo image in Firebase Storage
   schoolEmail: string
   schoolPhone: string
   schoolAddress: string

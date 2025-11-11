@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -24,7 +24,9 @@ import { useFeaturePermissions } from '@/hooks/useFeaturePermissions'
 import { useLabels } from '@/hooks/useLabels'
 import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
 import { triggerHaptic } from '@/utils/touchGestures'
-import { FeatureName } from '@/types'
+import { FeatureName, SystemSettings } from '@/types'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 // Navigation item type
 interface NavItem {
@@ -72,10 +74,27 @@ export default function Layout() {
   const { hasFeatureAccess, loading: permissionsLoading } = useFeaturePermissions()
   const { labels } = useLabels()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [settings, setSettings] = useState<Partial<SystemSettings>>({})
   const location = useLocation()
 
   // Get user role
   const userRole = userData?.role || 'parent'
+
+  // Load system settings for logo
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const docRef = doc(db, 'settings', 'system')
+        const docSnap = await getDoc(docRef)
+        if (docSnap?.exists()) {
+          setSettings(docSnap?.data() as SystemSettings)
+        }
+      } catch (error) {
+        console?.error('Error loading settings:', error)
+      }
+    }
+    loadSettings()
+  }, [])
 
   // Generate navigation items with labels
   const mainNavigation = getMainNavigation(labels)
@@ -157,11 +176,19 @@ export default function Layout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-              <span className="text-2xl">💡</span>
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center overflow-hidden">
+              {settings?.schoolLogo ? (
+                <img
+                  src={settings?.schoolLogo}
+                  alt="School Logo"
+                  className="w-full h-full object-contain p-1"
+                />
+              ) : (
+                <span className="text-2xl">💡</span>
+              )}
             </div>
             <div>
-              <h1 className="font-bold text-gray-900">Светлинки</h1>
+              <h1 className="font-bold text-gray-900">{settings?.schoolName || 'Светлинки'}</h1>
               <p className="text-xs text-gray-500">CRM System</p>
             </div>
           </div>
@@ -249,8 +276,16 @@ export default function Layout() {
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex-1 flex items-center justify-center gap-2">
-            <span className="text-xl">💡</span>
-            <span className="font-bold text-gray-900">Светлинки CRM</span>
+            {settings?.schoolLogo ? (
+              <img
+                src={settings?.schoolLogo}
+                alt="School Logo"
+                className="w-8 h-8 object-contain"
+              />
+            ) : (
+              <span className="text-xl">💡</span>
+            )}
+            <span className="font-bold text-gray-900">{settings?.schoolName || 'Светлинки'} CRM</span>
           </div>
           <div className="w-10" /> {/* Spacer for centering */}
         </header>
