@@ -27,7 +27,7 @@ export default function LinkStudentPage() {
   const [linking, setLinking] = useState(false)
 
   // Check for code in URL params (from QR scan)
-  const codeFromUrl = searchParams.get('code')
+  const codeFromUrl = searchParams?.get('code')
 
   // 🔒 SECURITY: Only authenticated parents can access
   if (userData && !isParent) {
@@ -50,44 +50,44 @@ export default function LinkStudentPage() {
 
     try {
       // Search for student by studentCode
-      const studentsRef = doc(db, COLLECTIONS.STUDENTS, code)
+      const studentsRef = doc(db, COLLECTIONS?.STUDENTS, code)
 
       // Try direct lookup by document ID first
       let studentDoc = await getDoc(studentsRef)
 
       // If not found by ID, need to query by studentCode field
-      if (!studentDoc.exists()) {
+      if (!studentDoc?.exists()) {
         // Import query functions
         const { collection, query, where, getDocs } = await import('firebase/firestore')
-        const studentsCollection = collection(db, COLLECTIONS.STUDENTS)
+        const studentsCollection = collection(db, COLLECTIONS?.STUDENTS)
         const q = query(studentsCollection, where('studentCode', '==', code))
         const snapshot = await getDocs(q)
 
-        if (snapshot.empty) {
-          toast.error('Ученик с този код не е намерен')
+        if (snapshot?.empty) {
+          toast?.error('Ученик с този код не е намерен')
           setLoading(false)
           return
         }
 
-        studentDoc = snapshot.docs[0]
+        studentDoc = snapshot?.docs[0]
       }
 
       const studentData = {
-        id: studentDoc.id,
-        ...studentDoc.data()
+        id: studentDoc?.id,
+        ...studentDoc?.data()
       } as Student
 
       // Check if already linked
-      if (studentData.parentIds?.includes(user.uid)) {
-        toast.error('Това дете вече е свързано с вашия профил')
+      if (studentData?.parentIds?.includes(user?.uid)) {
+        toast?.error('Това дете вече е свързано с вашия профил')
         setLoading(false)
         return
       }
 
       setStudent(studentData)
     } catch (error: any) {
-      console.error('Error fetching student:', error)
-      toast.error('Грешка при търсене на ученик: ' + error.message)
+      console?.error('Error fetching student:', error)
+      toast?.error('Грешка при търсене на ученик: ' + error?.message)
     } finally {
       setLoading(false)
     }
@@ -101,24 +101,24 @@ export default function LinkStudentPage() {
 
     try {
       // Update student's parentIds array
-      const studentRef = doc(db, COLLECTIONS.STUDENTS, student.id)
+      const studentRef = doc(db, COLLECTIONS?.STUDENTS, student?.id)
       await updateDoc(studentRef, {
-        parentIds: arrayUnion(user.uid)
+        parentIds: arrayUnion(user?.uid)
       })
 
       // Update parent's studentIds array in users collection
-      const userRef = doc(db, COLLECTIONS.USERS, user.uid)
+      const userRef = doc(db, COLLECTIONS?.USERS, user?.uid)
       await updateDoc(userRef, {
-        studentIds: arrayUnion(student.id)
+        studentIds: arrayUnion(student?.id)
       })
 
-      toast.success(`${student.name} е успешно свързано с вашия профил!`)
+      toast?.success(`${student?.name} е успешно свързано с вашия профил!`)
 
       // Redirect to my-children page
       navigate('/my-children')
     } catch (error: any) {
-      console.error('Error linking student:', error)
-      toast.error('Грешка при свързване: ' + error.message)
+      console?.error('Error linking student:', error)
+      toast?.error('Грешка при свързване: ' + error?.message)
     } finally {
       setLinking(false)
     }
@@ -153,28 +153,28 @@ export default function LinkStudentPage() {
                 <div className="flex items-start gap-4">
                   <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl font-bold text-white">
-                      {student.name.charAt(0)}
+                      {student?.name.charAt(0)}
                     </span>
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      {student.name}
+                      {student?.name}
                     </h3>
                     <div className="space-y-1 text-sm text-gray-700">
                       <p>
-                        <strong>Група:</strong> {student.group}
+                        <strong>Група:</strong> {student?.group}
                       </p>
-                      {student.dateOfBirth && (
+                      {student?.dateOfBirth && (
                         <p>
                           <strong>Дата на раждане:</strong>{' '}
-                          {formatDate(student.dateOfBirth)}
+                          {formatDate(student?.dateOfBirth)}
                         </p>
                       )}
                       <p>
-                        <strong>Тип обучение:</strong> {student.studyType}
+                        <strong>Тип обучение:</strong> {student?.studyType}
                       </p>
                       <p>
-                        <strong>Код:</strong> {student.studentCode}
+                        <strong>Код:</strong> {student?.studentCode}
                       </p>
                     </div>
                   </div>

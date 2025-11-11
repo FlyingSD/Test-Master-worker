@@ -18,11 +18,11 @@ export default function TeacherLoginPage() {
   const { signInWithEmail } = useAuth()
   const navigate = useNavigate()
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleLogin = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     if (!email || !password) {
-      toast.error('Моля, попълнете всички полета')
+      toast?.error('Моля, попълнете всички полета')
       return
     }
 
@@ -75,8 +75,8 @@ export default function TeacherLoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="teacher@school.com"
+                  onChange={(e) => setEmail(e?.target.value)}
+                  placeholder="teacher@school?.com"
                   className="input pl-10"
                   disabled={loading}
                   autoFocus
@@ -93,7 +93,7 @@ export default function TeacherLoginPage() {
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e?.target.value)}
                   placeholder="••••••••"
                   className="input pl-10"
                   disabled={loading}

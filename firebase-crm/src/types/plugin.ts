@@ -39,7 +39,7 @@ export interface PluginMenuItem {
 export interface PluginWidget {
   id: string
   title: string
-  component: React.ComponentType
+  component: React?.ComponentType
   size?: 'small' | 'medium' | 'large'
   order?: number
 }
@@ -48,7 +48,7 @@ export interface PluginWidget {
  * Plugin settings panel
  */
 export interface PluginSettings {
-  component: React.ComponentType
+  component: React?.ComponentType
   title: string
   description?: string
 }
@@ -107,7 +107,7 @@ export interface Plugin {
 }
 
 /**
- * Plugin manifest (package.json format)
+ * Plugin manifest (package?.json format)
  */
 export interface PluginManifest {
   name: string
@@ -142,7 +142,7 @@ export interface PluginAPI {
   getCurrentUser: () => any
 
   /** Register custom route */
-  registerRoute: (path: string, component: React.ComponentType) => void
+  registerRoute: (path: string, component: React?.ComponentType) => void
 
   /** Add notification */
   notify: (message: string, type: 'success' | 'error' | 'info') => void

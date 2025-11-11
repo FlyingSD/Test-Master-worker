@@ -31,14 +31,14 @@ export default function InventoryPage() {
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null)
 
   // Get unique categories
-  const categories = Array.from(new Set(inventory.map((item) => item.category)))
+  const categories = Array?.from(new Set(inventory?.map((item) => item?.category)))
 
   // Filter inventory
-  const filteredInventory = inventory.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.sku.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter
-    const matchesActive = item.isActive
+  const filteredInventory = inventory?.filter((item) => {
+    const matchesSearch = item?.name.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      item?.sku.toLowerCase().includes(searchTerm?.toLowerCase())
+    const matchesCategory = categoryFilter === 'all' || item?.category === categoryFilter
+    const matchesActive = item?.isActive
 
     return matchesSearch && matchesCategory && matchesActive
   })
@@ -49,8 +49,8 @@ export default function InventoryPage() {
   }
 
   const handleDelete = async (itemId: string, itemName: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете ${itemName}?`)) {
-      await deleteItem.mutateAsync(itemId)
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете ${itemName}?`)) {
+      await deleteItem?.mutateAsync(itemId)
     }
   }
 
@@ -77,9 +77,9 @@ export default function InventoryPage() {
   }
 
   const getStockStatus = (item: InventoryItem) => {
-    if (item.currentStock === 0) {
+    if (item?.currentStock === 0) {
       return { color: 'text-red-600 bg-red-50', text: 'Изчерпан' }
-    } else if (item.currentStock <= item.minimumStock) {
+    } else if (item?.currentStock <= item?.minimumStock) {
       return { color: 'text-orange-600 bg-orange-50', text: 'Нисък запас' }
     } else {
       return { color: 'text-green-600 bg-green-50', text: 'В наличност' }
@@ -127,7 +127,7 @@ export default function InventoryPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Общо артикули</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalItems}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.totalItems}</p>
             </div>
           </div>
         </div>
@@ -139,7 +139,7 @@ export default function InventoryPage() {
             <div>
               <p className="text-sm text-gray-600">Обща стойност</p>
               <p className="text-2xl font-bold text-gray-900">
-                {formatCurrency(stats.totalValue)}
+                {formatCurrency(stats?.totalValue)}
               </p>
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function InventoryPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Нисък запас</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.lowStockCount}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.lowStockCount}</p>
             </div>
           </div>
         </div>
@@ -162,25 +162,25 @@ export default function InventoryPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Изчерпани</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.outOfStockCount}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.outOfStockCount}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Low Stock Alerts */}
-      {lowStockItems.length > 0 && (
+      {lowStockItems?.length > 0 && (
         <div className="card border-l-4 border-orange-500 bg-orange-50">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-6 h-6 text-orange-600 flex-shrink-0 mt-1" />
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 mb-2">
-                Внимание: {lowStockItems.length} артикула с нисък запас
+                Внимание: {lowStockItems?.length} артикула с нисък запас
               </h3>
               <div className="flex flex-wrap gap-2">
-                {lowStockItems.map((item) => (
-                  <span key={item.id} className="badge bg-white text-orange-700 border border-orange-300">
-                    {item.name} ({item.currentStock} бр.)
+                {lowStockItems?.map((item) => (
+                  <span key={item?.id} className="badge bg-white text-orange-700 border border-orange-300">
+                    {item?.name} ({item?.currentStock} бр.)
                   </span>
                 ))}
               </div>
@@ -200,7 +200,7 @@ export default function InventoryPage() {
               placeholder="Търсене по име или SKU код..."
               className="input pl-10 w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e?.target.value)}
             />
           </div>
 
@@ -212,9 +212,9 @@ export default function InventoryPage() {
                 categoryFilter === 'all' ? 'btn-primary' : 'btn-ghost'
               }`}
             >
-              Всички ({inventory.filter((i) => i.isActive).length})
+              Всички ({inventory?.filter((i) => i?.isActive).length})
             </button>
-            {categories.map((category) => (
+            {categories?.map((category) => (
               <button
                 key={category}
                 onClick={() => setCategoryFilter(category)}
@@ -222,7 +222,7 @@ export default function InventoryPage() {
                   categoryFilter === category ? 'btn-primary' : 'btn-ghost'
                 }`}
               >
-                {category} ({inventory.filter((i) => i.category === category && i.isActive).length})
+                {category} ({inventory?.filter((i) => i?.category === category && i?.isActive).length})
               </button>
             ))}
           </div>
@@ -231,7 +231,7 @@ export default function InventoryPage() {
 
       {/* Inventory Table */}
       <div className="card overflow-hidden">
-        {filteredInventory.length === 0 ? (
+        {filteredInventory?.length === 0 ? (
           <div className="text-center py-12">
             <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -270,40 +270,40 @@ export default function InventoryPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredInventory.map((item) => {
+                {filteredInventory?.map((item) => {
                   const status = getStockStatus(item)
-                  const totalValue = item.currentStock * item.purchasePrice
+                  const totalValue = item?.currentStock * item?.purchasePrice
 
                   return (
-                    <tr key={item.id}>
+                    <tr key={item?.id}>
                       <td>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {item.name}
+                            {item?.name}
                           </p>
-                          <p className="text-xs text-gray-500">SKU: {item.sku}</p>
+                          <p className="text-xs text-gray-500">SKU: {item?.sku}</p>
                         </div>
                       </td>
                       <td>
                         <span className="badge badge-primary">
-                          {item.category}
+                          {item?.category}
                         </span>
                       </td>
                       <td>
                         <p className="font-medium text-gray-900">
-                          {item.currentStock} бр.
+                          {item?.currentStock} бр.
                         </p>
                       </td>
                       <td>
-                        <p className="text-gray-600">{item.minimumStock} бр.</p>
+                        <p className="text-gray-600">{item?.minimumStock} бр.</p>
                       </td>
                       <td>
                         <div className="text-sm">
                           <p className="text-gray-600">
-                            Вх: {formatCurrency(item.purchasePrice)}
+                            Вх: {formatCurrency(item?.purchasePrice)}
                           </p>
                           <p className="text-gray-900 font-medium">
-                            Прод: {formatCurrency(item.salePrice)}
+                            Прод: {formatCurrency(item?.salePrice)}
                           </p>
                         </div>
                       </td>
@@ -313,8 +313,8 @@ export default function InventoryPage() {
                         </p>
                       </td>
                       <td>
-                        <span className={`badge ${status.color}`}>
-                          {status.text}
+                        <span className={`badge ${status?.color}`}>
+                          {status?.text}
                         </span>
                       </td>
                       <td>
@@ -343,7 +343,7 @@ export default function InventoryPage() {
                                 <Edit className="w-4 h-4 text-gray-600" />
                               </button>
                               <button
-                                onClick={() => handleDelete(item.id, item.name)}
+                                onClick={() => handleDelete(item?.id, item?.name)}
                                 className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                                 title="Изтриване"
                               >

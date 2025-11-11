@@ -75,12 +75,12 @@ export default function SettingsPage() {
       const docRef = doc(db, 'settings', 'system')
       const docSnap = await getDoc(docRef)
 
-      if (docSnap.exists()) {
-        setSettings(docSnap.data() as SystemSettings)
+      if (docSnap?.exists()) {
+        setSettings(docSnap?.data() as SystemSettings)
       }
     } catch (error) {
-      console.error('Error loading settings:', error)
-      toast.error('Грешка при зареждане на настройки')
+      console?.error('Error loading settings:', error)
+      toast?.error('Грешка при зареждане на настройки')
     } finally {
       setLoading(false)
     }
@@ -94,14 +94,14 @@ export default function SettingsPage() {
       const docRef = doc(db, 'settings', 'system')
       await setDoc(docRef, {
         ...settings,
-        updatedBy: user.id,
+        updatedBy: user?.id,
         updatedAt: serverTimestamp(),
       }, { merge: true })
 
-      toast.success('Настройките бяха запазени успешно!')
+      toast?.success('Настройките бяха запазени успешно!')
     } catch (error) {
-      console.error('Error saving settings:', error)
-      toast.error('Грешка при запазване на настройки')
+      console?.error('Error saving settings:', error)
+      toast?.error('Грешка при запазване на настройки')
     } finally {
       setSaving(false)
     }
@@ -129,10 +129,10 @@ export default function SettingsPage() {
     setSettings({
       ...settings,
       featurePermissions: {
-        ...settings.featurePermissions!,
+        ...settings?.featurePermissions!,
         [role]: {
-          ...settings.featurePermissions![role],
-          [feature]: !settings.featurePermissions![role][feature],
+          ...settings?.featurePermissions![role],
+          [feature]: !settings?.featurePermissions![role][feature],
         },
       },
     })
@@ -195,8 +195,8 @@ export default function SettingsPage() {
                 type="text"
                 className="input"
                 placeholder="Светлинки"
-                value={settings.schoolName}
-                onChange={(e) => setSettings({ ...settings, schoolName: e.target.value })}
+                value={settings?.schoolName}
+                onChange={(e) => setSettings({ ...settings, schoolName: e?.target.value })}
               />
             </div>
 
@@ -205,9 +205,9 @@ export default function SettingsPage() {
               <input
                 type="email"
                 className="input"
-                placeholder="info@svetlinki.com"
-                value={settings.schoolEmail}
-                onChange={(e) => setSettings({ ...settings, schoolEmail: e.target.value })}
+                placeholder="info@svetlinki?.com"
+                value={settings?.schoolEmail}
+                onChange={(e) => setSettings({ ...settings, schoolEmail: e?.target.value })}
               />
             </div>
 
@@ -217,8 +217,8 @@ export default function SettingsPage() {
                 type="tel"
                 className="input"
                 placeholder="+359 888 123 456"
-                value={settings.schoolPhone}
-                onChange={(e) => setSettings({ ...settings, schoolPhone: e.target.value })}
+                value={settings?.schoolPhone}
+                onChange={(e) => setSettings({ ...settings, schoolPhone: e?.target.value })}
               />
             </div>
 
@@ -227,8 +227,8 @@ export default function SettingsPage() {
               <textarea
                 className="input min-h-[80px]"
                 placeholder="гр. София, ул. Примерна №1"
-                value={settings.schoolAddress}
-                onChange={(e) => setSettings({ ...settings, schoolAddress: e.target.value })}
+                value={settings?.schoolAddress}
+                onChange={(e) => setSettings({ ...settings, schoolAddress: e?.target.value })}
               />
             </div>
           </div>
@@ -248,8 +248,8 @@ export default function SettingsPage() {
               <label className="label">Валута</label>
               <select
                 className="input"
-                value={settings.currency}
-                onChange={(e) => setSettings({ ...settings, currency: e.target.value as 'BGN' | 'EUR' })}
+                value={settings?.currency}
+                onChange={(e) => setSettings({ ...settings, currency: e?.target.value as 'BGN' | 'EUR' })}
               >
                 <option value="BGN">BGN (Български лев)</option>
                 <option value="EUR">EUR (Евро)</option>
@@ -260,8 +260,8 @@ export default function SettingsPage() {
               <label className="label">Часова зона</label>
               <select
                 className="input"
-                value={settings.timezone}
-                onChange={(e) => setSettings({ ...settings, timezone: e.target.value })}
+                value={settings?.timezone}
+                onChange={(e) => setSettings({ ...settings, timezone: e?.target.value })}
               >
                 <option value="Europe/Sofia">Europe/Sofia (GMT+2)</option>
                 <option value="Europe/Athens">Europe/Athens (GMT+2)</option>
@@ -273,8 +273,8 @@ export default function SettingsPage() {
               <label className="label">Език</label>
               <select
                 className="input"
-                value={settings.language}
-                onChange={(e) => setSettings({ ...settings, language: e.target.value as 'bg' | 'en' })}
+                value={settings?.language}
+                onChange={(e) => setSettings({ ...settings, language: e?.target.value as 'bg' | 'en' })}
               >
                 <option value="bg">Български</option>
                 <option value="en">English</option>
@@ -305,8 +305,8 @@ export default function SettingsPage() {
                 <input
                   type="checkbox"
                   className="sr-only peer"
-                  checked={settings.emailNotifications}
-                  onChange={(e) => setSettings({ ...settings, emailNotifications: e.target.checked })}
+                  checked={settings?.emailNotifications}
+                  onChange={(e) => setSettings({ ...settings, emailNotifications: e?.target.checked })}
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-light rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
@@ -321,8 +321,8 @@ export default function SettingsPage() {
                 <input
                   type="checkbox"
                   className="sr-only peer"
-                  checked={settings.smsNotifications}
-                  onChange={(e) => setSettings({ ...settings, smsNotifications: e.target.checked })}
+                  checked={settings?.smsNotifications}
+                  onChange={(e) => setSettings({ ...settings, smsNotifications: e?.target.checked })}
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-light rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
@@ -350,8 +350,8 @@ export default function SettingsPage() {
               <label className="label">Тема</label>
               <select
                 className="input"
-                value={settings.theme}
-                onChange={(e) => setSettings({ ...settings, theme: e.target.value as 'light' | 'dark' })}
+                value={settings?.theme}
+                onChange={(e) => setSettings({ ...settings, theme: e?.target.value as 'light' | 'dark' })}
               >
                 <option value="light">Светла</option>
                 <option value="dark">Тъмна</option>
@@ -363,7 +363,7 @@ export default function SettingsPage() {
 
             <div className="p-4 bg-primary-light border border-primary rounded-lg">
               <div className="flex items-start gap-3">
-                <Settings className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <Settings className="w-5 h-5 text-primary flex-shrink-0 mt-0?.5" />
                 <div>
                   <p className="font-medium text-gray-900 mb-1">Съвет</p>
                   <p className="text-sm text-gray-700">
@@ -397,12 +397,12 @@ export default function SettingsPage() {
               <Users className="w-5 h-5 text-blue-600" />
               <h3 className="font-semibold text-gray-900">Учители</h3>
               <span className="text-xs text-gray-500 ml-auto">
-                {Object.values(settings.featurePermissions?.teacher || {}).filter(Boolean).length} включени
+                {Object?.values(settings?.featurePermissions?.teacher || {}).filter(Boolean).length} включени
               </span>
             </div>
             <div className="space-y-2">
-              {(Object.keys(settings.featurePermissions?.teacher || {}) as FeatureName[]).map((feature) => {
-                const isEnabled = settings.featurePermissions?.teacher[feature]
+              {(Object?.keys(settings?.featurePermissions?.teacher || {}) as FeatureName[]).map((feature) => {
+                const isEnabled = settings?.featurePermissions?.teacher[feature]
                 return (
                   <div key={feature} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
                     <span className="text-sm text-gray-700">{featureLabels[feature]}</span>
@@ -427,12 +427,12 @@ export default function SettingsPage() {
               <Users className="w-5 h-5 text-green-600" />
               <h3 className="font-semibold text-gray-900">Родители</h3>
               <span className="text-xs text-gray-500 ml-auto">
-                {Object.values(settings.featurePermissions?.parent || {}).filter(Boolean).length} включени
+                {Object?.values(settings?.featurePermissions?.parent || {}).filter(Boolean).length} включени
               </span>
             </div>
             <div className="space-y-2">
-              {(Object.keys(settings.featurePermissions?.parent || {}) as FeatureName[]).map((feature) => {
-                const isEnabled = settings.featurePermissions?.parent[feature]
+              {(Object?.keys(settings?.featurePermissions?.parent || {}) as FeatureName[]).map((feature) => {
+                const isEnabled = settings?.featurePermissions?.parent[feature]
                 return (
                   <div key={feature} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
                     <span className="text-sm text-gray-700">{featureLabels[feature]}</span>
@@ -522,7 +522,7 @@ export default function SettingsPage() {
               Само администратори могат да променят системните настройки. Всички промени се записват в Audit Log.
             </p>
             <p className="text-xs text-gray-500">
-              Последна промяна: {settings.updatedBy ? `от ${settings.updatedBy}` : 'никога'}
+              Последна промяна: {settings?.updatedBy ? `от ${settings?.updatedBy}` : 'никога'}
             </p>
           </div>
         </div>

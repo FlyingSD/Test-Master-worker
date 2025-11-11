@@ -74,27 +74,27 @@ export default function HomeworkPage() {
    * Filter homework based on search term, status, and due date
    */
   const filteredHomework = useMemo(() => {
-    return homework.filter((hw) => {
+    return homework?.filter((hw) => {
       // Search filter: title, description, or student name
       const matchesSearch =
-        hw.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        hw.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        hw.studentName.toLowerCase().includes(searchTerm.toLowerCase())
+        hw?.title.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+        hw?.description.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+        hw?.studentName.toLowerCase().includes(searchTerm?.toLowerCase())
 
       // Status filter
-      const matchesStatus = filterStatus === 'all' || hw.status === filterStatus
+      const matchesStatus = filterStatus === 'all' || hw?.status === filterStatus
 
       // Due date filter
       let matchesDueDate = true
       const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const hwDueDate = hw.dueDate instanceof Date ? hw.dueDate : new Date(hw.dueDate)
-      hwDueDate.setHours(0, 0, 0, 0)
+      today?.setHours(0, 0, 0, 0)
+      const hwDueDate = hw?.dueDate instanceof Date ? hw?.dueDate : new Date(hw?.dueDate)
+      hwDueDate?.setHours(0, 0, 0, 0)
 
       if (filterDueDate === 'overdue') {
-        matchesDueDate = hwDueDate < today && hw.status !== 'completed'
+        matchesDueDate = hwDueDate < today && hw?.status !== 'completed'
       } else if (filterDueDate === 'today') {
-        matchesDueDate = hwDueDate.getTime() === today.getTime()
+        matchesDueDate = hwDueDate?.getTime() === today?.getTime()
       } else if (filterDueDate === 'upcoming') {
         matchesDueDate = hwDueDate > today
       }
@@ -108,15 +108,15 @@ export default function HomeworkPage() {
    */
   const stats = useMemo(() => {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today?.setHours(0, 0, 0, 0)
 
-    const total = homework.length
-    const assigned = homework.filter((hw) => hw.status === 'assigned').length
-    const completed = homework.filter((hw) => hw.status === 'completed').length
-    const overdue = homework.filter((hw) => {
-      const dueDate = hw.dueDate instanceof Date ? hw.dueDate : new Date(hw.dueDate)
-      dueDate.setHours(0, 0, 0, 0)
-      return dueDate < today && hw.status !== 'completed'
+    const total = homework?.length
+    const assigned = homework?.filter((hw) => hw?.status === 'assigned').length
+    const completed = homework?.filter((hw) => hw?.status === 'completed').length
+    const overdue = homework?.filter((hw) => {
+      const dueDate = hw?.dueDate instanceof Date ? hw?.dueDate : new Date(hw?.dueDate)
+      dueDate?.setHours(0, 0, 0, 0)
+      return dueDate < today && hw?.status !== 'completed'
     }).length
 
     return { total, assigned, completed, overdue }
@@ -150,13 +150,13 @@ export default function HomeworkPage() {
   }
 
   const handleDelete = async (homeworkId: string, title: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете "${title}"?`)) {
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете "${title}"?`)) {
       try {
-        await deleteHomework.mutateAsync(homeworkId)
-        toast.success('Домашното беше изтрито успешно!')
+        await deleteHomework?.mutateAsync(homeworkId)
+        toast?.success('Домашното беше изтрито успешно!')
       } catch (error) {
         // Error toast is shown automatically by hook
-        console.error('Delete error:', error)
+        console?.error('Delete error:', error)
       }
     }
   }
@@ -166,17 +166,17 @@ export default function HomeworkPage() {
    * Quick action from table row
    */
   const handleMarkComplete = async (hw: Homework) => {
-    const grade = gradeInputs[hw.id]
+    const grade = gradeInputs[hw?.id]
 
     // Validate grade if provided
     if (grade !== undefined && (grade < 1 || grade > 6)) {
-      toast.error('Оценката трябва да е между 1 и 6')
+      toast?.error('Оценката трябва да е между 1 и 6')
       return
     }
 
     try {
-      await updateHomework.mutateAsync({
-        id: hw.id,
+      await updateHomework?.mutateAsync({
+        id: hw?.id,
         data: {
           status: 'completed',
           completedDate: new Date(),
@@ -187,13 +187,13 @@ export default function HomeworkPage() {
       // Clear grade input after successful completion
       setGradeInputs((prev) => {
         const newInputs = { ...prev }
-        delete newInputs[hw.id]
+        delete newInputs[hw?.id]
         return newInputs
       })
 
-      toast.success('Домашното е маркирано като завършено!')
+      toast?.success('Домашното е маркирано като завършено!')
     } catch (error) {
-      console.error('Mark complete error:', error)
+      console?.error('Mark complete error:', error)
     }
   }
 
@@ -207,9 +207,9 @@ export default function HomeworkPage() {
    */
   const getStatusBadge = (status: Homework['status'], dueDate: Date) => {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today?.setHours(0, 0, 0, 0)
     const due = dueDate instanceof Date ? new Date(dueDate) : new Date(dueDate)
-    due.setHours(0, 0, 0, 0)
+    due?.setHours(0, 0, 0, 0)
 
     // Check if overdue
     const isOverdue = due < today && status !== 'completed'
@@ -232,9 +232,9 @@ export default function HomeworkPage() {
 
   const getStatusText = (status: Homework['status'], dueDate: Date) => {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today?.setHours(0, 0, 0, 0)
     const due = dueDate instanceof Date ? new Date(dueDate) : new Date(dueDate)
-    due.setHours(0, 0, 0, 0)
+    due?.setHours(0, 0, 0, 0)
 
     const isOverdue = due < today && status !== 'completed'
 
@@ -292,7 +292,7 @@ export default function HomeworkPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Общо домашни</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{stats.total}</p>
+              <p className="text-3xl font-bold text-gray-900 mt-1">{stats?.total}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <BookOpen className="w-6 h-6 text-blue-600" />
@@ -305,7 +305,7 @@ export default function HomeworkPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Зададени</p>
-              <p className="text-3xl font-bold text-blue-600 mt-1">{stats.assigned}</p>
+              <p className="text-3xl font-bold text-blue-600 mt-1">{stats?.assigned}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-blue-600" />
@@ -318,7 +318,7 @@ export default function HomeworkPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Завършени</p>
-              <p className="text-3xl font-bold text-green-600 mt-1">{stats.completed}</p>
+              <p className="text-3xl font-bold text-green-600 mt-1">{stats?.completed}</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <CheckCircle className="w-6 h-6 text-green-600" />
@@ -331,7 +331,7 @@ export default function HomeworkPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Просрочени</p>
-              <p className="text-3xl font-bold text-red-600 mt-1">{stats.overdue}</p>
+              <p className="text-3xl font-bold text-red-600 mt-1">{stats?.overdue}</p>
             </div>
             <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertCircle className="w-6 h-6 text-red-600" />
@@ -356,7 +356,7 @@ export default function HomeworkPage() {
               placeholder="Търси по заглавие, описание или ученик..."
               className="input pl-10"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e?.target.value)}
             />
           </div>
 
@@ -366,7 +366,7 @@ export default function HomeworkPage() {
               className="input"
               value={filterStatus}
               onChange={(e) =>
-                setFilterStatus(e.target.value as typeof filterStatus)
+                setFilterStatus(e?.target.value as typeof filterStatus)
               }
             >
               <option value="all">Всички статуси</option>
@@ -382,7 +382,7 @@ export default function HomeworkPage() {
               className="input"
               value={filterDueDate}
               onChange={(e) =>
-                setFilterDueDate(e.target.value as typeof filterDueDate)
+                setFilterDueDate(e?.target.value as typeof filterDueDate)
               }
             >
               <option value="all">Всички срокове</option>
@@ -428,7 +428,7 @@ export default function HomeworkPage() {
 
       {/* ========== TABLE ========== */}
       <div className="card overflow-hidden">
-        {filteredHomework.length === 0 ? (
+        {filteredHomework?.length === 0 ? (
           // Empty State
           <div className="text-center py-12">
             <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -463,12 +463,12 @@ export default function HomeworkPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedHomework.map((hw) => (
-                    <tr key={hw.id} className="hover:bg-gray-50">
+                  {paginatedHomework?.map((hw) => (
+                    <tr key={hw?.id} className="hover:bg-gray-50">
                       {/* Student Name */}
                       <td>
                         <div className="font-medium text-gray-900">
-                          {hw.studentName}
+                          {hw?.studentName}
                         </div>
                       </td>
 
@@ -476,37 +476,37 @@ export default function HomeworkPage() {
                       <td>
                         <div className="max-w-xs">
                           <div className="font-medium text-gray-900 truncate">
-                            {hw.title}
+                            {hw?.title}
                           </div>
                           <div className="text-sm text-gray-500 truncate">
-                            {hw.description}
+                            {hw?.description}
                           </div>
                         </div>
                       </td>
 
                       {/* Assigned Date */}
-                      <td>{formatDate(hw.assignedDate)}</td>
+                      <td>{formatDate(hw?.assignedDate)}</td>
 
                       {/* Due Date */}
                       <td>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-gray-400" />
-                          {formatDate(hw.dueDate)}
+                          {formatDate(hw?.dueDate)}
                         </div>
                       </td>
 
                       {/* Status Badge */}
                       <td>
-                        <span className={getStatusBadge(hw.status, hw.dueDate)}>
-                          {getStatusText(hw.status, hw.dueDate)}
+                        <span className={getStatusBadge(hw?.status, hw?.dueDate)}>
+                          {getStatusText(hw?.status, hw?.dueDate)}
                         </span>
                       </td>
 
                       {/* Grade */}
                       <td>
-                        {hw.status === 'completed' ? (
+                        {hw?.status === 'completed' ? (
                           <span className="font-semibold text-gray-900">
-                            {hw.grade ? `${hw.grade}/6` : 'Без оценка'}
+                            {hw?.grade ? `${hw?.grade}/6` : 'Без оценка'}
                           </span>
                         ) : (
                           // Quick grade input for non-completed homework
@@ -516,14 +516,14 @@ export default function HomeworkPage() {
                             max="6"
                             placeholder="1-6"
                             className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
-                            value={gradeInputs[hw.id] || ''}
+                            value={gradeInputs[hw?.id] || ''}
                             onChange={(e) =>
                               setGradeInputs({
                                 ...gradeInputs,
-                                [hw.id]: e.target.value === '' ? undefined : Number(e.target.value),
+                                [hw?.id]: e?.target.value === '' ? undefined : Number(e?.target.value),
                               })
                             }
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => e?.stopPropagation()}
                           />
                         )}
                       </td>
@@ -532,7 +532,7 @@ export default function HomeworkPage() {
                       <td>
                         <div className="flex items-center gap-2">
                           {/* Mark Complete Button (only if not completed) */}
-                          {hw.status !== 'completed' && (
+                          {hw?.status !== 'completed' && (
                             <button
                               onClick={() => handleMarkComplete(hw)}
                               className="p-2 hover:bg-green-50 rounded-lg transition-colors"
@@ -553,7 +553,7 @@ export default function HomeworkPage() {
 
                           {/* Delete Button */}
                           <button
-                            onClick={() => handleDelete(hw.id, hw.title)}
+                            onClick={() => handleDelete(hw?.id, hw?.title)}
                             className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                             title="Изтрий"
                           >

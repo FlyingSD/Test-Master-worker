@@ -30,13 +30,13 @@ export default function ParentsPage() {
   }
 
   // Filter parents
-  const filteredParents = parents.filter((parent) => {
-    const term = searchTerm.toLowerCase()
+  const filteredParents = parents?.filter((parent) => {
+    const term = searchTerm?.toLowerCase()
     return (
-      parent.name.toLowerCase().includes(term) ||
-      parent.phone?.toLowerCase().includes(term) ||
-      parent.phone2?.toLowerCase().includes(term) ||
-      parent.email?.toLowerCase().includes(term)
+      parent?.name.toLowerCase().includes(term) ||
+      parent?.phone?.toLowerCase().includes(term) ||
+      parent?.phone2?.toLowerCase().includes(term) ||
+      parent?.email?.toLowerCase().includes(term)
     )
   })
 
@@ -51,14 +51,14 @@ export default function ParentsPage() {
   } = usePagination(filteredParents, 20)
 
   // Stats
-  const parentsWithMultipleChildren = parents.filter((p) => p.studentIds.length > 1).length
-  const totalStudents = parents.reduce((sum, p) => sum + p.studentIds.length, 0)
+  const parentsWithMultipleChildren = parents?.filter((p) => p?.studentIds.length > 1).length
+  const totalStudents = parents?.reduce((sum, p) => sum + p?.studentIds.length, 0)
 
   // Get student names for a parent
   const getStudentNames = (parent: Parent) => {
-    return parent.studentIds
+    return parent?.studentIds
       .map((studentId) => {
-        const student = students.find((s) => s.id === studentId)
+        const student = students?.find((s) => s?.id === studentId)
         return student?.name || 'Неизвестен'
       })
       .join(', ')
@@ -70,8 +70,8 @@ export default function ParentsPage() {
   }
 
   const handleDelete = async (parentId: string, parentName: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете ${parentName}?`)) {
-      await deleteParent.mutateAsync(parentId)
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете ${parentName}?`)) {
+      await deleteParent?.mutateAsync(parentId)
     }
   }
 
@@ -90,24 +90,24 @@ export default function ParentsPage() {
 
   const handleVideoUpload = async (parentId: string, file: File) => {
     try {
-      await uploadVideo.mutateAsync({ parentId, videoFile: file })
+      await uploadVideo?.mutateAsync({ parentId, videoFile: file })
     } catch (error) {
-      console.error('Error uploading video:', error)
+      console?.error('Error uploading video:', error)
     }
   }
 
   const handleVideoDelete = async (parentId: string, videoUrl: string) => {
-    if (window.confirm('Сигурни ли сте, че искате да изтриете това видео?')) {
+    if (window?.confirm('Сигурни ли сте, че искате да изтриете това видео?')) {
       try {
-        await deleteVideo.mutateAsync({ parentId, videoUrl })
+        await deleteVideo?.mutateAsync({ parentId, videoUrl })
       } catch (error) {
-        console.error('Error deleting video:', error)
+        console?.error('Error deleting video:', error)
       }
     }
   }
 
-  const handleVideoFileSelect = (e: React.ChangeEvent<HTMLInputElement>, parentId: string) => {
-    const file = e.target.files?.[0]
+  const handleVideoFileSelect = (e: React?.ChangeEvent<HTMLInputElement>, parentId: string) => {
+    const file = e?.target?.files?.[0]
     if (file) {
       handleVideoUpload(parentId, file)
     }
@@ -139,7 +139,7 @@ export default function ParentsPage() {
           <button
             onClick={() => exportParentsToExcel(parents)}
             className="btn btn-ghost"
-            disabled={parents.length === 0}
+            disabled={parents?.length === 0}
           >
             <FileDown className="w-5 h-5" />
             Експорт Excel
@@ -163,7 +163,7 @@ export default function ParentsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Общо родители</p>
-              <p className="text-2xl font-bold text-gray-900">{parents.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{parents?.length}</p>
             </div>
           </div>
         </div>
@@ -200,14 +200,14 @@ export default function ParentsPage() {
             placeholder="Търсене по име, телефон или имейл..."
             className="input pl-10 w-full"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e?.target.value)}
           />
         </div>
       </div>
 
       {/* Parents Table */}
       <div className="card overflow-hidden">
-        {filteredParents.length === 0 ? (
+        {filteredParents?.length === 0 ? (
           <div className="text-center py-12">
             <UsersIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -243,20 +243,20 @@ export default function ParentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedParents.map((parent) => (
-                  <tr key={parent.id}>
+                {paginatedParents?.map((parent) => (
+                  <tr key={parent?.id}>
                     <td>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
-                          {parent.name.charAt(0).toUpperCase()}
+                          {parent?.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {parent.name}
+                            {parent?.name}
                           </p>
-                          {parent.companyName && (
+                          {parent?.companyName && (
                             <p className="text-xs text-gray-500">
-                              {parent.companyName}
+                              {parent?.companyName}
                             </p>
                           )}
                         </div>
@@ -266,19 +266,19 @@ export default function ParentsPage() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 text-sm">
                           <Phone className="w-4 h-4 text-gray-400" />
-                          <span>{parent.phone}</span>
+                          <span>{parent?.phone}</span>
                         </div>
-                        {parent.email && (
+                        {parent?.email && (
                           <div className="flex items-center gap-2 text-sm text-gray-600">
                             <Mail className="w-4 h-4 text-gray-400" />
-                            <span>{parent.email}</span>
+                            <span>{parent?.email}</span>
                           </div>
                         )}
                       </div>
                     </td>
                     <td>
                       <div className="text-sm">
-                        {parent.studentIds.length > 0 ? (
+                        {parent?.studentIds.length > 0 ? (
                           <span className="text-gray-700">
                             {getStudentNames(parent)}
                           </span>
@@ -288,18 +288,18 @@ export default function ParentsPage() {
                       </div>
                     </td>
                     <td>
-                      {parent.relationship && (
+                      {parent?.relationship && (
                         <span className="badge badge-primary">
-                          {parent.relationship}
+                          {parent?.relationship}
                         </span>
                       )}
                     </td>
                     <td>
                       <div className="flex items-center gap-2">
-                        {parent.videoUrls && parent.videoUrls.length > 0 && (
+                        {parent?.videoUrls && parent?.videoUrls.length > 0 && (
                           <span className="flex items-center gap-1 text-sm text-gray-600">
                             <Video className="w-4 h-4" />
-                            {parent.videoUrls.length}
+                            {parent?.videoUrls.length}
                           </span>
                         )}
                         <label
@@ -311,7 +311,7 @@ export default function ParentsPage() {
                             type="file"
                             accept="video/*"
                             className="hidden"
-                            onChange={(e) => handleVideoFileSelect(e, parent.id)}
+                            onChange={(e) => handleVideoFileSelect(e, parent?.id)}
                           />
                         </label>
                       </div>
@@ -333,7 +333,7 @@ export default function ParentsPage() {
                           <Edit className="w-4 h-4 text-gray-600" />
                         </button>
                         <button
-                          onClick={() => handleDelete(parent.id, parent.name)}
+                          onClick={() => handleDelete(parent?.id, parent?.name)}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                           title="Изтриване"
                         >
@@ -375,7 +375,7 @@ export default function ParentsPage() {
             <div className="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {viewingParent.name}
+                  {viewingParent?.name}
                 </h2>
                 <p className="text-gray-600">Детайли за родител</p>
               </div>
@@ -395,48 +395,48 @@ export default function ParentsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Телефон</p>
-                    <p className="font-medium">{viewingParent.phone}</p>
+                    <p className="font-medium">{viewingParent?.phone}</p>
                   </div>
-                  {viewingParent.phone2 && (
+                  {viewingParent?.phone2 && (
                     <div>
                       <p className="text-sm text-gray-600">Втори телефон</p>
-                      <p className="font-medium">{viewingParent.phone2}</p>
+                      <p className="font-medium">{viewingParent?.phone2}</p>
                     </div>
                   )}
-                  {viewingParent.email && (
+                  {viewingParent?.email && (
                     <div>
                       <p className="text-sm text-gray-600">Имейл</p>
-                      <p className="font-medium">{viewingParent.email}</p>
+                      <p className="font-medium">{viewingParent?.email}</p>
                     </div>
                   )}
-                  {viewingParent.address && (
+                  {viewingParent?.address && (
                     <div>
                       <p className="text-sm text-gray-600">Адрес</p>
-                      <p className="font-medium">{viewingParent.address}</p>
+                      <p className="font-medium">{viewingParent?.address}</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Company Info */}
-              {viewingParent.companyName && (
+              {viewingParent?.companyName && (
                 <div className="card">
                   <h3 className="font-semibold text-lg mb-4">Фирмена информация</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-600">Име на фирма</p>
-                      <p className="font-medium">{viewingParent.companyName}</p>
+                      <p className="font-medium">{viewingParent?.companyName}</p>
                     </div>
-                    {viewingParent.companyVAT && (
+                    {viewingParent?.companyVAT && (
                       <div>
                         <p className="text-sm text-gray-600">ЕИК/БУЛСТАТ</p>
-                        <p className="font-medium">{viewingParent.companyVAT}</p>
+                        <p className="font-medium">{viewingParent?.companyVAT}</p>
                       </div>
                     )}
-                    {viewingParent.companyAddress && (
+                    {viewingParent?.companyAddress && (
                       <div className="col-span-2">
                         <p className="text-sm text-gray-600">Адрес за фактури</p>
-                        <p className="font-medium">{viewingParent.companyAddress}</p>
+                        <p className="font-medium">{viewingParent?.companyAddress}</p>
                       </div>
                     )}
                   </div>
@@ -445,25 +445,25 @@ export default function ParentsPage() {
 
               {/* Children */}
               <div className="card">
-                <h3 className="font-semibold text-lg mb-4">Деца ({viewingParent.studentIds.length})</h3>
+                <h3 className="font-semibold text-lg mb-4">Деца ({viewingParent?.studentIds.length})</h3>
                 <div className="space-y-2">
-                  {viewingParent.studentIds.map((studentId) => {
-                    const student = students.find((s) => s.id === studentId)
+                  {viewingParent?.studentIds.map((studentId) => {
+                    const student = students?.find((s) => s?.id === studentId)
                     return (
                       <div key={studentId} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                         <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
-                          {student?.name.charAt(0) || '?'}
+                          {student?.name?.charAt(0) || '?'}
                         </div>
                         <div>
                           <p className="font-medium">{student?.name || 'Неизвестен'}</p>
                           {student && (
-                            <p className="text-sm text-gray-600">{student.group}</p>
+                            <p className="text-sm text-gray-600">{student?.group}</p>
                           )}
                         </div>
                       </div>
                     )
                   })}
-                  {viewingParent.studentIds.length === 0 && (
+                  {viewingParent?.studentIds.length === 0 && (
                     <p className="text-gray-500">Няма добавени ученици</p>
                   )}
                 </div>
@@ -473,7 +473,7 @@ export default function ParentsPage() {
               <div className="card">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-lg">
-                    Видео клипове ({viewingParent.videoUrls?.length || 0})
+                    Видео клипове ({viewingParent?.videoUrls?.length || 0})
                   </h3>
                   <label className="btn btn-primary cursor-pointer">
                     <Upload className="w-4 h-4" />
@@ -482,13 +482,13 @@ export default function ParentsPage() {
                       type="file"
                       accept="video/*"
                       className="hidden"
-                      onChange={(e) => handleVideoFileSelect(e, viewingParent.id)}
+                      onChange={(e) => handleVideoFileSelect(e, viewingParent?.id)}
                     />
                   </label>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {viewingParent.videoUrls && viewingParent.videoUrls.length > 0 ? (
-                    viewingParent.videoUrls.map((videoUrl, index) => (
+                  {viewingParent?.videoUrls && viewingParent?.videoUrls.length > 0 ? (
+                    viewingParent?.videoUrls.map((videoUrl, index) => (
                       <div key={index} className="relative group">
                         <video
                           src={videoUrl}
@@ -496,7 +496,7 @@ export default function ParentsPage() {
                           className="w-full rounded-lg"
                         />
                         <button
-                          onClick={() => handleVideoDelete(viewingParent.id, videoUrl)}
+                          onClick={() => handleVideoDelete(viewingParent?.id, videoUrl)}
                           className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -510,10 +510,10 @@ export default function ParentsPage() {
               </div>
 
               {/* Notes */}
-              {viewingParent.notes && (
+              {viewingParent?.notes && (
                 <div className="card">
                   <h3 className="font-semibold text-lg mb-4">Бележки</h3>
-                  <p className="text-gray-700">{viewingParent.notes}</p>
+                  <p className="text-gray-700">{viewingParent?.notes}</p>
                 </div>
               )}
             </div>

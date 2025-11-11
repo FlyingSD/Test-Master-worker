@@ -29,15 +29,15 @@ export default function InvoicesPage() {
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null)
 
   // Filter invoices
-  const filteredInvoices = invoices.filter((invoice) => {
+  const filteredInvoices = invoices?.filter((invoice) => {
     const matchesSearch =
-      invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.clientName.toLowerCase().includes(searchTerm.toLowerCase())
+      invoice?.invoiceNumber.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      invoice?.clientName.toLowerCase().includes(searchTerm?.toLowerCase())
     const matchesStatus =
       statusFilter === 'all' ||
-      (statusFilter === 'paid' && invoice.isPaid) ||
-      (statusFilter === 'unpaid' && !invoice.isPaid && invoice.status !== 'Анулирана') ||
-      (statusFilter === 'cancelled' && invoice.status === 'Анулирана')
+      (statusFilter === 'paid' && invoice?.isPaid) ||
+      (statusFilter === 'unpaid' && !invoice?.isPaid && invoice?.status !== 'Анулирана') ||
+      (statusFilter === 'cancelled' && invoice?.status === 'Анулирана')
 
     return matchesSearch && matchesStatus
   })
@@ -58,24 +58,24 @@ export default function InvoicesPage() {
   }
 
   const handleDelete = async (invoiceId: string, invoiceNumber: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете ${invoiceNumber}?`)) {
-      await deleteInvoice.mutateAsync(invoiceId)
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете ${invoiceNumber}?`)) {
+      await deleteInvoice?.mutateAsync(invoiceId)
     }
   }
 
   const handleMarkPaid = async (invoiceId: string) => {
-    await markPaid.mutateAsync(invoiceId)
+    await markPaid?.mutateAsync(invoiceId)
   }
 
   const handlePrint = (invoice: Invoice) => {
     // Simple print for now - can be enhanced with PDF generation
-    const printWindow = window.open('', '_blank')
+    const printWindow = window?.open('', '_blank')
     if (!printWindow) return
 
-    printWindow.document.write(`
+    printWindow?.document.write(`
       <html>
         <head>
-          <title>${invoice.type} ${invoice.invoiceNumber}</title>
+          <title>${invoice?.type} ${invoice?.invoiceNumber}</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 40px; }
             .header { text-align: center; margin-bottom: 30px; }
@@ -92,17 +92,17 @@ export default function InvoicesPage() {
         </head>
         <body>
           <div class="header">
-            <h1>${invoice.type}</h1>
-            <p>№ ${invoice.invoiceNumber}</p>
-            <p>Дата: ${formatDate(invoice.issueDate)}</p>
+            <h1>${invoice?.type}</h1>
+            <p>№ ${invoice?.invoiceNumber}</p>
+            <p>Дата: ${formatDate(invoice?.issueDate)}</p>
           </div>
 
           <div class="info">
             <h3>Клиент:</h3>
-            <p><strong>${invoice.clientName}</strong></p>
-            ${invoice.clientAddress ? `<p>${invoice.clientAddress}</p>` : ''}
-            ${invoice.clientVAT ? `<p>ЕИК/БУЛСТАТ: ${invoice.clientVAT}</p>` : ''}
-            ${invoice.clientPhone ? `<p>Тел: ${invoice.clientPhone}</p>` : ''}
+            <p><strong>${invoice?.clientName}</strong></p>
+            ${invoice?.clientAddress ? `<p>${invoice?.clientAddress}</p>` : ''}
+            ${invoice?.clientVAT ? `<p>ЕИК/БУЛСТАТ: ${invoice?.clientVAT}</p>` : ''}
+            ${invoice?.clientPhone ? `<p>Тел: ${invoice?.clientPhone}</p>` : ''}
           </div>
 
           <table>
@@ -115,32 +115,32 @@ export default function InvoicesPage() {
               </tr>
             </thead>
             <tbody>
-              ${invoice.items.map(item => `
+              ${invoice?.items.map(item => `
                 <tr>
-                  <td>${item.description}</td>
-                  <td>${item.quantity}</td>
-                  <td>${formatCurrency(item.unitPrice)}</td>
-                  <td>${formatCurrency(item.total)}</td>
+                  <td>${item?.description}</td>
+                  <td>${item?.quantity}</td>
+                  <td>${formatCurrency(item?.unitPrice)}</td>
+                  <td>${formatCurrency(item?.total)}</td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
 
           <div class="totals">
-            <p>Сума без ДДС: ${formatCurrency(invoice.subtotal)}</p>
-            <p>ДДС (${invoice.vatRate}%): ${formatCurrency(invoice.vatAmount)}</p>
-            <p class="total">ОБЩО: ${formatCurrency(invoice.total)}</p>
-            <p><strong>Метод на плащане:</strong> ${invoice.paymentMethod}</p>
-            <p><strong>Статус:</strong> ${invoice.isPaid ? 'Платена' : 'Неплатена'}</p>
+            <p>Сума без ДДС: ${formatCurrency(invoice?.subtotal)}</p>
+            <p>ДДС (${invoice?.vatRate}%): ${formatCurrency(invoice?.vatAmount)}</p>
+            <p class="total">ОБЩО: ${formatCurrency(invoice?.total)}</p>
+            <p><strong>Метод на плащане:</strong> ${invoice?.paymentMethod}</p>
+            <p><strong>Статус:</strong> ${invoice?.isPaid ? 'Платена' : 'Неплатена'}</p>
           </div>
 
-          ${invoice.notes ? `<p style="margin-top: 30px;"><strong>Бележки:</strong> ${invoice.notes}</p>` : ''}
+          ${invoice?.notes ? `<p style="margin-top: 30px;"><strong>Бележки:</strong> ${invoice?.notes}</p>` : ''}
 
-          <script>window.print(); window.onafterprint = () => window.close();</script>
+          <script>window?.print(); window?.onafterprint = () => window?.close();</script>
         </body>
       </html>
     `)
-    printWindow.document.close()
+    printWindow?.document.close()
   }
 
   const handleCloseModal = () => {
@@ -149,10 +149,10 @@ export default function InvoicesPage() {
   }
 
   const getStatusBadge = (invoice: Invoice) => {
-    if (invoice.status === 'Анулирана') {
+    if (invoice?.status === 'Анулирана') {
       return <span className="badge bg-gray-100 text-gray-800">Анулирана</span>
     }
-    if (invoice.isPaid) {
+    if (invoice?.isPaid) {
       return <span className="badge bg-green-100 text-green-800">Платена</span>
     }
     return <span className="badge bg-orange-100 text-orange-800">Неплатена</span>
@@ -183,7 +183,7 @@ export default function InvoicesPage() {
           <button
             onClick={() => exportInvoicesToExcel(filteredInvoices)}
             className="btn btn-ghost"
-            disabled={filteredInvoices.length === 0}
+            disabled={filteredInvoices?.length === 0}
           >
             <FileDown className="w-5 h-5" />
             Експорт Excel
@@ -208,7 +208,7 @@ export default function InvoicesPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Общо документи</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalInvoices}</p>
+                <p className="text-2xl font-bold text-gray-900">{stats?.totalInvoices}</p>
               </div>
             </div>
           </div>
@@ -220,7 +220,7 @@ export default function InvoicesPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Платени</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.paidInvoices}</p>
+                <p className="text-2xl font-bold text-gray-900">{stats?.paidInvoices}</p>
               </div>
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function InvoicesPage() {
               <div>
                 <p className="text-sm text-gray-600">Общо приходи</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(stats.totalRevenue)}
+                  {formatCurrency(stats?.totalRevenue)}
                 </p>
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function InvoicesPage() {
               <div>
                 <p className="text-sm text-gray-600">Чакащи плащане</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(stats.pendingRevenue)}
+                  {formatCurrency(stats?.pendingRevenue)}
                 </p>
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function InvoicesPage() {
               placeholder="Търсене по номер или клиент..."
               className="input pl-10 w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e?.target.value)}
             />
           </div>
 
@@ -276,19 +276,19 @@ export default function InvoicesPage() {
               onClick={() => setStatusFilter('all')}
               className={`btn ${statusFilter === 'all' ? 'btn-primary' : 'btn-ghost'}`}
             >
-              Всички ({invoices.length})
+              Всички ({invoices?.length})
             </button>
             <button
               onClick={() => setStatusFilter('paid')}
               className={`btn ${statusFilter === 'paid' ? 'btn-primary' : 'btn-ghost'}`}
             >
-              Платени ({stats.paidInvoices})
+              Платени ({stats?.paidInvoices})
             </button>
             <button
               onClick={() => setStatusFilter('unpaid')}
               className={`btn ${statusFilter === 'unpaid' ? 'btn-primary' : 'btn-ghost'}`}
             >
-              Неплатени ({stats.unpaidInvoices})
+              Неплатени ({stats?.unpaidInvoices})
             </button>
           </div>
         </div>
@@ -296,7 +296,7 @@ export default function InvoicesPage() {
 
       {/* Invoices Table */}
       <div className="card overflow-hidden">
-        {filteredInvoices.length === 0 ? (
+        {filteredInvoices?.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -333,24 +333,24 @@ export default function InvoicesPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedInvoices.map((invoice) => (
-                  <tr key={invoice.id}>
+                {paginatedInvoices?.map((invoice) => (
+                  <tr key={invoice?.id}>
                     <td>
-                      <p className="font-bold text-primary">{invoice.invoiceNumber}</p>
+                      <p className="font-bold text-primary">{invoice?.invoiceNumber}</p>
                     </td>
                     <td>
-                      <span className="badge badge-primary">{invoice.type}</span>
+                      <span className="badge badge-primary">{invoice?.type}</span>
                     </td>
                     <td>
-                      <p className="font-medium">{invoice.clientName}</p>
-                      {invoice.clientVAT && (
-                        <p className="text-xs text-gray-500">ЕИК: {invoice.clientVAT}</p>
+                      <p className="font-medium">{invoice?.clientName}</p>
+                      {invoice?.clientVAT && (
+                        <p className="text-xs text-gray-500">ЕИК: {invoice?.clientVAT}</p>
                       )}
                     </td>
-                    <td>{formatDate(invoice.issueDate)}</td>
+                    <td>{formatDate(invoice?.issueDate)}</td>
                     <td>
                       <p className="font-bold text-gray-900">
-                        {formatCurrency(invoice.total)}
+                        {formatCurrency(invoice?.total)}
                       </p>
                     </td>
                     <td>{getStatusBadge(invoice)}</td>
@@ -370,9 +370,9 @@ export default function InvoicesPage() {
                         >
                           <Printer className="w-4 h-4 text-gray-600" />
                         </button>
-                        {!invoice.isPaid && invoice.status !== 'Анулирана' && (
+                        {!invoice?.isPaid && invoice?.status !== 'Анулирана' && (
                           <button
-                            onClick={() => handleMarkPaid(invoice.id)}
+                            onClick={() => handleMarkPaid(invoice?.id)}
                             className="p-2 hover:bg-green-50 rounded-lg transition-colors"
                             title="Маркирай като платена"
                           >
@@ -389,7 +389,7 @@ export default function InvoicesPage() {
                               <Edit className="w-4 h-4 text-gray-600" />
                             </button>
                             <button
-                              onClick={() => handleDelete(invoice.id, invoice.invoiceNumber)}
+                              onClick={() => handleDelete(invoice?.id, invoice?.invoiceNumber)}
                               className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                               title="Изтриване"
                             >

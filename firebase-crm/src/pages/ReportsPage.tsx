@@ -28,35 +28,35 @@ export default function ReportsPage() {
 
   for (let month = 0; month < 12; month++) {
     // Filter payments for this month
-    const monthPayments = payments.filter(p => {
-      const date = p.date instanceof Date ? p.date : p.date.toDate()
-      return date.getFullYear() === selectedYear && date.getMonth() === month
+    const monthPayments = payments?.filter(p => {
+      const date = p?.date instanceof Date ? p?.date : p?.date.toDate()
+      return date?.getFullYear() === selectedYear && date?.getMonth() === month
     })
 
     // Filter expenses for this month
-    const monthExpenses = expenses.filter(e => {
-      const date = e.date instanceof Date ? e.date : e.date.toDate()
-      return date.getFullYear() === selectedYear && date.getMonth() === month
+    const monthExpenses = expenses?.filter(e => {
+      const date = e?.date instanceof Date ? e?.date : e?.date.toDate()
+      return date?.getFullYear() === selectedYear && date?.getMonth() === month
     })
 
-    const revenue = monthPayments.reduce((sum, p) => sum + p.amount, 0)
-    const expense = monthExpenses.reduce((sum, e) => sum + e.amount, 0)
+    const revenue = monthPayments?.reduce((sum, p) => sum + p?.amount, 0)
+    const expense = monthExpenses?.reduce((sum, e) => sum + e?.amount, 0)
     const profit = revenue - expense
 
-    monthlyData.push({
+    monthlyData?.push({
       month: monthNames[month],
       monthIndex: month,
       revenue,
       expense,
       profit,
-      paymentsCount: monthPayments.length,
-      expensesCount: monthExpenses.length,
+      paymentsCount: monthPayments?.length,
+      expensesCount: monthExpenses?.length,
     })
   }
 
   // Calculate yearly totals
-  const yearlyRevenue = monthlyData.reduce((sum, m) => sum + m.revenue, 0)
-  const yearlyExpense = monthlyData.reduce((sum, m) => sum + m.expense, 0)
+  const yearlyRevenue = monthlyData?.reduce((sum, m) => sum + m?.revenue, 0)
+  const yearlyExpense = monthlyData?.reduce((sum, m) => sum + m?.expense, 0)
   const yearlyProfit = yearlyRevenue - yearlyExpense
 
   // Available years
@@ -74,9 +74,9 @@ export default function ReportsPage() {
           <select
             className="input"
             value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            onChange={(e) => setSelectedYear(Number(e?.target.value))}
           >
-            {years.map(year => (
+            {years?.map(year => (
               <option key={year} value={year}>{year} година</option>
             ))}
           </select>
@@ -150,33 +150,33 @@ export default function ReportsPage() {
               </tr>
             </thead>
             <tbody>
-              {monthlyData.map((data) => (
-                <tr key={data.monthIndex}>
+              {monthlyData?.map((data) => (
+                <tr key={data?.monthIndex}>
                   <td>
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="font-medium">{data.month}</span>
+                      <span className="font-medium">{data?.month}</span>
                     </div>
                   </td>
                   <td>
                     <span className="font-medium text-green-600">
-                      {formatCurrency(data.revenue)}
+                      {formatCurrency(data?.revenue)}
                     </span>
                   </td>
                   <td>
-                    <span className="text-gray-600">{data.paymentsCount}</span>
+                    <span className="text-gray-600">{data?.paymentsCount}</span>
                   </td>
                   <td>
                     <span className="font-medium text-red-600">
-                      {formatCurrency(data.expense)}
+                      {formatCurrency(data?.expense)}
                     </span>
                   </td>
                   <td>
-                    <span className="text-gray-600">{data.expensesCount}</span>
+                    <span className="text-gray-600">{data?.expensesCount}</span>
                   </td>
                   <td>
-                    <span className={`font-bold ${data.profit >= 0 ? 'text-primary' : 'text-red-600'}`}>
-                      {formatCurrency(data.profit)}
+                    <span className={`font-bold ${data?.profit >= 0 ? 'text-primary' : 'text-red-600'}`}>
+                      {formatCurrency(data?.profit)}
                     </span>
                   </td>
                 </tr>
@@ -186,14 +186,14 @@ export default function ReportsPage() {
               <tr className="bg-gray-50 font-bold">
                 <td>ОБЩО</td>
                 <td className="text-green-600">{formatCurrency(yearlyRevenue)}</td>
-                <td>{payments.filter(p => {
-                  const date = p.date instanceof Date ? p.date : p.date.toDate()
-                  return date.getFullYear() === selectedYear
+                <td>{payments?.filter(p => {
+                  const date = p?.date instanceof Date ? p?.date : p?.date.toDate()
+                  return date?.getFullYear() === selectedYear
                 }).length}</td>
                 <td className="text-red-600">{formatCurrency(yearlyExpense)}</td>
-                <td>{expenses.filter(e => {
-                  const date = e.date instanceof Date ? e.date : e.date.toDate()
-                  return date.getFullYear() === selectedYear
+                <td>{expenses?.filter(e => {
+                  const date = e?.date instanceof Date ? e?.date : e?.date.toDate()
+                  return date?.getFullYear() === selectedYear
                 }).length}</td>
                 <td className={yearlyProfit >= 0 ? 'text-primary' : 'text-red-600'}>
                   {formatCurrency(yearlyProfit)}
@@ -221,7 +221,7 @@ export default function ReportsPage() {
         <div className="card">
           <p className="text-sm text-gray-600 mb-1">Най-печеливш месец</p>
           <p className="text-xl font-bold text-primary">
-            {monthlyData.reduce((max, m) => m.profit > max.profit ? m : max, monthlyData[0]).month}
+            {monthlyData?.reduce((max, m) => m?.profit > max?.profit ? m : max, monthlyData[0]).month}
           </p>
         </div>
         <div className="card">
@@ -235,7 +235,7 @@ export default function ReportsPage() {
       {/* Info Note */}
       <div className="card bg-blue-50 border-blue-200">
         <div className="flex gap-3">
-          <FileText className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <FileText className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0?.5" />
           <div>
             <h3 className="font-semibold text-blue-900 mb-1">
               Как да използваш репортите

@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState(false)
 
   const [searchParams] = useSearchParams()
-  const role = searchParams.get('role') || 'parent' // Default to parent
+  const role = searchParams?.get('role') || 'parent' // Default to parent
   const { resetPassword } = useAuth()
   const navigate = useNavigate()
 
@@ -32,11 +32,11 @@ export default function ForgotPasswordPage() {
   const loginPath = isParent ? '/login/parent' : '/login/teacher'
   const roleText = isParent ? 'Родител' : 'Учител'
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     if (!email) {
-      toast.error('Моля, въведете имейл адрес')
+      toast?.error('Моля, въведете имейл адрес')
       return
     }
 
@@ -119,8 +119,8 @@ export default function ForgotPasswordPage() {
                     <input
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com"
+                      onChange={(e) => setEmail(e?.target.value)}
+                      placeholder="your@email?.com"
                       className="input pl-10"
                       disabled={loading}
                       autoFocus

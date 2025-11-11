@@ -36,12 +36,12 @@ export default function ParentDashboardPage() {
   // No need to manually filter - myPayments already filtered server-side ✅
 
   // Calculate total paid
-  const totalPaid = myPayments.reduce((sum, p) => sum + p.amount, 0)
+  const totalPaid = myPayments?.reduce((sum, p) => sum + p?.amount, 0)
 
   // Calculate overdue (students with dueDate in the past)
   const today = new Date()
-  const overdueStudents = students.filter(s => {
-    const dueDate = s.dueDate instanceof Date ? s.dueDate : s.dueDate?.toDate?.()
+  const overdueStudents = students?.filter(s => {
+    const dueDate = s?.dueDate instanceof Date ? s?.dueDate : s?.dueDate?.toDate?.()
     return dueDate && dueDate < today
   })
 
@@ -64,7 +64,7 @@ export default function ParentDashboardPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Моите деца</p>
-              <p className="text-2xl font-bold text-gray-900">{students.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{students?.length}</p>
             </div>
           </div>
         </div>
@@ -85,12 +85,12 @@ export default function ParentDashboardPage() {
 
         <div className="card">
           <div className="flex items-center gap-4">
-            <div className={`p-3 rounded-xl ${overdueStudents.length > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
-              <AlertCircle className={`w-6 h-6 ${overdueStudents.length > 0 ? 'text-red-600' : 'text-gray-400'}`} />
+            <div className={`p-3 rounded-xl ${overdueStudents?.length > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
+              <AlertCircle className={`w-6 h-6 ${overdueStudents?.length > 0 ? 'text-red-600' : 'text-gray-400'}`} />
             </div>
             <div>
               <p className="text-sm text-gray-600">Просрочени</p>
-              <p className="text-2xl font-bold text-gray-900">{overdueStudents.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{overdueStudents?.length}</p>
             </div>
           </div>
         </div>
@@ -102,21 +102,21 @@ export default function ParentDashboardPage() {
           <h2 className="text-xl font-bold text-gray-900">Моите деца</h2>
         </div>
 
-        {students.length === 0 ? (
+        {students?.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600">Няма добавени деца</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {students.map((student) => {
-              const dueDate = student.dueDate instanceof Date ? student.dueDate : student.dueDate?.toDate?.()
+            {students?.map((student) => {
+              const dueDate = student?.dueDate instanceof Date ? student?.dueDate : student?.dueDate?.toDate?.()
               const isOverdue = dueDate && dueDate < today
 
               return (
                 <Link
-                  key={student.id}
-                  to={`/my-children/${student.id}`}
+                  key={student?.id}
+                  to={`/my-children/${student?.id}`}
                   className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center justify-between">
@@ -124,13 +124,13 @@ export default function ParentDashboardPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-primary-light rounded-full flex items-center justify-center">
                           <span className="text-xl font-bold text-primary">
-                            {student.name.charAt(0)}
+                            {student?.name.charAt(0)}
                           </span>
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900">{student.name}</h3>
+                          <h3 className="font-semibold text-gray-900">{student?.name}</h3>
                           <p className="text-sm text-gray-600">
-                            {student.group} • {student.studyType}
+                            {student?.group} • {student?.studyType}
                           </p>
                         </div>
                       </div>
@@ -170,29 +170,29 @@ export default function ParentDashboardPage() {
       <div className="card">
         <h2 className="text-xl font-bold text-gray-900 mb-6">Последни плащания</h2>
 
-        {myPayments.length === 0 ? (
+        {myPayments?.length === 0 ? (
           <div className="text-center py-8">
             <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-600">Няма плащания</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {myPayments.slice(0, 5).map((payment) => {
-              const student = students.find(s => s.id === payment.studentId)
+            {myPayments?.slice(0, 5).map((payment) => {
+              const student = students?.find(s => s?.id === payment?.studentId)
               return (
-                <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={payment?.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{student?.name}</p>
                     <p className="text-sm text-gray-600">
-                      {formatDate(payment.date)} • {payment.method}
+                      {formatDate(payment?.date)} • {payment?.method}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-green-600">
-                      {formatCurrency(payment.amount)}
+                      {formatCurrency(payment?.amount)}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {payment.article || 'Месечна такса'}
+                      {payment?.article || 'Месечна такса'}
                     </p>
                   </div>
                 </div>
@@ -201,7 +201,7 @@ export default function ParentDashboardPage() {
           </div>
         )}
 
-        {myPayments.length > 5 && (
+        {myPayments?.length > 5 && (
           <div className="mt-4 text-center">
             <Link to="/payments" className="text-primary hover:text-primary-hover font-medium">
               Виж всички →

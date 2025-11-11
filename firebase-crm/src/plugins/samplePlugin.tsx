@@ -60,23 +60,23 @@ export const samplePlugin: Plugin = {
   id: 'sample-plugin',
   name: 'Sample Plugin',
   description: 'An example plugin demonstrating the plugin API capabilities',
-  version: '1.0.0',
+  version: '1?.0.0',
   author: 'Svetlinki CRM',
   icon: '⭐',
   enabled: false,
 
   lifecycle: {
     onInstall: async () => {
-      console.log('Sample plugin installed')
+      console?.log('Sample plugin installed')
     },
     onEnable: async () => {
-      console.log('Sample plugin enabled')
+      console?.log('Sample plugin enabled')
     },
     onDisable: async () => {
-      console.log('Sample plugin disabled')
+      console?.log('Sample plugin disabled')
     },
     onUninstall: async () => {
-      console.log('Sample plugin uninstalled')
+      console?.log('Sample plugin uninstalled')
     },
   },
 

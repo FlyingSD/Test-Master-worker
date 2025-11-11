@@ -19,34 +19,34 @@ export default function EventsPage() {
   const [filterType, setFilterType] = useState<string>('all')
 
   // Get groups of parent's children for filtering
-  const myChildrenGroups = isParent ? myChildren.map(child => child.group) : []
+  const myChildrenGroups = isParent ? myChildren?.map(child => child?.group) : []
 
   // Filter events
-  const filteredEvents = events.filter((event) => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.businessDescription?.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesType = filterType === 'all' || event.type === filterType
+  const filteredEvents = events?.filter((event) => {
+    const matchesSearch = event?.title.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      event?.businessDescription?.toLowerCase().includes(searchTerm?.toLowerCase())
+    const matchesType = filterType === 'all' || event?.type === filterType
 
     // 🔒 SECURITY: Parents only see events for their children's groups
     const matchesParentAccess = !isParent ||
-      !event.group || // Events without group (general events)
-      myChildrenGroups.includes(event.group) // Events for my children's groups
+      !event?.group || // Events without group (general events)
+      myChildrenGroups?.includes(event?.group) // Events for my children's groups
 
     return matchesSearch && matchesType && matchesParentAccess
   })
 
   // Stats (also filtered for parents)
-  const upcomingEvents = events.filter((e) => {
-    const eventDate = e.startTime instanceof Date ? e.startTime : e.startTime.toDate()
-    const matchesParentAccess = !isParent || !e.group || myChildrenGroups.includes(e.group)
+  const upcomingEvents = events?.filter((e) => {
+    const eventDate = e?.startTime instanceof Date ? e?.startTime : e?.startTime.toDate()
+    const matchesParentAccess = !isParent || !e?.group || myChildrenGroups?.includes(e?.group)
     return eventDate > new Date() && matchesParentAccess
   })
 
-  const todayEvents = events.filter((e) => {
-    const eventDate = e.startTime instanceof Date ? e.startTime : e.startTime.toDate()
+  const todayEvents = events?.filter((e) => {
+    const eventDate = e?.startTime instanceof Date ? e?.startTime : e?.startTime.toDate()
     const today = new Date()
-    const matchesParentAccess = !isParent || !e.group || myChildrenGroups.includes(e.group)
-    return eventDate.toDateString() === today.toDateString() && matchesParentAccess
+    const matchesParentAccess = !isParent || !e?.group || myChildrenGroups?.includes(e?.group)
+    return eventDate?.toDateString() === today?.toDateString() && matchesParentAccess
   })
 
   const handleEdit = (event: Event) => {
@@ -55,8 +55,8 @@ export default function EventsPage() {
   }
 
   const handleDelete = async (eventId: string, eventTitle: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете "${eventTitle}"?`)) {
-      await deleteEvent.mutateAsync(eventId)
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете "${eventTitle}"?`)) {
+      await deleteEvent?.mutateAsync(eventId)
     }
   }
 
@@ -119,7 +119,7 @@ export default function EventsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Общо събития</p>
-              <p className="text-2xl font-bold text-gray-900">{events.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{events?.length}</p>
             </div>
           </div>
         </div>
@@ -130,7 +130,7 @@ export default function EventsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Днес</p>
-              <p className="text-2xl font-bold text-gray-900">{todayEvents.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{todayEvents?.length}</p>
             </div>
           </div>
         </div>
@@ -141,7 +141,7 @@ export default function EventsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Предстоящи</p>
-              <p className="text-2xl font-bold text-gray-900">{upcomingEvents.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{upcomingEvents?.length}</p>
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function EventsPage() {
               placeholder="Търсене по заглавие или бизнес описание..."
               className="input pl-10 w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e?.target.value)}
             />
           </div>
 
@@ -202,7 +202,7 @@ export default function EventsPage() {
 
       {/* Events Table */}
       <div className="card overflow-hidden">
-        {filteredEvents.length === 0 ? (
+        {filteredEvents?.length === 0 ? (
           <div className="text-center py-12">
             <CalendarIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -237,43 +237,43 @@ export default function EventsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredEvents.map((event) => {
-                  const startTime = event.startTime instanceof Date
-                    ? event.startTime
-                    : event.startTime.toDate()
-                  const endTime = event.endTime instanceof Date
-                    ? event.endTime
-                    : event.endTime.toDate()
+                {filteredEvents?.map((event) => {
+                  const startTime = event?.startTime instanceof Date
+                    ? event?.startTime
+                    : event?.startTime.toDate()
+                  const endTime = event?.endTime instanceof Date
+                    ? event?.endTime
+                    : event?.endTime.toDate()
 
                   return (
-                    <tr key={event.id}>
+                    <tr key={event?.id}>
                       <td>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {event.title}
+                            {event?.title}
                           </p>
-                          {event.notes && (
+                          {event?.notes && (
                             <p className="text-xs text-gray-500 mt-1">
-                              {event.notes}
+                              {event?.notes}
                             </p>
                           )}
                         </div>
                       </td>
                       <td>
-                        <span className={`badge ${getTypeColor(event.type)}`}>
-                          {event.type}
+                        <span className={`badge ${getTypeColor(event?.type)}`}>
+                          {event?.type}
                         </span>
                       </td>
                       <td>
                         <div>
                           <p className="font-medium">{formatDate(startTime)}</p>
                           <p className="text-sm text-gray-600">
-                            {startTime.toLocaleTimeString('bg-BG', {
+                            {startTime?.toLocaleTimeString('bg-BG', {
                               hour: '2-digit',
                               minute: '2-digit',
                             })}{' '}
                             -{' '}
-                            {endTime.toLocaleTimeString('bg-BG', {
+                            {endTime?.toLocaleTimeString('bg-BG', {
                               hour: '2-digit',
                               minute: '2-digit',
                             })}
@@ -282,25 +282,25 @@ export default function EventsPage() {
                       </td>
                       <td>
                         <div className="space-y-1">
-                          {event.group && (
+                          {event?.group && (
                             <div className="flex items-center gap-1 text-sm">
-                              <span className="text-gray-600">{event.group}</span>
+                              <span className="text-gray-600">{event?.group}</span>
                             </div>
                           )}
-                          {event.location && (
+                          {event?.location && (
                             <div className="flex items-center gap-1 text-sm text-gray-500">
                               <MapPin className="w-3 h-3" />
-                              <span>{event.location}</span>
+                              <span>{event?.location}</span>
                             </div>
                           )}
                         </div>
                       </td>
                       <td>
-                        {event.businessDescription ? (
+                        {event?.businessDescription ? (
                           <div className="flex items-center gap-2">
                             <Briefcase className="w-4 h-4 text-accent flex-shrink-0" />
                             <span className="text-sm font-medium text-gray-900">
-                              {event.businessDescription}
+                              {event?.businessDescription}
                             </span>
                           </div>
                         ) : (
@@ -318,7 +318,7 @@ export default function EventsPage() {
                               <Edit className="w-4 h-4 text-gray-600" />
                             </button>
                             <button
-                              onClick={() => handleDelete(event.id, event.title)}
+                              onClick={() => handleDelete(event?.id, event?.title)}
                               className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                               title="Изтриване"
                             >

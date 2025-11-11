@@ -31,22 +31,22 @@ export default function ExpensesPage() {
   const [endDate, setEndDate] = useState<Date | null>(null)
 
   // Get unique categories from expenses
-  const categories = Array.from(new Set(expenses.map((exp) => exp.category)))
+  const categories = Array?.from(new Set(expenses?.map((exp) => exp?.category)))
 
   // Filter expenses
-  const filteredExpenses = expenses.filter((expense) => {
-    const matchesSearch = expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      expense.receiptNumber?.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = categoryFilter === 'all' || expense.category === categoryFilter
+  const filteredExpenses = expenses?.filter((expense) => {
+    const matchesSearch = expense?.description.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      expense?.receiptNumber?.toLowerCase().includes(searchTerm?.toLowerCase())
+    const matchesCategory = categoryFilter === 'all' || expense?.category === categoryFilter
 
     // Date range filter
     let matchesDateRange = true
     if (startDate || endDate) {
-      const expenseDate = expense.date instanceof Date ? expense.date : expense.date.toDate()
+      const expenseDate = expense?.date instanceof Date ? expense?.date : expense?.date.toDate()
       if (startDate && expenseDate < startDate) matchesDateRange = false
       if (endDate) {
         const endOfDay = new Date(endDate)
-        endOfDay.setHours(23, 59, 59, 999)
+        endOfDay?.setHours(23, 59, 59, 999)
         if (expenseDate > endOfDay) matchesDateRange = false
       }
     }
@@ -65,13 +65,13 @@ export default function ExpensesPage() {
   } = usePagination(filteredExpenses, 20)
 
   // Calculate stats
-  const expensesByCategory = expenses.reduce((acc, exp) => {
-    acc[exp.category] = (acc[exp.category] || 0) + exp.amount
+  const expensesByCategory = expenses?.reduce((acc, exp) => {
+    acc[exp?.category] = (acc[exp?.category] || 0) + exp?.amount
     return acc
   }, {} as Record<string, number>)
 
-  const largestExpense = expenses.length > 0 ? Math.max(...expenses.map((e) => e.amount)) : 0
-  const topCategory = Object.entries(expensesByCategory).sort((a, b) => b[1] - a[1])[0]
+  const largestExpense = expenses?.length > 0 ? Math?.max(...expenses?.map((e) => e?.amount)) : 0
+  const topCategory = Object?.entries(expensesByCategory).sort((a, b) => b[1] - a[1])[0]
 
   const handleEdit = (expense: Expense) => {
     setEditingExpense(expense)
@@ -79,8 +79,8 @@ export default function ExpensesPage() {
   }
 
   const handleDelete = async (expenseId: string, description: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете "${description}"?`)) {
-      await deleteExpense.mutateAsync(expenseId)
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете "${description}"?`)) {
+      await deleteExpense?.mutateAsync(expenseId)
     }
   }
 
@@ -133,7 +133,7 @@ export default function ExpensesPage() {
           <button
             onClick={() => exportExpensesToExcel(filteredExpenses)}
             className="btn btn-ghost"
-            disabled={filteredExpenses.length === 0}
+            disabled={filteredExpenses?.length === 0}
           >
             <FileDown className="w-5 h-5" />
             Експорт Excel
@@ -171,7 +171,7 @@ export default function ExpensesPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Брой разходи</p>
-              <p className="text-2xl font-bold text-gray-900">{expenses.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{expenses?.length}</p>
             </div>
           </div>
         </div>
@@ -219,7 +219,7 @@ export default function ExpensesPage() {
               placeholder="Търсене по описание или номер на документ..."
               className="input pl-10 w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e?.target.value)}
             />
           </div>
 
@@ -231,9 +231,9 @@ export default function ExpensesPage() {
                 categoryFilter === 'all' ? 'btn-primary' : 'btn-ghost'
               }`}
             >
-              Всички ({expenses.length})
+              Всички ({expenses?.length})
             </button>
-            {categories.map((category) => (
+            {categories?.map((category) => (
               <button
                 key={category}
                 onClick={() => setCategoryFilter(category)}
@@ -241,7 +241,7 @@ export default function ExpensesPage() {
                   categoryFilter === category ? 'btn-primary' : 'btn-ghost'
                 }`}
               >
-                {category} ({expenses.filter((e) => e.category === category).length})
+                {category} ({expenses?.filter((e) => e?.category === category).length})
               </button>
             ))}
           </div>
@@ -259,7 +259,7 @@ export default function ExpensesPage() {
 
       {/* Expenses Table */}
       <div className="card overflow-hidden">
-        {filteredExpenses.length === 0 ? (
+        {filteredExpenses?.length === 0 ? (
           <div className="text-center py-12">
             <TrendingDown className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -295,35 +295,35 @@ export default function ExpensesPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedExpenses.map((expense) => (
-                  <tr key={expense.id}>
+                {paginatedExpenses?.map((expense) => (
+                  <tr key={expense?.id}>
                     <td>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-gray-400" />
                         <span className="font-medium">
-                          {formatDate(expense.date)}
+                          {formatDate(expense?.date)}
                         </span>
                       </div>
                     </td>
                     <td>
-                      <span className={`badge ${getCategoryColor(expense.category)}`}>
-                        {expense.category}
+                      <span className={`badge ${getCategoryColor(expense?.category)}`}>
+                        {expense?.category}
                       </span>
                     </td>
                     <td>
                       <p className="font-medium text-gray-900 max-w-xs truncate">
-                        {expense.description}
+                        {expense?.description}
                       </p>
                     </td>
                     <td>
                       <p className="font-bold text-red-600">
-                        {formatCurrency(expense.amount)}
+                        {formatCurrency(expense?.amount)}
                       </p>
                     </td>
                     <td>
-                      {expense.receiptNumber ? (
+                      {expense?.receiptNumber ? (
                         <span className="text-sm text-gray-600">
-                          {expense.receiptNumber}
+                          {expense?.receiptNumber}
                         </span>
                       ) : (
                         <span className="text-sm text-gray-400">N/A</span>
@@ -339,7 +339,7 @@ export default function ExpensesPage() {
                           <Edit className="w-4 h-4 text-gray-600" />
                         </button>
                         <button
-                          onClick={() => handleDelete(expense.id, expense.description)}
+                          onClick={() => handleDelete(expense?.id, expense?.description)}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                           title="Изтриване"
                         >

@@ -20,7 +20,7 @@ export interface ImportResult {
 
 export function parseCSVFile(file: File): Promise<ImportResult> {
   return new Promise((resolve) => {
-    Papa.parse(file, {
+    Papa?.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
@@ -29,11 +29,11 @@ export function parseCSVFile(file: File): Promise<ImportResult> {
           errors: [],
         }
 
-        results.data.forEach((row: any, index: number) => {
+        results?.data.forEach((row: any, index: number) => {
           try {
             // Validate required fields
-            if (!row.name || !row.group || !row.studyType) {
-              importResult.errors.push({
+            if (!row?.name || !row?.group || !row?.studyType) {
+              importResult?.errors.push({
                 row: index + 1,
                 error: 'Missing required fields (name, group, studyType)',
                 data: row,
@@ -42,41 +42,41 @@ export function parseCSVFile(file: File): Promise<ImportResult> {
             }
 
             // Parse fees
-            const fee = parseFloat(row.fee) || 0
-            const feeEUR = parseFloat(row.feeEUR) || 0
+            const fee = parseFloat(row?.fee) || 0
+            const feeEUR = parseFloat(row?.feeEUR) || 0
 
             // Parse due date
             let dueDate: Date
             try {
-              dueDate = new Date(row.dueDate)
-              if (isNaN(dueDate.getTime())) {
+              dueDate = new Date(row?.dueDate)
+              if (isNaN(dueDate?.getTime())) {
                 throw new Error('Invalid date')
               }
             } catch {
               dueDate = new Date()
-              dueDate.setMonth(dueDate.getMonth() + 1)
+              dueDate?.setMonth(dueDate?.getMonth() + 1)
             }
 
             // Validate status
-            const status = row.status === 'inactive' ? 'inactive' : 'active'
+            const status = row?.status === 'inactive' ? 'inactive' : 'active'
 
             // Create student object
             const student: Omit<Student, 'id' | 'createdAt' | 'createdBy'> = {
-              name: row.name.trim(),
-              group: row.group.trim(),
-              studyType: row.studyType.trim(),
+              name: row?.name.trim(),
+              group: row?.group.trim(),
+              studyType: row?.studyType.trim(),
               fee,
               feeEUR,
-              dueDate: Timestamp.fromDate(dueDate),
+              dueDate: Timestamp?.fromDate(dueDate),
               status,
-              notes: row.notes?.trim() || '',
+              notes: row?.notes?.trim() || '',
             }
 
-            importResult.success.push(student as Student)
+            importResult?.success.push(student as Student)
           } catch (error) {
-            importResult.errors.push({
+            importResult?.errors.push({
               row: index + 1,
-              error: error instanceof Error ? error.message : 'Unknown error',
+              error: error instanceof Error ? error?.message : 'Unknown error',
               data: row,
             })
           }
@@ -87,7 +87,7 @@ export function parseCSVFile(file: File): Promise<ImportResult> {
       error: (error) => {
         resolve({
           success: [],
-          errors: [{ row: 0, error: error.message, data: null }],
+          errors: [{ row: 0, error: error?.message, data: null }],
         })
       },
     })
@@ -129,7 +129,7 @@ export function generateCSVTemplate(): string {
     ],
   ]
 
-  const csv = [headers.join(','), ...exampleRows.map((row) => row.join(','))].join('\n')
+  const csv = [headers?.join(','), ...exampleRows?.map((row) => row?.join(','))].join('\n')
 
   return csv
 }
@@ -137,8 +137,8 @@ export function generateCSVTemplate(): string {
 export function downloadCSVTemplate() {
   const csv = generateCSVTemplate()
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = 'students_import_template.csv'
-  link.click()
+  const link = document?.createElement('a')
+  link?.href = URL?.createObjectURL(blob)
+  link?.download = 'students_import_template?.csv'
+  link?.click()
 }

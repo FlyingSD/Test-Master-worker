@@ -11,13 +11,13 @@ export default function LoginPage() {
     name: '',
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React?.FormEvent) => {
+    e?.preventDefault()
 
     if (isSignUp) {
-      await signUp(formData.email, formData.password, formData.name)
+      await signUp(formData?.email, formData?.password, formData?.name)
     } else {
-      await signInWithEmail(formData.email, formData.password)
+      await signInWithEmail(formData?.email, formData?.password)
     }
   }
 
@@ -79,9 +79,9 @@ export default function LoginPage() {
                     required
                     className="input pl-10"
                     placeholder="Вашето име"
-                    value={formData.name}
+                    value={formData?.name}
                     onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
+                      setFormData({ ...formData, name: e?.target.value })
                     }
                   />
                 </div>
@@ -96,10 +96,10 @@ export default function LoginPage() {
                   type="email"
                   required
                   className="input pl-10"
-                  placeholder="your@email.com"
-                  value={formData.email}
+                  placeholder="your@email?.com"
+                  value={formData?.email}
                   onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
+                    setFormData({ ...formData, email: e?.target.value })
                   }
                 />
               </div>
@@ -114,9 +114,9 @@ export default function LoginPage() {
                   required
                   className="input pl-10"
                   placeholder="••••••••"
-                  value={formData.password}
+                  value={formData?.password}
                   onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
+                    setFormData({ ...formData, password: e?.target.value })
                   }
                 />
               </div>
@@ -169,7 +169,7 @@ export default function LoginPage() {
                 🔐 Demo Credentials:
               </p>
               <div className="text-xs text-blue-700 space-y-1 font-mono">
-                <div>Email: admin@svetlinki.bg</div>
+                <div>Email: admin@svetlinki?.bg</div>
                 <div>Password: admin123</div>
               </div>
             </div>

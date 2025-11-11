@@ -28,26 +28,26 @@ export default function PaymentsPage() {
   const [endDate, setEndDate] = useState<Date | null>(null)
 
   // For parents: get list of their children's IDs
-  const myChildrenIds = isParent ? myChildren.map(s => s.id) : []
+  const myChildrenIds = isParent ? myChildren?.map(s => s?.id) : []
 
   // Filter payments (including parent-specific filtering)
-  const filteredPayments = payments.filter((payment) => {
+  const filteredPayments = payments?.filter((payment) => {
     // If parent, only show payments for their children
-    if (isParent && !myChildrenIds.includes(payment.studentId)) {
+    if (isParent && !myChildrenIds?.includes(payment?.studentId)) {
       return false
     }
-    const matchesSearch = payment.studentName.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesMethod = filterMethod === 'all' || payment.method === filterMethod
-    const matchesArticle = filterArticle === 'all' || payment.article === filterArticle
+    const matchesSearch = payment?.studentName.toLowerCase().includes(searchTerm?.toLowerCase())
+    const matchesMethod = filterMethod === 'all' || payment?.method === filterMethod
+    const matchesArticle = filterArticle === 'all' || payment?.article === filterArticle
 
     // Date range filter
     let matchesDateRange = true
     if (startDate || endDate) {
-      const paymentDate = payment.date instanceof Date ? payment.date : payment.date.toDate()
+      const paymentDate = payment?.date instanceof Date ? payment?.date : payment?.date.toDate()
       if (startDate && paymentDate < startDate) matchesDateRange = false
       if (endDate) {
         const endOfDay = new Date(endDate)
-        endOfDay.setHours(23, 59, 59, 999)
+        endOfDay?.setHours(23, 59, 59, 999)
         if (paymentDate > endOfDay) matchesDateRange = false
       }
     }
@@ -66,13 +66,13 @@ export default function PaymentsPage() {
   } = usePagination(filteredPayments, 20)
 
   // 🔒 SECURITY: Stats - Only calculate financial totals for admins
-  const totalRevenue = isAdmin ? payments.reduce((sum, p) => sum + p.amount, 0) : 0
-  const thisMonth = isAdmin ? payments.filter((p) => {
-    const paymentDate = p.date instanceof Date ? p.date : p.date.toDate()
+  const totalRevenue = isAdmin ? payments?.reduce((sum, p) => sum + p?.amount, 0) : 0
+  const thisMonth = isAdmin ? payments?.filter((p) => {
+    const paymentDate = p?.date instanceof Date ? p?.date : p?.date.toDate()
     const now = new Date()
-    return paymentDate.getMonth() === now.getMonth() && paymentDate.getFullYear() === now.getFullYear()
+    return paymentDate?.getMonth() === now?.getMonth() && paymentDate?.getFullYear() === now?.getFullYear()
   }) : []
-  const monthRevenue = isAdmin ? thisMonth.reduce((sum, p) => sum + p.amount, 0) : 0
+  const monthRevenue = isAdmin ? thisMonth?.reduce((sum, p) => sum + p?.amount, 0) : 0
 
   const handleEdit = (payment: Payment) => {
     setEditingPayment(payment)
@@ -80,8 +80,8 @@ export default function PaymentsPage() {
   }
 
   const handleDelete = async (paymentId: string, studentName: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете плащането на ${studentName}?`)) {
-      await deletePayment.mutateAsync(paymentId)
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете плащането на ${studentName}?`)) {
+      await deletePayment?.mutateAsync(paymentId)
     }
   }
 
@@ -118,7 +118,7 @@ export default function PaymentsPage() {
           <button
             onClick={() => exportPaymentsToExcel(filteredPayments)}
             className="btn btn-ghost"
-            disabled={filteredPayments.length === 0}
+            disabled={filteredPayments?.length === 0}
           >
             <FileDown className="w-5 h-5" />
             Експорт Excel
@@ -180,7 +180,7 @@ export default function PaymentsPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Брой плащания</p>
-                <p className="text-2xl font-bold text-gray-900">{payments.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{payments?.length}</p>
               </div>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function PaymentsPage() {
               placeholder="Търсене по име на ученик..."
               className="input pl-10 w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e?.target.value)}
             />
           </div>
 
@@ -206,7 +206,7 @@ export default function PaymentsPage() {
           <select
             className="input md:w-48"
             value={filterMethod}
-            onChange={(e) => setFilterMethod(e.target.value)}
+            onChange={(e) => setFilterMethod(e?.target.value)}
           >
             <option value="all">Всички методи</option>
             <option value="Кеш">Кеш</option>
@@ -219,7 +219,7 @@ export default function PaymentsPage() {
           <select
             className="input md:w-48"
             value={filterArticle}
-            onChange={(e) => setFilterArticle(e.target.value)}
+            onChange={(e) => setFilterArticle(e?.target.value)}
           >
             <option value="all">Всички артикули</option>
             <option value="">Такса</option>
@@ -241,7 +241,7 @@ export default function PaymentsPage() {
 
       {/* Payments Table */}
       <div className="card overflow-hidden">
-        {filteredPayments.length === 0 ? (
+        {filteredPayments?.length === 0 ? (
           <div className="text-center py-12">
             <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -278,30 +278,30 @@ export default function PaymentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedPayments.map((payment) => (
-                  <tr key={payment.id}>
-                    <td>{formatDate(payment.date)}</td>
+                {paginatedPayments?.map((payment) => (
+                  <tr key={payment?.id}>
+                    <td>{formatDate(payment?.date)}</td>
                     <td>
                       <div className="font-medium text-gray-900">
-                        {payment.studentName}
+                        {payment?.studentName}
                       </div>
                     </td>
                     <td>
                       <div>
                         <p className="font-medium text-green-600">
-                          {formatCurrency(payment.amount)}
+                          {formatCurrency(payment?.amount)}
                         </p>
-                        {payment.amountEUR && (
+                        {payment?.amountEUR && (
                           <p className="text-xs text-gray-500">
-                            {formatCurrency(payment.amountEUR, 'EUR')}
+                            {formatCurrency(payment?.amountEUR, 'EUR')}
                           </p>
                         )}
                       </div>
                     </td>
                     <td>
-                      {payment.article ? (
+                      {payment?.article ? (
                         <span className="badge badge-primary">
-                          {payment.article}
+                          {payment?.article}
                         </span>
                       ) : (
                         <span className="text-gray-500 text-sm">Такса</span>
@@ -309,12 +309,12 @@ export default function PaymentsPage() {
                     </td>
                     <td>
                       <span className="badge badge-success">
-                        {payment.method}
+                        {payment?.method}
                       </span>
                     </td>
                     <td>
                       <p className="text-sm text-gray-600 max-w-xs truncate">
-                        {payment.notes || '-'}
+                        {payment?.notes || '-'}
                       </p>
                     </td>
                     {!isParent && (
@@ -328,7 +328,7 @@ export default function PaymentsPage() {
                             <Edit className="w-4 h-4 text-gray-600" />
                           </button>
                           <button
-                            onClick={() => handleDelete(payment.id, payment.studentName)}
+                            onClick={() => handleDelete(payment?.id, payment?.studentName)}
                             className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                             title="Изтриване"
                           >

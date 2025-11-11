@@ -37,28 +37,28 @@ export default function LabelsManagementPage() {
 
   // Initialize editedLabels when labels load
   if (editedLabels === labels && labels !== DEFAULT_LABELS) {
-    setEditedLabels(JSON.parse(JSON.stringify(labels)))
+    setEditedLabels(JSON?.parse(JSON?.stringify(labels)))
   }
 
   const toggleSection = (section: string) => {
     const newExpanded = new Set(expandedSections)
-    if (newExpanded.has(section)) {
-      newExpanded.delete(section)
+    if (newExpanded?.has(section)) {
+      newExpanded?.delete(section)
     } else {
-      newExpanded.add(section)
+      newExpanded?.add(section)
     }
     setExpandedSections(newExpanded)
   }
 
   const handleLabelChange = (path: string[], value: string) => {
-    const newLabels = JSON.parse(JSON.stringify(editedLabels))
+    const newLabels = JSON?.parse(JSON?.stringify(editedLabels))
     let current = newLabels
 
-    for (let i = 0; i < path.length - 1; i++) {
+    for (let i = 0; i < path?.length - 1; i++) {
       current = current[path[i]]
     }
 
-    current[path[path.length - 1]] = value
+    current[path[path?.length - 1]] = value
     setEditedLabels(newLabels)
     setHasChanges(true)
   }
@@ -70,7 +70,7 @@ export default function LabelsManagementPage() {
 
   const handleReset = async () => {
     if (
-      window.confirm(
+      window?.confirm(
         'Сигурни ли сте, че искате да върнете всички етикети към стойностите по подразбиране?'
       )
     ) {
@@ -80,28 +80,28 @@ export default function LabelsManagementPage() {
     }
   }
 
-  const renderNestedObject = (obj: any, path: string[] = [], level: number = 0): JSX.Element[] => {
-    const elements: JSX.Element[] = []
+  const renderNestedObject = (obj: any, path: string[] = [], level: number = 0): JSX?.Element[] => {
+    const elements: JSX?.Element[] = []
 
-    for (const [key, value] of Object.entries(obj)) {
+    for (const [key, value] of Object?.entries(obj)) {
       const currentPath = [...path, key]
-      const pathString = currentPath.join('.')
+      const pathString = currentPath?.join('.')
 
       // Filter by search term
       if (
         searchTerm &&
-        !key.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        !(typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase()))
+        !key?.toLowerCase().includes(searchTerm?.toLowerCase()) &&
+        !(typeof value === 'string' && value?.toLowerCase().includes(searchTerm?.toLowerCase()))
       ) {
         continue
       }
 
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      if (typeof value === 'object' && value !== null && !Array?.isArray(value)) {
         // Render nested section
-        const sectionKey = currentPath.join('.')
-        const isExpanded = expandedSections.has(sectionKey)
+        const sectionKey = currentPath?.join('.')
+        const isExpanded = expandedSections?.has(sectionKey)
 
-        elements.push(
+        elements?.push(
           <div key={pathString} className="mb-4">
             <button
               onClick={() => toggleSection(sectionKey)}
@@ -114,7 +114,7 @@ export default function LabelsManagementPage() {
               )}
               <span className="font-semibold text-gray-900 capitalize">{key}</span>
               <span className="ml-auto text-sm text-gray-500">
-                {Object.keys(value).length} етикети
+                {Object?.keys(value).length} етикети
               </span>
             </button>
 
@@ -127,14 +127,14 @@ export default function LabelsManagementPage() {
         )
       } else if (typeof value === 'string') {
         // Render editable label
-        const defaultValue = currentPath.reduce(
+        const defaultValue = currentPath?.reduce(
           (obj, k) => obj?.[k],
           DEFAULT_LABELS as any
         )
 
         const isModified = value !== defaultValue
 
-        elements.push(
+        elements?.push(
           <div key={pathString} className={`grid grid-cols-3 gap-4 items-start p-3 rounded-lg ${
             isModified ? 'bg-blue-50 border border-blue-200' : 'bg-white border border-gray-200'
           }`}>
@@ -144,7 +144,7 @@ export default function LabelsManagementPage() {
               </label>
               <p className="text-xs text-gray-500 break-all">{pathString}</p>
               {isModified && (
-                <span className="inline-block mt-1 px-2 py-0.5 bg-blue-500 text-white text-xs rounded">
+                <span className="inline-block mt-1 px-2 py-0?.5 bg-blue-500 text-white text-xs rounded">
                   Променен
                 </span>
               )}
@@ -162,7 +162,7 @@ export default function LabelsManagementPage() {
               <input
                 type="text"
                 value={value}
-                onChange={(e) => handleLabelChange(currentPath, e.target.value)}
+                onChange={(e) => handleLabelChange(currentPath, e?.target.value)}
                 className="input input-sm w-full"
                 placeholder={defaultValue}
               />
@@ -256,17 +256,17 @@ export default function LabelsManagementPage() {
             placeholder="Търсене по ключ или стойност..."
             className="input pl-10 w-full"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e?.target.value)}
           />
         </div>
       </div>
 
       {/* Sections */}
       <div className="space-y-6">
-        {(Object.keys(DEFAULT_LABELS) as SectionKey[]).map((sectionKey) => {
+        {(Object?.keys(DEFAULT_LABELS) as SectionKey[]).map((sectionKey) => {
           const section = editedLabels[sectionKey]
           const sectionPath = sectionKey
-          const isExpanded = expandedSections.has(sectionPath)
+          const isExpanded = expandedSections?.has(sectionPath)
 
           return (
             <div key={sectionKey} className="card">
@@ -284,7 +284,7 @@ export default function LabelsManagementPage() {
                 </h2>
                 <span className="ml-auto text-sm text-gray-500">
                   {typeof section === 'object'
-                    ? Object.keys(section).length + ' етикети'
+                    ? Object?.keys(section).length + ' етикети'
                     : ''}
                 </span>
               </button>

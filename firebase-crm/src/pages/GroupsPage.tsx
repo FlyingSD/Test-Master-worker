@@ -26,14 +26,14 @@ export default function GroupsPage() {
   }
 
   // Filter groups
-  const filteredGroups = groups.filter((group) => {
+  const filteredGroups = groups?.filter((group) => {
     const matchesSearch =
-      group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      group.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      group.teacherName?.toLowerCase().includes(searchTerm.toLowerCase())
+      group?.name.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      group?.subject?.toLowerCase().includes(searchTerm?.toLowerCase()) ||
+      group?.teacherName?.toLowerCase().includes(searchTerm?.toLowerCase())
 
     const matchesStatus =
-      filterStatus === 'all' || group.status === filterStatus
+      filterStatus === 'all' || group?.status === filterStatus
 
     return matchesSearch && matchesStatus
   })
@@ -49,13 +49,13 @@ export default function GroupsPage() {
   } = usePagination(filteredGroups, 20)
 
   // Stats
-  const activeCount = groups.filter((g) => g.status === 'active').length
+  const activeCount = groups?.filter((g) => g?.status === 'active').length
   const totalCapacity = groups
-    .filter((g) => g.status === 'active')
-    .reduce((sum, g) => sum + (g.capacity || 0), 0)
+    .filter((g) => g?.status === 'active')
+    .reduce((sum, g) => sum + (g?.capacity || 0), 0)
   const totalStudents = groups
-    .filter((g) => g.status === 'active')
-    .reduce((sum, g) => sum + g.currentStudents, 0)
+    .filter((g) => g?.status === 'active')
+    .reduce((sum, g) => sum + g?.currentStudents, 0)
 
   const handleEdit = (group: Group) => {
     setEditingGroup(group)
@@ -63,8 +63,8 @@ export default function GroupsPage() {
   }
 
   const handleDelete = async (groupId: string, groupName: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете "${groupName}"?`)) {
-      await deleteGroup.mutateAsync(groupId)
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете "${groupName}"?`)) {
+      await deleteGroup?.mutateAsync(groupId)
     }
   }
 
@@ -74,10 +74,10 @@ export default function GroupsPage() {
   }
 
   const formatSchedule = (schedule?: Group['schedule']) => {
-    if (!schedule || schedule.length === 0) return 'Няма график'
+    if (!schedule || schedule?.length === 0) return 'Няма график'
 
     return schedule
-      .map(s => `${s.dayOfWeek} ${s.startTime}-${s.endTime}`)
+      .map(s => `${s?.dayOfWeek} ${s?.startTime}-${s?.endTime}`)
       .join(', ')
   }
 
@@ -157,7 +157,7 @@ export default function GroupsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Общо групи</p>
-              <p className="text-2xl font-bold text-gray-900">{groups.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{groups?.length}</p>
             </div>
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function GroupsPage() {
               placeholder="Търсене по име, предмет или учител..."
               className="input pl-10 w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e?.target.value)}
             />
           </div>
 
@@ -186,7 +186,7 @@ export default function GroupsPage() {
                 filterStatus === 'all' ? 'btn-primary' : 'btn-ghost'
               }`}
             >
-              Всички ({groups.length})
+              Всички ({groups?.length})
             </button>
             <button
               onClick={() => setFilterStatus('active')}
@@ -202,7 +202,7 @@ export default function GroupsPage() {
                 filterStatus === 'inactive' ? 'btn-primary' : 'btn-ghost'
               }`}
             >
-              Неактивни ({groups.filter(g => g.status === 'inactive').length})
+              Неактивни ({groups?.filter(g => g?.status === 'inactive').length})
             </button>
             <button
               onClick={() => setFilterStatus('archived')}
@@ -210,7 +210,7 @@ export default function GroupsPage() {
                 filterStatus === 'archived' ? 'btn-primary' : 'btn-ghost'
               }`}
             >
-              Архивирани ({groups.filter(g => g.status === 'archived').length})
+              Архивирани ({groups?.filter(g => g?.status === 'archived').length})
             </button>
           </div>
         </div>
@@ -218,7 +218,7 @@ export default function GroupsPage() {
 
       {/* Groups Table */}
       <div className="card overflow-hidden">
-        {filteredGroups.length === 0 ? (
+        {filteredGroups?.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -256,29 +256,29 @@ export default function GroupsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedGroups.map((group) => (
-                    <tr key={group.id}>
+                  {paginatedGroups?.map((group) => (
+                    <tr key={group?.id}>
                       <td>
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
-                            {group.name.charAt(0)}
+                            {group?.name.charAt(0)}
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">
-                              {group.name}
+                              {group?.name}
                             </p>
-                            {group.description && (
+                            {group?.description && (
                               <p className="text-xs text-gray-500 truncate max-w-[200px]">
-                                {group.description}
+                                {group?.description}
                               </p>
                             )}
                           </div>
                         </div>
                       </td>
                       <td>
-                        {group.teacherName ? (
+                        {group?.teacherName ? (
                           <span className="badge badge-primary">
-                            {group.teacherName}
+                            {group?.teacherName}
                           </span>
                         ) : (
                           <span className="text-gray-400 text-sm">Без учител</span>
@@ -286,32 +286,32 @@ export default function GroupsPage() {
                       </td>
                       <td>
                         <div>
-                          {group.subject && (
+                          {group?.subject && (
                             <p className="font-medium text-gray-900">
-                              {group.subject}
+                              {group?.subject}
                             </p>
                           )}
-                          {group.level && (
-                            <p className="text-xs text-gray-500">{group.level}</p>
+                          {group?.level && (
+                            <p className="text-xs text-gray-500">{group?.level}</p>
                           )}
-                          {!group.subject && !group.level && (
+                          {!group?.subject && !group?.level && (
                             <span className="text-gray-400 text-sm">—</span>
                           )}
                         </div>
                       </td>
                       <td>
                         <div className="text-sm max-w-[250px]">
-                          {formatSchedule(group.schedule)}
+                          {formatSchedule(group?.schedule)}
                         </div>
                       </td>
                       <td>
                         <div>
                           <p className="font-medium">
-                            {formatCurrency(group.price)}
+                            {formatCurrency(group?.price)}
                           </p>
-                          {group.priceEUR && (
+                          {group?.priceEUR && (
                             <p className="text-xs text-gray-500">
-                              {formatCurrency(group.priceEUR, 'EUR')}
+                              {formatCurrency(group?.priceEUR, 'EUR')}
                             </p>
                           )}
                         </div>
@@ -319,21 +319,21 @@ export default function GroupsPage() {
                       <td>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {group.currentStudents}{group.capacity ? ` / ${group.capacity}` : ''}
+                            {group?.currentStudents}{group?.capacity ? ` / ${group?.capacity}` : ''}
                           </p>
-                          {group.capacity && (
-                            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                          {group?.capacity && (
+                            <div className="w-full bg-gray-200 rounded-full h-1?.5 mt-1">
                               <div
-                                className={`h-1.5 rounded-full ${
-                                  group.currentStudents >= group.capacity
+                                className={`h-1?.5 rounded-full ${
+                                  group?.currentStudents >= group?.capacity
                                     ? 'bg-red-500'
-                                    : group.currentStudents / group.capacity > 0.8
+                                    : group?.currentStudents / group?.capacity > 0?.8
                                     ? 'bg-yellow-500'
                                     : 'bg-green-500'
                                 }`}
                                 style={{
-                                  width: `${Math.min(
-                                    (group.currentStudents / group.capacity) * 100,
+                                  width: `${Math?.min(
+                                    (group?.currentStudents / group?.capacity) * 100,
                                     100
                                   )}%`,
                                 }}
@@ -344,9 +344,9 @@ export default function GroupsPage() {
                       </td>
                       <td>
                         <span
-                          className={`badge ${getStatusColor(group.status)}`}
+                          className={`badge ${getStatusColor(group?.status)}`}
                         >
-                          {GROUP_STATUS_LABELS[group.status]}
+                          {GROUP_STATUS_LABELS[group?.status]}
                         </span>
                       </td>
                       <td>
@@ -361,7 +361,7 @@ export default function GroupsPage() {
                           {/* 🔒 SECURITY: Only admins can delete groups */}
                           {isAdmin && (
                             <button
-                              onClick={() => handleDelete(group.id, group.name)}
+                              onClick={() => handleDelete(group?.id, group?.name)}
                               className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                               title="Изтриване"
                             >

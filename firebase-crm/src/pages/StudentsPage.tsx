@@ -31,10 +31,10 @@ export default function StudentsPage() {
   }
 
   // Filter students
-  const filteredStudents = students.filter((student) => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStudents = students?.filter((student) => {
+    const matchesSearch = student?.name.toLowerCase().includes(searchTerm?.toLowerCase())
     const matchesStatus =
-      filterStatus === 'all' || student.status === filterStatus
+      filterStatus === 'all' || student?.status === filterStatus
 
     return matchesSearch && matchesStatus
   })
@@ -50,10 +50,10 @@ export default function StudentsPage() {
   } = usePagination(filteredStudents, 20)
 
   // Stats
-  const activeCount = students.filter((s) => s.status === 'active').length
+  const activeCount = students?.filter((s) => s?.status === 'active').length
   const totalRevenue = students
-    .filter((s) => s.status === 'active')
-    .reduce((sum, s) => sum + s.fee, 0)
+    .filter((s) => s?.status === 'active')
+    .reduce((sum, s) => sum + s?.fee, 0)
 
   const handleEdit = (student: Student) => {
     setEditingStudent(student)
@@ -61,8 +61,8 @@ export default function StudentsPage() {
   }
 
   const handleDelete = async (studentId: string, studentName: string) => {
-    if (window.confirm(`Сигурни ли сте, че искате да изтриете ${studentName}?`)) {
-      await deleteStudent.mutateAsync(studentId)
+    if (window?.confirm(`Сигурни ли сте, че искате да изтриете ${studentName}?`)) {
+      await deleteStudent?.mutateAsync(studentId)
     }
   }
 
@@ -106,7 +106,7 @@ export default function StudentsPage() {
           <button
             onClick={() => exportStudentsToExcel(filteredStudents)}
             className="btn btn-ghost"
-            disabled={filteredStudents.length === 0}
+            disabled={filteredStudents?.length === 0}
           >
             <FileDown className="w-5 h-5" />
             Експорт Excel
@@ -148,7 +148,7 @@ export default function StudentsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Общо ученици</p>
-              <p className="text-2xl font-bold text-gray-900">{students.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{students?.length}</p>
             </div>
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function StudentsPage() {
               placeholder="Търсене по име..."
               className="input pl-10 w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e?.target.value)}
             />
           </div>
 
@@ -190,7 +190,7 @@ export default function StudentsPage() {
                 filterStatus === 'all' ? 'btn-primary' : 'btn-ghost'
               }`}
             >
-              Всички ({students.length})
+              Всички ({students?.length})
             </button>
             <button
               onClick={() => setFilterStatus('active')}
@@ -206,7 +206,7 @@ export default function StudentsPage() {
                 filterStatus === 'inactive' ? 'btn-primary' : 'btn-ghost'
               }`}
             >
-              Неактивни ({students.length - activeCount})
+              Неактивни ({students?.length - activeCount})
             </button>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function StudentsPage() {
 
       {/* Students Table */}
       <div className="card overflow-hidden">
-        {filteredStudents.length === 0 ? (
+        {filteredStudents?.length === 0 ? (
           <div className="text-center py-12">
             <UsersIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -251,48 +251,48 @@ export default function StudentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedStudents.map((student) => (
-                  <tr key={student.id}>
+                {paginatedStudents?.map((student) => (
+                  <tr key={student?.id}>
                     <td>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
-                          {student.name.charAt(0)}
+                          {student?.name.charAt(0)}
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {student.name}
+                            {student?.name}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td>{student.group}</td>
+                    <td>{student?.group}</td>
                     <td>
                       <span className="badge badge-primary">
-                        {student.studyType}
+                        {student?.studyType}
                       </span>
                     </td>
                     <td>
                       <div>
                         <p className="font-medium">
-                          {formatCurrency(student.fee)}
+                          {formatCurrency(student?.fee)}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {formatCurrency(student.feeEUR, 'EUR')}
+                          {formatCurrency(student?.feeEUR, 'EUR')}
                         </p>
                       </div>
                     </td>
-                    <td>{formatDate(student.dueDate)}</td>
+                    <td>{formatDate(student?.dueDate)}</td>
                     <td>
                       <span
-                        className={`badge ${getStatusColor(student.status)}`}
+                        className={`badge ${getStatusColor(student?.status)}`}
                       >
-                        {getStatusText(student.status)}
+                        {getStatusText(student?.status)}
                       </span>
                     </td>
                     <td>
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleViewHomework(student.id)}
+                          onClick={() => handleViewHomework(student?.id)}
                           className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Домашни"
                         >
@@ -306,7 +306,7 @@ export default function StudentsPage() {
                           <Edit className="w-4 h-4 text-gray-600" />
                         </button>
                         <button
-                          onClick={() => handleDelete(student.id, student.name)}
+                          onClick={() => handleDelete(student?.id, student?.name)}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                           title="Изтриване"
                         >
