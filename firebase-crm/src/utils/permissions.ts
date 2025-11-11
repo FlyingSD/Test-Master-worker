@@ -11,14 +11,14 @@ export function hasPermission(role: UserRole, permission: Permission): boolean {
  * Check if a user role has any of the specified permissions
  */
 export function hasAnyPermission(role: UserRole, permissions: Permission[]): boolean {
-  return permissions.some((permission) => hasPermission(role, permission))
+  return permissions?.some((permission) => hasPermission(role, permission))
 }
 
 /**
  * Check if a user role has all of the specified permissions
  */
 export function hasAllPermissions(role: UserRole, permissions: Permission[]): boolean {
-  return permissions.every((permission) => hasPermission(role, permission))
+  return permissions?.every((permission) => hasPermission(role, permission))
 }
 
 /**

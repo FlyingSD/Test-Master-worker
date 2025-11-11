@@ -52,12 +52,12 @@ export interface SecurityCheckResult {
  *
  * @example
  * const payment = await getDoc(paymentRef)
- * if (!isOwner(payment.data(), user.uid)) {
+ * if (!isOwner(payment?.data(), user?.uid)) {
  *   throw new Error('No permission')
  * }
  */
 export function isOwner(document: OwnedDocument, userId: string): boolean {
-  return document.createdBy === userId
+  return document?.createdBy === userId
 }
 
 /**
@@ -71,8 +71,8 @@ export function isOwner(document: OwnedDocument, userId: string): boolean {
  *
  * @example
  * const result = validateOwnership(payment, userData)
- * if (!result.allowed) {
- *   throw new Error(result.reason || 'No permission')
+ * if (!result?.allowed) {
+ *   throw new Error(result?.reason || 'No permission')
  * }
  */
 export function validateOwnership(
@@ -80,18 +80,18 @@ export function validateOwnership(
   userData: UserProfile
 ): SecurityCheckResult {
   // Admins have full access
-  if (userData.role === 'admin') {
+  if (userData?.role === 'admin') {
     return { allowed: true }
   }
 
   // Check ownership
-  if (document.createdBy === userData.id) {
+  if (document?.createdBy === userData?.id) {
     return { allowed: true }
   }
 
   return {
     allowed: false,
-    reason: ERROR_MESSAGES.NO_PERMISSION,
+    reason: ERROR_MESSAGES?.NO_PERMISSION,
   }
 }
 
@@ -104,15 +104,15 @@ export function validateOwnership(
  * - Admins have access to ALL groups
  * - Teachers can only access students in their assignedGroups
  *
- * @param document - Document with group field (e.g., Student)
+ * @param document - Document with group field (e?.g., Student)
  * @param userData - Current user data
  * @returns SecurityCheckResult
  *
  * @example
  * const student = await getDoc(studentRef)
- * const result = validateGroupAccess(student.data(), userData)
- * if (!result.allowed) {
- *   throw new Error(result.reason || 'No permission')
+ * const result = validateGroupAccess(student?.data(), userData)
+ * if (!result?.allowed) {
+ *   throw new Error(result?.reason || 'No permission')
  * }
  */
 export function validateGroupAccess(
@@ -120,33 +120,33 @@ export function validateGroupAccess(
   userData: UserProfile
 ): SecurityCheckResult {
   // Admins have full access
-  if (userData.role === 'admin') {
+  if (userData?.role === 'admin') {
     return { allowed: true }
   }
 
   // Teachers can only access students in their assigned groups
-  if (userData.role === 'teacher') {
-    if (!userData.assignedGroups || userData.assignedGroups.length === 0) {
+  if (userData?.role === 'teacher') {
+    if (!userData?.assignedGroups || userData?.assignedGroups.length === 0) {
       return {
         allowed: false,
         reason: 'Нямате назначени групи',
       }
     }
 
-    if (userData.assignedGroups.includes(document.group)) {
+    if (userData?.assignedGroups.includes(document?.group)) {
       return { allowed: true }
     }
 
     return {
       allowed: false,
-      reason: ERROR_MESSAGES.NO_PERMISSION,
+      reason: ERROR_MESSAGES?.NO_PERMISSION,
     }
   }
 
   // Parents and other roles have no access
   return {
     allowed: false,
-    reason: ERROR_MESSAGES.NO_PERMISSION,
+    reason: ERROR_MESSAGES?.NO_PERMISSION,
   }
 }
 
@@ -168,10 +168,10 @@ export function validateGroupAccess(
  * @example
  * // In useUpdatePayment mutation:
  * const payment = await validateDocumentOwnership(
- *   COLLECTIONS.PAYMENTS,
+ *   COLLECTIONS?.PAYMENTS,
  *   id,
  *   userData,
- *   ERROR_MESSAGES.PAYMENT_NOT_FOUND
+ *   ERROR_MESSAGES?.PAYMENT_NOT_FOUND
  * )
  */
 export async function validateDocumentOwnership<T extends OwnedDocument>(
@@ -184,16 +184,16 @@ export async function validateDocumentOwnership<T extends OwnedDocument>(
   const docRef = doc(db, collectionName, documentId)
   const docSnap = await getDoc(docRef)
 
-  if (!docSnap.exists()) {
+  if (!docSnap?.exists()) {
     throw new Error(notFoundError)
   }
 
-  const document = { id: docSnap.id, ...docSnap.data() } as T
+  const document = { id: docSnap?.id, ...docSnap?.data() } as T
 
   // Validate ownership
   const validation = validateOwnership(document, userData)
-  if (!validation.allowed) {
-    throw new Error(validation.reason || ERROR_MESSAGES.NO_PERMISSION)
+  if (!validation?.allowed) {
+    throw new Error(validation?.reason || ERROR_MESSAGES?.NO_PERMISSION)
   }
 
   return document
@@ -213,10 +213,10 @@ export async function validateDocumentOwnership<T extends OwnedDocument>(
  * @example
  * // In useUpdateStudent mutation:
  * const student = await validateDocumentGroupAccess(
- *   COLLECTIONS.STUDENTS,
+ *   COLLECTIONS?.STUDENTS,
  *   id,
  *   userData,
- *   ERROR_MESSAGES.STUDENT_NOT_FOUND
+ *   ERROR_MESSAGES?.STUDENT_NOT_FOUND
  * )
  */
 export async function validateDocumentGroupAccess<T extends GroupDocument>(
@@ -229,16 +229,16 @@ export async function validateDocumentGroupAccess<T extends GroupDocument>(
   const docRef = doc(db, collectionName, documentId)
   const docSnap = await getDoc(docRef)
 
-  if (!docSnap.exists()) {
+  if (!docSnap?.exists()) {
     throw new Error(notFoundError)
   }
 
-  const document = { id: docSnap.id, ...docSnap.data() } as T
+  const document = { id: docSnap?.id, ...docSnap?.data() } as T
 
   // Validate group access
   const validation = validateGroupAccess(document, userData)
-  if (!validation.allowed) {
-    throw new Error(validation.reason || ERROR_MESSAGES.NO_PERMISSION)
+  if (!validation?.allowed) {
+    throw new Error(validation?.reason || ERROR_MESSAGES?.NO_PERMISSION)
   }
 
   return document
@@ -255,7 +255,7 @@ export async function validateDocumentGroupAccess<T extends GroupDocument>(
  * - Parents cannot create
  */
 export function canCreate(userData: UserProfile): boolean {
-  return userData.role === 'admin' || userData.role === 'teacher'
+  return userData?.role === 'admin' || userData?.role === 'teacher'
 }
 
 /**
@@ -263,7 +263,7 @@ export function canCreate(userData: UserProfile): boolean {
  * (Actual update permission depends on ownership/group validation)
  */
 export function canUpdate(userData: UserProfile): boolean {
-  return userData.role === 'admin' || userData.role === 'teacher'
+  return userData?.role === 'admin' || userData?.role === 'teacher'
 }
 
 /**
@@ -271,26 +271,26 @@ export function canUpdate(userData: UserProfile): boolean {
  * (Actual delete permission depends on ownership validation)
  */
 export function canDelete(userData: UserProfile): boolean {
-  return userData.role === 'admin' || userData.role === 'teacher'
+  return userData?.role === 'admin' || userData?.role === 'teacher'
 }
 
 /**
  * Check if user is admin
  */
 export function isAdmin(userData: UserProfile): boolean {
-  return userData.role === 'admin'
+  return userData?.role === 'admin'
 }
 
 /**
  * Check if user is teacher
  */
 export function isTeacher(userData: UserProfile): boolean {
-  return userData.role === 'teacher'
+  return userData?.role === 'teacher'
 }
 
 /**
  * Check if user is parent
  */
 export function isParent(userData: UserProfile): boolean {
-  return userData.role === 'parent'
+  return userData?.role === 'parent'
 }

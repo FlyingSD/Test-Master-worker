@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import App from './App'
-import './styles/index.css'
+import './styles/index?.css'
 import { initEmailJS } from './utils/emailService'
 
 // Configure React Query
@@ -22,30 +22,30 @@ initEmailJS()
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
+  window?.addEventListener('load', () => {
+    navigator?.serviceWorker
+      .register('/sw?.js')
       .then((registration) => {
-        console.log('✅ SW registered:', registration)
+        console?.log('✅ SW registered:', registration)
 
         // Check for updates every hour
         setInterval(() => {
-          registration.update()
+          registration?.update()
         }, 1000 * 60 * 60)
 
         // Handle service worker updates
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing
+        registration?.addEventListener('updatefound', () => {
+          const newWorker = registration?.installing
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            newWorker?.addEventListener('statechange', () => {
+              if (newWorker?.state === 'installed' && navigator?.serviceWorker.controller) {
                 // New service worker available
-                console.log('🔄 New version available! Refresh to update.')
+                console?.log('🔄 New version available! Refresh to update.')
 
                 // Notify user about update
                 if (confirm('Налична е нова версия на приложението. Обновете сега?')) {
-                  newWorker.postMessage({ type: 'SKIP_WAITING' })
-                  window.location.reload()
+                  newWorker?.postMessage({ type: 'SKIP_WAITING' })
+                  window?.location.reload()
                 }
               }
             })
@@ -53,16 +53,16 @@ if ('serviceWorker' in navigator) {
         })
       })
       .catch((error) => {
-        console.log('❌ SW registration failed:', error)
+        console?.log('❌ SW registration failed:', error)
       })
   })
 
   // Handle service worker updates
   let refreshing = false
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
+  navigator?.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) {
       refreshing = true
-      window.location.reload()
+      window?.location.reload()
     }
   })
 }
@@ -70,22 +70,22 @@ if ('serviceWorker' in navigator) {
 // PWA Install Prompt
 let deferredPrompt: any = null
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  console.log('💡 PWA install prompt available')
-  e.preventDefault()
+window?.addEventListener('beforeinstallprompt', (e) => {
+  console?.log('💡 PWA install prompt available')
+  e?.preventDefault()
   deferredPrompt = e
 
   // Show install button/banner (можем да добавим UI за това)
-  console.log('PWA можем да се инсталира')
+  console?.log('PWA можем да се инсталира')
 })
 
-window.addEventListener('appinstalled', () => {
-  console.log('✅ PWA installed successfully')
+window?.addEventListener('appinstalled', () => {
+  console?.log('✅ PWA installed successfully')
   deferredPrompt = null
 })
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+ReactDOM?.createRoot(document?.getElementById('root')!).render(
+  <React?.StrictMode>
     <QueryClientProvider client={queryClient}>
       <App />
       <Toaster
@@ -111,5 +111,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         }}
       />
     </QueryClientProvider>
-  </React.StrictMode>,
+  </React?.StrictMode>,
 )

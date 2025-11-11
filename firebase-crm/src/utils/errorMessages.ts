@@ -12,7 +12,7 @@ export function getErrorMessage(error: any): ErrorMessage {
   const errorString = error?.message?.toLowerCase() || error?.toString()?.toLowerCase() || ''
 
   // Firebase Permission Errors
-  if (errorString.includes('permission') || errorString.includes('denied')) {
+  if (errorString?.includes('permission') || errorString?.includes('denied')) {
     return {
       title: 'Нямате достъп',
       message: 'Нямате права за тази операция',
@@ -22,7 +22,7 @@ export function getErrorMessage(error: any): ErrorMessage {
   }
 
   // Network Errors
-  if (errorString.includes('network') || errorString.includes('failed to fetch') || errorString.includes('fetch failed')) {
+  if (errorString?.includes('network') || errorString?.includes('failed to fetch') || errorString?.includes('fetch failed')) {
     return {
       title: 'Няма интернет връзка',
       message: 'Не може да се свърже със сървъра',
@@ -32,7 +32,7 @@ export function getErrorMessage(error: any): ErrorMessage {
   }
 
   // Firebase Not Found
-  if (errorString.includes('not found') || errorString.includes('does not exist')) {
+  if (errorString?.includes('not found') || errorString?.includes('does not exist')) {
     return {
       title: 'Записът не е намерен',
       message: 'Търсеният запис не съществува',
@@ -42,7 +42,7 @@ export function getErrorMessage(error: any): ErrorMessage {
   }
 
   // Authentication Errors
-  if (errorString.includes('auth') || errorString.includes('unauthenticated')) {
+  if (errorString?.includes('auth') || errorString?.includes('unauthenticated')) {
     return {
       title: 'Не сте влезли',
       message: 'Трябва да влезете в системата',
@@ -52,17 +52,17 @@ export function getErrorMessage(error: any): ErrorMessage {
   }
 
   // Validation Errors - Email
-  if (errorString.includes('invalid-email') || errorString.includes('email')) {
+  if (errorString?.includes('invalid-email') || errorString?.includes('email')) {
     return {
       title: 'Невалиден email',
       message: 'Email адресът не е в правилен формат',
-      solution: 'Въведете валиден email адрес (например: name@example.com)',
+      solution: 'Въведете валиден email адрес (например: name@example?.com)',
       type: 'error',
     }
   }
 
   // Validation Errors - Required Field
-  if (errorString.includes('required') || errorString.includes('missing')) {
+  if (errorString?.includes('required') || errorString?.includes('missing')) {
     return {
       title: 'Липсват задължителни полета',
       message: 'Не са попълнени всички задължителни полета',
@@ -72,7 +72,7 @@ export function getErrorMessage(error: any): ErrorMessage {
   }
 
   // Duplicate Errors
-  if (errorString.includes('already exists') || errorString.includes('duplicate')) {
+  if (errorString?.includes('already exists') || errorString?.includes('duplicate')) {
     return {
       title: 'Записът вече съществува',
       message: 'Вече има запис с тези данни',
@@ -98,7 +98,7 @@ export const ValidationErrors = {
   AMOUNT_NEGATIVE: {
     title: 'Невалидна сума',
     message: 'Сумата не може да бъде отрицателна',
-    solution: 'Въведете положителна сума (например: 50.00)',
+    solution: 'Въведете положителна сума (например: 50?.00)',
     type: 'error' as const,
   },
   AMOUNT_ZERO: {
@@ -118,7 +118,7 @@ export const ValidationErrors = {
   CURRENCY_MISMATCH: {
     title: 'Несъответствие в валутите',
     message: 'BGN и EUR не съответстват на курса',
-    solution: 'Проверете въведените суми. Актуалният курс е около 1 EUR = 1.96 BGN',
+    solution: 'Проверете въведените суми. Актуалният курс е около 1 EUR = 1?.96 BGN',
     type: 'warning' as const,
   },
 
@@ -177,21 +177,21 @@ export function checkDataConsistency(
 
   // Check students without payments (overdue)
   const today = new Date()
-  students.forEach((student) => {
-    if (student.status === 'active') {
-      const studentPayments = payments.filter((p) => p.studentId === student.id)
-      const lastPaymentDate = studentPayments.length > 0
-        ? new Date(Math.max(...studentPayments.map((p) => p.date.toDate?.() || p.date)))
+  students?.forEach((student) => {
+    if (student?.status === 'active') {
+      const studentPayments = payments?.filter((p) => p?.studentId === student?.id)
+      const lastPaymentDate = studentPayments?.length > 0
+        ? new Date(Math?.max(...studentPayments?.map((p) => p?.date.toDate?.() || p?.date)))
         : null
 
-      const dueDate = student.dueDate?.toDate?.() || student.dueDate
+      const dueDate = student?.dueDate?.toDate?.() || student?.dueDate
 
       if (dueDate && dueDate < today && (!lastPaymentDate || lastPaymentDate < dueDate)) {
-        issues.push({
-          id: `overdue-${student.id}`,
+        issues?.push({
+          id: `overdue-${student?.id}`,
           type: 'warning',
-          title: `Просрочено плащане: ${student.name}`,
-          description: `Падежът беше на ${dueDate.toLocaleDateString('bg-BG')}`,
+          title: `Просрочено плащане: ${student?.name}`,
+          description: `Падежът беше на ${dueDate?.toLocaleDateString('bg-BG')}`,
           solution: 'Свържете се с родителя за просроченото плащане или добавете ново плащане',
           data: { student, dueDate },
         })
@@ -200,14 +200,14 @@ export function checkDataConsistency(
   })
 
   // Check payments without receipt number (for non-cash methods)
-  payments.forEach((payment) => {
-    if (['ПОС', 'Банков път', 'Фактура'].includes(payment.method) && !payment.receiptNumber) {
-      const student = students.find((s) => s.id === payment.studentId)
-      issues.push({
-        id: `no-receipt-${payment.id}`,
+  payments?.forEach((payment) => {
+    if (['ПОС', 'Банков път', 'Фактура'].includes(payment?.method) && !payment?.receiptNumber) {
+      const student = students?.find((s) => s?.id === payment?.studentId)
+      issues?.push({
+        id: `no-receipt-${payment?.id}`,
         type: 'info',
         title: `Липсва номер на документ: ${student?.name || 'Неизвестен'}`,
-        description: `Плащане от ${new Date(payment.date.toDate?.() || payment.date).toLocaleDateString('bg-BG')} с ${payment.method}`,
+        description: `Плащане от ${new Date(payment?.date.toDate?.() || payment?.date).toLocaleDateString('bg-BG')} с ${payment?.method}`,
         solution: 'Редактирайте плащането и добавете номер на документ за отчетност',
         data: { payment, student },
       })
@@ -215,13 +215,13 @@ export function checkDataConsistency(
   })
 
   // Check expenses without receipt number
-  expenses.forEach((expense) => {
-    if (!expense.receiptNumber) {
-      issues.push({
-        id: `no-receipt-expense-${expense.id}`,
+  expenses?.forEach((expense) => {
+    if (!expense?.receiptNumber) {
+      issues?.push({
+        id: `no-receipt-expense-${expense?.id}`,
         type: 'info',
-        title: `Липсва документ за разход: ${expense.description}`,
-        description: `Разход от ${new Date(expense.date.toDate?.() || expense.date).toLocaleDateString('bg-BG')} за ${expense.amount} лв`,
+        title: `Липсва документ за разход: ${expense?.description}`,
+        description: `Разход от ${new Date(expense?.date.toDate?.() || expense?.date).toLocaleDateString('bg-BG')} за ${expense?.amount} лв`,
         solution: 'Добавете номер на фактура/касова бележка за отчетност',
         data: { expense },
       })
@@ -229,13 +229,13 @@ export function checkDataConsistency(
   })
 
   // Check for very large payments (possible typos)
-  payments.forEach((payment) => {
-    if (payment.amount > 1000) {
-      const student = students.find((s) => s.id === payment.studentId)
-      issues.push({
-        id: `large-payment-${payment.id}`,
+  payments?.forEach((payment) => {
+    if (payment?.amount > 1000) {
+      const student = students?.find((s) => s?.id === payment?.studentId)
+      issues?.push({
+        id: `large-payment-${payment?.id}`,
         type: 'warning',
-        title: `Голяма сума: ${payment.amount} лв - ${student?.name || 'Неизвестен'}`,
+        title: `Голяма сума: ${payment?.amount} лв - ${student?.name || 'Неизвестен'}`,
         description: 'Сумата изглежда необичайно голяма',
         solution: 'Проверете дали сте въвели правилната сума (възможна грешка в нулите)',
         data: { payment, student },
@@ -244,19 +244,19 @@ export function checkDataConsistency(
   })
 
   // Check currency mismatches
-  payments.forEach((payment) => {
-    if (payment.amount && payment.amountEUR) {
-      const expectedEUR = payment.amount / 1.96
-      const difference = Math.abs(payment.amountEUR - expectedEUR)
+  payments?.forEach((payment) => {
+    if (payment?.amount && payment?.amountEUR) {
+      const expectedEUR = payment?.amount / 1?.96
+      const difference = Math?.abs(payment?.amountEUR - expectedEUR)
       if (difference > 1) {
         // More than 1 EUR difference
-        const student = students.find((s) => s.id === payment.studentId)
-        issues.push({
-          id: `currency-mismatch-${payment.id}`,
+        const student = students?.find((s) => s?.id === payment?.studentId)
+        issues?.push({
+          id: `currency-mismatch-${payment?.id}`,
           type: 'warning',
           title: `Несъответствие BGN/EUR: ${student?.name || 'Неизвестен'}`,
-          description: `${payment.amount} BGN не съответства на ${payment.amountEUR} EUR`,
-          solution: `Очакваната стойност в EUR е ${expectedEUR.toFixed(2)}. Коригирайте сумите`,
+          description: `${payment?.amount} BGN не съответства на ${payment?.amountEUR} EUR`,
+          solution: `Очакваната стойност в EUR е ${expectedEUR?.toFixed(2)}. Коригирайте сумите`,
           data: { payment, student, expectedEUR },
         })
       }

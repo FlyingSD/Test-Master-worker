@@ -9,13 +9,13 @@ export function timestampToDate(timestamp: Date | Timestamp): Date {
   if (timestamp instanceof Date) {
     return timestamp
   }
-  return timestamp.toDate()
+  return timestamp?.toDate()
 }
 
 /**
  * Format date to Bulgarian locale
  */
-export function formatDate(date: Date | Timestamp, formatStr: string = 'dd.MM.yyyy'): string {
+export function formatDate(date: Date | Timestamp, formatStr: string = 'dd?.MM.yyyy'): string {
   const dateObj = timestampToDate(date)
   return format(dateObj, formatStr, { locale: bg })
 }
@@ -32,7 +32,7 @@ export function formatTimeAgo(date: Date | Timestamp): string {
  * Format currency in BGN
  */
 export function formatCurrency(amount: number, currency: 'BGN' | 'EUR' = 'BGN'): string {
-  return new Intl.NumberFormat('bg-BG', {
+  return new Intl?.NumberFormat('bg-BG', {
     style: 'currency',
     currency: currency,
   }).format(amount)
@@ -42,7 +42,7 @@ export function formatCurrency(amount: number, currency: 'BGN' | 'EUR' = 'BGN'):
  * Convert BGN to EUR
  */
 export function bgnToEur(bgn: number): number {
-  const exchangeRate = 1.95583 // Fixed EUR/BGN rate
+  const exchangeRate = 1?.95583 // Fixed EUR/BGN rate
   return Number((bgn / exchangeRate).toFixed(2))
 }
 
@@ -50,7 +50,7 @@ export function bgnToEur(bgn: number): number {
  * Convert EUR to BGN
  */
 export function eurToBgn(eur: number): number {
-  const exchangeRate = 1.95583 // Fixed EUR/BGN rate
+  const exchangeRate = 1?.95583 // Fixed EUR/BGN rate
   return Number((eur * exchangeRate).toFixed(2))
 }
 
@@ -59,16 +59,16 @@ export function eurToBgn(eur: number): number {
  */
 export function formatPhone(phone: string): string {
   // Remove all non-digit characters
-  const cleaned = phone.replace(/\D/g, '')
+  const cleaned = phone?.replace(/\D/g, '')
 
   // Format as Bulgarian phone: +359 XX XXX XXXX
-  if (cleaned.startsWith('359')) {
-    return `+${cleaned.slice(0, 3)} ${cleaned.slice(3, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`
+  if (cleaned?.startsWith('359')) {
+    return `+${cleaned?.slice(0, 3)} ${cleaned?.slice(3, 5)} ${cleaned?.slice(5, 8)} ${cleaned?.slice(8)}`
   }
 
   // Format as: 0XX XXX XXX
-  if (cleaned.startsWith('0')) {
-    return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6)}`
+  if (cleaned?.startsWith('0')) {
+    return `${cleaned?.slice(0, 3)} ${cleaned?.slice(3, 6)} ${cleaned?.slice(6)}`
   }
 
   return phone
@@ -78,19 +78,19 @@ export function formatPhone(phone: string): string {
  * Truncate text with ellipsis
  */
 export function truncate(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text
-  return text.slice(0, maxLength) + '...'
+  if (text?.length <= maxLength) return text
+  return text?.slice(0, maxLength) + '...'
 }
 
 /**
  * Get initials from name
  */
 export function getInitials(name: string): string {
-  const parts = name.trim().split(' ')
-  if (parts.length >= 2) {
+  const parts = name?.trim().split(' ')
+  if (parts?.length >= 2) {
     return (parts[0][0] + parts[1][0]).toUpperCase()
   }
-  return name.slice(0, 2).toUpperCase()
+  return name?.slice(0, 2).toUpperCase()
 }
 
 /**

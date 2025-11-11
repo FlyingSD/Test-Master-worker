@@ -3,18 +3,18 @@ import { formatDate, formatCurrency } from './formatters'
 
 // SMS Service Configuration
 // To use this, you need to integrate with an SMS provider like:
-// - Twilio: https://www.twilio.com/
-// - Nexmo/Vonage: https://www.vonage.com/
-// - BulkSMS: https://www.bulksms.com/
+// - Twilio: https://www?.twilio.com/
+// - Nexmo/Vonage: https://www?.vonage.com/
+// - BulkSMS: https://www?.bulksms.com/
 //
 // Add your credentials to .env file:
 // VITE_SMS_API_KEY=your_api_key
 // VITE_SMS_API_SECRET=your_api_secret
 // VITE_SMS_SENDER_ID=your_sender_id
 
-const SMS_API_KEY = import.meta.env.VITE_SMS_API_KEY || ''
-const SMS_API_SECRET = import.meta.env.VITE_SMS_API_SECRET || ''
-const SMS_SENDER_ID = import.meta.env.VITE_SMS_SENDER_ID || 'Svetlinki'
+const SMS_API_KEY = import?.meta.env?.VITE_SMS_API_KEY || ''
+const SMS_API_SECRET = import?.meta.env?.VITE_SMS_API_SECRET || ''
+const SMS_SENDER_ID = import?.meta.env?.VITE_SMS_SENDER_ID || 'Svetlinki'
 
 // Check if SMS service is configured
 export function isSMSConfigured(): boolean {
@@ -24,8 +24,8 @@ export function isSMSConfigured(): boolean {
 // Send SMS (placeholder implementation)
 async function sendSMS(phoneNumber: string, message: string): Promise<boolean> {
   if (!isSMSConfigured()) {
-    console.warn('SMS service is not configured')
-    console.log(`[SMS Placeholder] Would send to ${phoneNumber}: ${message}`)
+    console?.warn('SMS service is not configured')
+    console?.log(`[SMS Placeholder] Would send to ${phoneNumber}: ${message}`)
     return false
   }
 
@@ -33,7 +33,7 @@ async function sendSMS(phoneNumber: string, message: string): Promise<boolean> {
   // Example with Twilio:
   /*
   try {
-    const response = await fetch('https://api.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages.json', {
+    const response = await fetch('https://api?.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages?.json', {
       method: 'POST',
       headers: {
         'Authorization': 'Basic ' + btoa(`${SMS_API_KEY}:${SMS_API_SECRET}`),
@@ -46,23 +46,23 @@ async function sendSMS(phoneNumber: string, message: string): Promise<boolean> {
       }),
     })
 
-    if (response.ok) {
-      console.log('SMS sent successfully')
+    if (response?.ok) {
+      console?.log('SMS sent successfully')
       return true
     } else {
-      console.error('Failed to send SMS:', await response.text())
+      console?.error('Failed to send SMS:', await response?.text())
       return false
     }
   } catch (error) {
-    console.error('Error sending SMS:', error)
+    console?.error('Error sending SMS:', error)
     return false
   }
   */
 
   // For now, just log the message
-  console.log(`[SMS] To: ${phoneNumber}`)
-  console.log(`[SMS] From: ${SMS_SENDER_ID}`)
-  console.log(`[SMS] Message: ${message}`)
+  console?.log(`[SMS] To: ${phoneNumber}`)
+  console?.log(`[SMS] From: ${SMS_SENDER_ID}`)
+  console?.log(`[SMS] Message: ${message}`)
 
   return true
 }
@@ -72,14 +72,14 @@ export async function sendPaymentReminderSMS(
   student: Student,
   parent: Parent
 ): Promise<boolean> {
-  const phoneNumber = parent.phone
+  const phoneNumber = parent?.phone
 
   if (!phoneNumber) {
-    console.warn('Parent does not have a phone number')
+    console?.warn('Parent does not have a phone number')
     return false
   }
 
-  const message = `Zdraveite ${parent.name},\n\nNapomnyane za plashtane za ${student.name}.\nSuma: ${formatCurrency(student.fee)}\nPadezh: ${formatDate(student.dueDate)}\n\nBlagodarim,\nSvetlinki`
+  const message = `Zdraveite ${parent?.name},\n\nNapomnyane za plashtane za ${student?.name}.\nSuma: ${formatCurrency(student?.fee)}\nPadezh: ${formatDate(student?.dueDate)}\n\nBlagodarim,\nSvetlinki`
 
   return await sendSMS(phoneNumber, message)
 }
@@ -92,7 +92,7 @@ export async function sendInvoiceSMS(
   recipientName: string
 ): Promise<boolean> {
   if (!phoneNumber) {
-    console.warn('Recipient does not have a phone number')
+    console?.warn('Recipient does not have a phone number')
     return false
   }
 
@@ -108,15 +108,15 @@ export async function sendAttendanceNotificationSMS(
   status: 'absent' | 'late',
   parent: Parent
 ): Promise<boolean> {
-  const phoneNumber = parent.phone
+  const phoneNumber = parent?.phone
 
   if (!phoneNumber) {
-    console.warn('Parent does not have a phone number')
+    console?.warn('Parent does not have a phone number')
     return false
   }
 
   const statusText = status === 'absent' ? 'otsustva' : 'zakusnya'
-  const message = `Zdraveite ${parent.name},\n\nVasheto dete ${studentName} ${statusText} na ${formatDate(date)}.\n\nSvetlinki`
+  const message = `Zdraveite ${parent?.name},\n\nVasheto dete ${studentName} ${statusText} na ${formatDate(date)}.\n\nSvetlinki`
 
   return await sendSMS(phoneNumber, message)
 }
@@ -146,14 +146,14 @@ export async function sendBulkPaymentReminderSMS(
 export async function sendWelcomeSMS(
   parent: Parent
 ): Promise<boolean> {
-  const phoneNumber = parent.phone
+  const phoneNumber = parent?.phone
 
   if (!phoneNumber) {
-    console.warn('Parent does not have a phone number')
+    console?.warn('Parent does not have a phone number')
     return false
   }
 
-  const message = `Zdraveite ${parent.name},\n\nDobra doshli v Svetlinki!\n\nZa vaprosi mozhete da se svarzhete s nas.\n\nBlagodarim!`
+  const message = `Zdraveite ${parent?.name},\n\nDobra doshli v Svetlinki!\n\nZa vaprosi mozhete da se svarzhete s nas.\n\nBlagodarim!`
 
   return await sendSMS(phoneNumber, message)
 }

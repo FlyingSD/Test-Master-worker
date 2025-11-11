@@ -8,11 +8,11 @@ import QRCode from 'qrcode'
 /**
  * Generates a QR code URL for linking a student
  * @param studentCode - The unique student code
- * @param appUrl - Base URL of the application (e.g., "https://yourapp.com")
+ * @param appUrl - Base URL of the application (e?.g., "https://yourapp?.com")
  * @returns Full URL for QR code linking
  */
 export function generateStudentLinkUrl(studentCode: string, appUrl?: string): string {
-  const baseUrl = appUrl || window.location.origin
+  const baseUrl = appUrl || window?.location.origin
   return `${baseUrl}/link-student?code=${studentCode}`
 }
 
@@ -36,7 +36,7 @@ export async function generateQRCodeDataUrl(
   const url = generateStudentLinkUrl(studentCode, options?.appUrl)
 
   try {
-    const dataUrl = await QRCode.toDataURL(url, {
+    const dataUrl = await QRCode?.toDataURL(url, {
       width: options?.width || 300,
       margin: 2,
       color: {
@@ -47,7 +47,7 @@ export async function generateQRCodeDataUrl(
     })
     return dataUrl
   } catch (error) {
-    console.error('Error generating QR code:', error)
+    console?.error('Error generating QR code:', error)
     throw new Error('Failed to generate QR code')
   }
 }
@@ -73,7 +73,7 @@ export async function generateQRCodeCanvas(
   const url = generateStudentLinkUrl(studentCode, options?.appUrl)
 
   try {
-    await QRCode.toCanvas(canvas, url, {
+    await QRCode?.toCanvas(canvas, url, {
       width: options?.width || 300,
       margin: 2,
       color: {
@@ -83,7 +83,7 @@ export async function generateQRCodeCanvas(
       errorCorrectionLevel: 'M',
     })
   } catch (error) {
-    console.error('Error generating QR code:', error)
+    console?.error('Error generating QR code:', error)
     throw new Error('Failed to generate QR code')
   }
 }
@@ -106,14 +106,14 @@ export async function downloadQRCode(
     const dataUrl = await generateQRCodeDataUrl(studentCode, options)
 
     // Create a temporary link and trigger download
-    const link = document.createElement('a')
-    link.href = dataUrl
-    link.download = `QR-${studentName.replace(/\s+/g, '-')}-${studentCode}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    const link = document?.createElement('a')
+    link?.href = dataUrl
+    link?.download = `QR-${studentName?.replace(/\s+/g, '-')}-${studentCode}.png`
+    document?.body.appendChild(link)
+    link?.click()
+    document?.body.removeChild(link)
   } catch (error) {
-    console.error('Error downloading QR code:', error)
+    console?.error('Error downloading QR code:', error)
     throw new Error('Failed to download QR code')
   }
 }
@@ -126,11 +126,11 @@ export async function downloadQRCode(
 export function extractStudentCodeFromUrl(url: string): string | null {
   try {
     const urlObj = new URL(url)
-    const code = urlObj.searchParams.get('code')
+    const code = urlObj?.searchParams.get('code')
     return code || null
   } catch (error) {
     // If URL parsing fails, try to extract code directly
-    const match = url.match(/code=([A-Z0-9]{6})/i)
+    const match = url?.match(/code=([A-Z0-9]{6})/i)
     return match ? match[1].toUpperCase() : null
   }
 }

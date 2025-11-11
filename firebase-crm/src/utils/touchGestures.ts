@@ -81,16 +81,16 @@ export const HAPTIC_PATTERNS = {
 export function triggerHaptic(
   pattern: keyof typeof HAPTIC_PATTERNS | number[] = 'light'
 ): void {
-  if (!navigator.vibrate) return
+  if (!navigator?.vibrate) return
 
-  const vibrationPattern = Array.isArray(pattern)
+  const vibrationPattern = Array?.isArray(pattern)
     ? pattern
     : HAPTIC_PATTERNS[pattern]
 
   try {
-    navigator.vibrate(vibrationPattern)
+    navigator?.vibrate(vibrationPattern)
   } catch (error) {
-    console.debug('Haptic feedback not supported:', error)
+    console?.debug('Haptic feedback not supported:', error)
   }
 }
 
@@ -103,8 +103,8 @@ export function triggerHaptic(
  *
  * @example
  * const swipeHandlers = useSwipe({
- *   onSwipeLeft: () => console.log('Swiped left'),
- *   onSwipeRight: () => console.log('Swiped right'),
+ *   onSwipeLeft: () => console?.log('Swiped left'),
+ *   onSwipeRight: () => console?.log('Swiped right'),
  * })
  *
  * <div {...swipeHandlers}>Swipeable content</div>
@@ -120,58 +120,58 @@ export function createSwipeHandlers(
   const handleTouchStart = (e: TouchEvent) => {
     touchEnd = null
     touchStart = {
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY,
-      time: Date.now(),
+      x: e?.targetTouches[0].clientX,
+      y: e?.targetTouches[0].clientY,
+      time: Date?.now(),
     }
   }
 
   const handleTouchMove = (e: TouchEvent) => {
     touchEnd = {
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY,
-      time: Date.now(),
+      x: e?.targetTouches[0].clientX,
+      y: e?.targetTouches[0].clientY,
+      time: Date?.now(),
     }
   }
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return
 
-    const xDiff = touchStart.x - touchEnd.x
-    const yDiff = touchStart.y - touchEnd.y
-    const timeDiff = touchEnd.time - touchStart.time
+    const xDiff = touchStart?.x - touchEnd?.x
+    const yDiff = touchStart?.y - touchEnd?.y
+    const timeDiff = touchEnd?.time - touchStart?.time
 
     // Check if swipe time is within limit
-    if (timeDiff > cfg.maxTime) return
+    if (timeDiff > cfg?.maxTime) return
 
     // Determine primary direction (horizontal or vertical)
-    const isHorizontal = Math.abs(xDiff) > Math.abs(yDiff)
+    const isHorizontal = Math?.abs(xDiff) > Math?.abs(yDiff)
 
     if (isHorizontal) {
       // Horizontal swipe
-      if (Math.abs(xDiff) < cfg.minDistance) return
+      if (Math?.abs(xDiff) < cfg?.minDistance) return
 
       if (xDiff > 0) {
         // Swipe left
-        if (cfg.enableHaptic) triggerHaptic('swipe')
-        handlers.onSwipeLeft?.()
+        if (cfg?.enableHaptic) triggerHaptic('swipe')
+        handlers?.onSwipeLeft?.()
       } else {
         // Swipe right
-        if (cfg.enableHaptic) triggerHaptic('swipe')
-        handlers.onSwipeRight?.()
+        if (cfg?.enableHaptic) triggerHaptic('swipe')
+        handlers?.onSwipeRight?.()
       }
     } else {
       // Vertical swipe
-      if (Math.abs(yDiff) < cfg.minDistance) return
+      if (Math?.abs(yDiff) < cfg?.minDistance) return
 
       if (yDiff > 0) {
         // Swipe up
-        if (cfg.enableHaptic) triggerHaptic('swipe')
-        handlers.onSwipeUp?.()
+        if (cfg?.enableHaptic) triggerHaptic('swipe')
+        handlers?.onSwipeUp?.()
       } else {
         // Swipe down
-        if (cfg.enableHaptic) triggerHaptic('swipe')
-        handlers.onSwipeDown?.()
+        if (cfg?.enableHaptic) triggerHaptic('swipe')
+        handlers?.onSwipeDown?.()
       }
     }
 
@@ -223,28 +223,28 @@ export function getTouchTargetClass(): string {
 export function preventOverscroll(element: HTMLElement): void {
   let startY = 0
 
-  element.addEventListener(
+  element?.addEventListener(
     'touchstart',
     (e) => {
-      startY = e.touches[0].pageY
+      startY = e?.touches[0].pageY
     },
     { passive: false }
   )
 
-  element.addEventListener(
+  element?.addEventListener(
     'touchmove',
     (e) => {
-      const y = e.touches[0].pageY
-      const scrollTop = element.scrollTop
-      const scrollHeight = element.scrollHeight
-      const offsetHeight = element.offsetHeight
+      const y = e?.touches[0].pageY
+      const scrollTop = element?.scrollTop
+      const scrollHeight = element?.scrollHeight
+      const offsetHeight = element?.offsetHeight
 
       // Prevent scroll if at boundaries
       if (
         (y > startY && scrollTop === 0) ||
         (y < startY && scrollTop + offsetHeight >= scrollHeight)
       ) {
-        e.preventDefault()
+        e?.preventDefault()
       }
     },
     { passive: false }

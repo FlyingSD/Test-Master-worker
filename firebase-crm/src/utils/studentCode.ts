@@ -12,12 +12,12 @@ const CHARSET = LETTERS + DIGITS // Total: 32 characters
 
 /**
  * Generates a random student code
- * @returns 6-character code (e.g., "K8M2B6")
+ * @returns 6-character code (e?.g., "K8M2B6")
  */
 export function generateStudentCode(): string {
   let code = ''
   for (let i = 0; i < 6; i++) {
-    const randomIndex = Math.floor(Math.random() * CHARSET.length)
+    const randomIndex = Math?.floor(Math?.random() * CHARSET?.length)
     code += CHARSET[randomIndex]
   }
   return code
@@ -29,13 +29,13 @@ export function generateStudentCode(): string {
  * @returns true if valid, false otherwise
  */
 export function isValidStudentCode(code: string): boolean {
-  if (!code || code.length !== 6) {
+  if (!code || code?.length !== 6) {
     return false
   }
 
   // Check if all characters are in the allowed charset
-  for (let i = 0; i < code.length; i++) {
-    if (!CHARSET.includes(code[i].toUpperCase())) {
+  for (let i = 0; i < code?.length; i++) {
+    if (!CHARSET?.includes(code[i].toUpperCase())) {
       return false
     }
   }
@@ -46,13 +46,13 @@ export function isValidStudentCode(code: string): boolean {
 /**
  * Formats a student code for display (adds spaces for readability)
  * @param code - Code to format
- * @returns Formatted code (e.g., "K8M 2B6")
+ * @returns Formatted code (e?.g., "K8M 2B6")
  */
 export function formatStudentCode(code: string): string {
-  if (!code || code.length !== 6) {
+  if (!code || code?.length !== 6) {
     return code
   }
-  return `${code.slice(0, 3)} ${code.slice(3)}`
+  return `${code?.slice(0, 3)} ${code?.slice(3)}`
 }
 
 /**
@@ -61,11 +61,11 @@ export function formatStudentCode(code: string): string {
  * @returns Normalized code
  */
 export function normalizeStudentCode(code: string): string {
-  return code.replace(/\s+/g, '').toUpperCase()
+  return code?.replace(/\s+/g, '').toUpperCase()
 }
 
 /**
  * Calculates total possible combinations
  * 32^6 = 1,073,741,824 (over 1 billion unique codes)
  */
-export const TOTAL_COMBINATIONS = Math.pow(CHARSET.length, 6)
+export const TOTAL_COMBINATIONS = Math?.pow(CHARSET?.length, 6)
