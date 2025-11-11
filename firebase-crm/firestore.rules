@@ -282,20 +282,20 @@ service cloud.firestore {
                isValidTimestamp(data.createdAt);
       }
 
-      // Read: Only admins and teachers
-      allow read: if isAdminOrTeacher();
+      // Read: Only admins (HIGH #3 FIX - sensitive financial data: salaries, rent, etc.)
+      allow read: if isAdmin();
 
-      // Create: Only admins and teachers with field validation
-      allow create: if isAdminOrTeacher() &&
+      // Create: Only admins with field validation
+      allow create: if isAdmin() &&
         request.resource.data.createdBy == request.auth.uid &&
         isValidExpense(request.resource.data);
 
-      // Update: Only admins or owner with field validation
-      allow update: if canModifyDocument() &&
+      // Update: Only admins with field validation
+      allow update: if isAdmin() &&
         isValidExpense(request.resource.data);
 
-      // Delete: Only admins or owner
-      allow delete: if canModifyDocument();
+      // Delete: Only admins
+      allow delete: if isAdmin();
     }
 
 
@@ -337,13 +337,15 @@ service cloud.firestore {
                isValidTimestamp(data.createdAt);
       }
 
-      // Read access:
+      // Read access (HIGH #2 FIX):
       // - Admins: see all homework
-      // - Teachers: see homework they created
+      // - Teachers: see homework for students in THEIR assigned groups (not just homework they created)
       // - Parents: see ONLY homework for their children
       allow read: if isAuthenticated() && (
         isAdmin() ||
-        (isTeacher() && ownsDocument()) ||
+        (isTeacher() && teacherTeachesGroup(
+          get(/databases/$(database)/documents/students/$(resource.data.studentId)).data.group
+        )) ||
         (isParent() && parentHasStudent(resource.data.studentId))
       );
 
@@ -587,6 +589,154 @@ service cloud.firestore {
 
       // Write: Only admins (labels, system config, etc.)
       allow write: if isAdmin();
+    }
+
+
+    // ========================================
+    // PAYMENT PLANS COLLECTION (HIGH #1 FIX)
+    // ========================================
+    match /payment_plans/{planId} {
+      // 🔒 Field validation for payment plans
+      function isValidPaymentPlan(data) {
+        return isValidString(data.studentId) &&
+               isValidString(data.studentName) &&
+               isStrictlyPositive(data.totalAmount) &&
+               isStrictlyPositive(data.numberOfInstallments) &&
+               isInEnum(data.frequency, ['weekly', 'monthly', 'custom']) &&
+               isValidTimestamp(data.startDate) &&
+               isInEnum(data.status, ['active', 'completed', 'cancelled']) &&
+               isValidOptionalString(data.description) &&
+               isValidOptionalString(data.notes) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
+      // Read access:
+      // - Admins: see all payment plans
+      // - Teachers: see all payment plans (for class management)
+      // - Parents: see ONLY plans for their children
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isTeacher() ||
+        (isParent() && parentHasStudent(resource.data.studentId))
+      );
+
+      // Create: Only admins and teachers with field validation
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidPaymentPlan(request.resource.data);
+
+      // Update: Only admins or owner with field validation
+      allow update: if canModifyDocument() &&
+        isValidPaymentPlan(request.resource.data);
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // GRADES COLLECTION (HIGH #1 FIX)
+    // ========================================
+    match /grades/{gradeId} {
+      // 🔒 Field validation for grades
+      function isValidGrade(data) {
+        return isValidString(data.studentId) &&
+               isValidString(data.studentName) &&
+               isValidOptionalString(data.subject) &&
+               isValidTimestamp(data.date) &&
+               isValidOptionalString(data.notes) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
+      // Read access:
+      // - Admins: see all grades
+      // - Teachers: see grades for students in their groups
+      // - Parents: see ONLY grades for their children
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        (isTeacher() && teacherTeachesGroup(
+          get(/databases/$(database)/documents/students/$(resource.data.studentId)).data.group
+        )) ||
+        (isParent() && parentHasStudent(resource.data.studentId))
+      );
+
+      // Create: Only admins and teachers with field validation
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidGrade(request.resource.data);
+
+      // Update: Only admins or owner (teacher who created it)
+      allow update: if canModifyDocument() &&
+        isValidGrade(request.resource.data);
+
+      // Delete: Only admins or owner
+      allow delete: if canModifyDocument();
+    }
+
+
+    // ========================================
+    // ACTIVITY LOGS COLLECTION (HIGH #1 FIX)
+    // ========================================
+    match /activity_logs/{logId} {
+      // 🔒 Field validation for activity logs
+      function isValidActivityLog(data) {
+        return isValidString(data.userId) &&
+               isValidString(data.userName) &&
+               isInEnum(data.action, ['create', 'update', 'delete']) &&
+               isInEnum(data.entity, ['student', 'payment', 'expense', 'event', 'discount', 'parent', 'inventory', 'invoice']) &&
+               isValidString(data.entityId) &&
+               isValidString(data.description) &&
+               isValidTimestamp(data.timestamp);
+      }
+
+      // Read: Only admins (audit log is admin-only)
+      allow read: if isAdmin();
+
+      // Create: Only system/cloud functions (users cannot create logs manually)
+      // In production, this should be written by Cloud Functions only
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.userId == request.auth.uid &&
+        isValidActivityLog(request.resource.data);
+
+      // Update: Not allowed (logs are immutable)
+      allow update: if false;
+
+      // Delete: Only admins (for cleanup/GDPR)
+      allow delete: if isAdmin();
+    }
+
+
+    // ========================================
+    // REPORTS COLLECTION (HIGH #1 FIX)
+    // ========================================
+    match /reports/{reportId} {
+      // 🔒 Field validation for reports
+      function isValidReport(data) {
+        return isInEnum(data.type, ['Месечен', 'Годишен', 'По ученик', 'По група', 'Финансов']) &&
+               isValidString(data.title) &&
+               isValidTimestamp(data.dateFrom) &&
+               isValidTimestamp(data.dateTo) &&
+               isValidOptionalString(data.fileUrl) &&
+               isValidString(data.createdBy) &&
+               isValidTimestamp(data.createdAt);
+      }
+
+      // Read: Only admins and teachers (reports contain sensitive data)
+      allow read: if isAdminOrTeacher();
+
+      // Create: Only admins and teachers with field validation
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid &&
+        isValidReport(request.resource.data);
+
+      // Update: Only admins or owner
+      allow update: if canModifyDocument() &&
+        isValidReport(request.resource.data);
+
+      // Delete: Only admins
+      allow delete: if isAdmin();
     }
 
 

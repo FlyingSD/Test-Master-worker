@@ -1,19 +1,48 @@
 /**
  * QR Code Generation Utility
  * Generates QR codes for student linking
+ *
+ * 🔒 HIGH #4 FIX: Added URL validation to prevent injection attacks
  */
 
 import QRCode from 'qrcode'
+import { validateUrl, sanitizeString } from './security'
 
 /**
  * Generates a QR code URL for linking a student
  * @param studentCode - The unique student code
  * @param appUrl - Base URL of the application (e?.g., "https://yourapp?.com")
  * @returns Full URL for QR code linking
+ *
+ * @security HIGH #4 FIX: Validates appUrl to prevent javascript:, data:, etc. injection
+ *
+ * @throws Error if appUrl is provided but invalid
  */
 export function generateStudentLinkUrl(studentCode: string, appUrl?: string): string {
-  const baseUrl = appUrl || window?.location.origin
-  return `${baseUrl}/link-student?code=${studentCode}`
+  // Sanitize student code
+  const sanitizedCode = sanitizeString(studentCode, 10)
+
+  if (!sanitizedCode) {
+    throw new Error('Invalid student code')
+  }
+
+  // Get base URL
+  let baseUrl: string
+
+  if (appUrl) {
+    // Validate provided appUrl (HIGH #4 FIX)
+    const urlValidation = validateUrl(appUrl, ['http', 'https'])
+
+    if (!urlValidation.isValid) {
+      throw new Error(`Invalid app URL: ${urlValidation.reason}`)
+    }
+
+    baseUrl = urlValidation.sanitizedUrl.replace(/\/$/, '') // Remove trailing slash
+  } else {
+    baseUrl = window?.location.origin
+  }
+
+  return `${baseUrl}/link-student?code=${sanitizedCode}`
 }
 
 /**
@@ -122,15 +151,41 @@ export async function downloadQRCode(
  * Extracts student code from a scanned QR URL
  * @param url - The scanned URL
  * @returns Student code if found, null otherwise
+ *
+ * @security HIGH #4 FIX: Validates URL before extracting code
  */
 export function extractStudentCodeFromUrl(url: string): string | null {
+  if (!url || typeof url !== 'string') {
+    return null
+  }
+
+  // Validate URL first (HIGH #4 FIX)
+  const urlValidation = validateUrl(url, ['http', 'https'])
+
+  if (!urlValidation.isValid) {
+    console.warn('Invalid URL provided to extractStudentCodeFromUrl:', urlValidation.reason)
+    return null
+  }
+
   try {
-    const urlObj = new URL(url)
+    const urlObj = new URL(urlValidation.sanitizedUrl)
     const code = urlObj?.searchParams.get('code')
-    return code || null
+
+    if (!code) {
+      return null
+    }
+
+    // Sanitize the extracted code
+    const sanitizedCode = sanitizeString(code, 10)
+
+    // Validate format: 6 alphanumeric characters
+    if (sanitizedCode && /^[A-Z0-9]{6}$/i.test(sanitizedCode)) {
+      return sanitizedCode.toUpperCase()
+    }
+
+    return null
   } catch (error) {
-    // If URL parsing fails, try to extract code directly
-    const match = url?.match(/code=([A-Z0-9]{6})/i)
-    return match ? match[1].toUpperCase() : null
+    console.error('Error extracting student code from URL:', error)
+    return null
   }
 }
