@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import {
   collection,
   query,
@@ -46,6 +46,13 @@ export function useRealtimeCollection<T extends DocumentData>(
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
+  // Memoize the query to prevent infinite re-renders
+  // Serialize queryConstraints for stable comparison
+  const queryKey = useMemo(
+    () => JSON.stringify(queryConstraints.map(c => c.toString())),
+    [queryConstraints]
+  )
+
   useEffect(() => {
     if (!enabled) {
       setData([])
@@ -85,7 +92,8 @@ export function useRealtimeCollection<T extends DocumentData>(
     )
 
     return () => unsubscribe()
-  }, [collectionName, enabled, errorMessage, ...queryConstraints])
+    // Use queryKey instead of spreading queryConstraints
+  }, [collectionName, enabled, errorMessage, queryKey, queryConstraints])
 
   return { data, loading, error }
 }
