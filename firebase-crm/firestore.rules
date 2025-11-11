@@ -111,11 +111,11 @@ service cloud.firestore {
     match /students/{studentId} {
       // Read access:
       // - Admins: see all students
-      // - Teachers: see all students (need for teaching)
+      // - Teachers: see ONLY students in their assigned groups (GDPR compliant)
       // - Parents: see ONLY their children
       allow read: if isAuthenticated() && (
         isAdmin() ||
-        isTeacher() ||
+        (isTeacher() && teacherTeachesGroup(resource.data.group)) ||
         parentHasStudent(studentId)
       );
 
@@ -123,10 +123,11 @@ service cloud.firestore {
       allow create: if isAdminOrTeacher() &&
         request.resource.data.createdBy == request.auth.uid;
 
-      // Update: Only admins or owner
+      // Update: Admins or owner (teacher must teach the student's group)
       // TODO: Implement parent self-linking with student code verification
       // For now, parents must be linked by admin/teacher for security
-      allow update: if canModifyDocument();
+      allow update: if isAdmin() ||
+        (isTeacher() && ownsDocument() && teacherTeachesGroup(resource.data.group));
 
       // Delete: Only admins or owner
       allow delete: if canModifyDocument();

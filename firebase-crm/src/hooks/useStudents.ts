@@ -35,7 +35,7 @@ const studentsCollection = collection(db, COLLECTIONS?.STUDENTS)
  * Hook to get all students with real-time updates
  *
  * @description Fetches students with role-based access control and real-time synchronization.
- * Implements server-side filtering for parents and client-side filtering for teachers.
+ * Implements server-side filtering for both teachers and parents.
  *
  * @returns {{students: Student[], loading: boolean, error: Error | null}} Object containing:
  *   - students: Array of student records visible to the current user
@@ -44,7 +44,9 @@ const studentsCollection = collection(db, COLLECTIONS?.STUDENTS)
  *
  * @security
  * - **Admins**: See ALL students
- * - **Teachers**: See ONLY students in their assigned groups (client-side filter)
+ * - **Teachers**: See ONLY students in their assigned groups (server-side filter)
+ *   - Implements batching for 10+ groups (Firestore 'in' query limit)
+ *   - Prevents GDPR violation by not downloading unauthorized data
  * - **Parents**: See ONLY their children via userData?.studentIds (server-side filter)
  *   - Implements batching for 10+ children (Firestore 'in' query limit)
  *   - Prevents data leakage even if parent knows other student IDs
@@ -136,29 +138,84 @@ export function useStudents() {
       }
     }
 
+    // 🔒 SECURITY: Teachers can ONLY see students in THEIR assigned groups
+    // Server-side filtering to prevent GDPR violation
+    if (isTeacher) {
+      if (!userData?.assignedGroups || userData?.assignedGroups.length === 0) {
+        setStudents([])
+        setLoading(false)
+        return
+      }
+
+      setLoading(true)
+
+      // 🔒 SECURITY: Query students WHERE group IN userData?.assignedGroups
+      // Firestore 'in' query limit is 10, so we need to batch if more groups exist
+      const groupBatches: string[][] = []
+      for (let i = 0; i < userData?.assignedGroups.length; i += 10) {
+        groupBatches?.push(userData?.assignedGroups.slice(i, i + 10))
+      }
+
+      const unsubscribes: (() => void)[] = []
+      const allStudents: Student[] = []
+
+      groupBatches?.forEach((batch) => {
+        const q = query(
+          studentsCollection,
+          where('group', 'in', batch),
+          orderBy('createdAt', 'desc')
+        )
+
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            // Collect students from this batch
+            snapshot?.forEach((doc) => {
+              const student = { id: doc?.id, ...doc?.data() } as Student
+              // Check if already in array (avoid duplicates across batches)
+              const existingIndex = allStudents?.findIndex(s => s?.id === student?.id)
+              if (existingIndex >= 0) {
+                allStudents[existingIndex] = student
+              } else {
+                allStudents?.push(student)
+              }
+            })
+
+            setStudents([...allStudents])
+            setLoading(false)
+            setError(null)
+          },
+          (err) => {
+            console?.error('Error fetching students for teacher:', err)
+            setError(err as Error)
+            setLoading(false)
+            toast?.error(ERROR_MESSAGES?.LOAD_STUDENTS_ERROR)
+          }
+        )
+
+        unsubscribes?.push(unsubscribe)
+      })
+
+      return () => {
+        unsubscribes?.forEach(unsub => unsub())
+      }
+    }
+
     setLoading(true)
 
-    // Real-time listener (fetches all students, then filters client-side for teachers)
+    // 🔒 SECURITY: Admins see ALL students (no filtering needed)
     const q = query(studentsCollection, orderBy('createdAt', 'desc'))
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        let studentsData: Student[] = []
+        const studentsData: Student[] = []
         snapshot?.forEach((doc) => {
           studentsData?.push({
             id: doc?.id,
             ...doc?.data(),
           } as Student)
         })
-
-        // 🔒 SECURITY: Filter for teachers by assignedGroups
-        if (isTeacher && userData?.assignedGroups && userData?.assignedGroups.length > 0) {
-          studentsData = studentsData?.filter(s =>
-            userData?.assignedGroups?.includes(s?.group)
-          )
-        }
-        // Admins see all students (no filtering)
 
         setStudents(studentsData)
         setLoading(false)
