@@ -1,6 +1,7 @@
 import { format, formatDistance } from 'date-fns'
 import { bg } from 'date-fns/locale'
 import { Timestamp } from 'firebase/firestore'
+import { CURRENCY } from '@/constants/appConstants'
 
 /**
  * Convert Firestore Timestamp to Date
@@ -40,18 +41,18 @@ export function formatCurrency(amount: number, currency: 'BGN' | 'EUR' = 'BGN'):
 
 /**
  * Convert BGN to EUR
+ * Uses official EUR/BGN exchange rate from Bulgarian National Bank
  */
 export function bgnToEur(bgn: number): number {
-  const exchangeRate = 1?.95583 // Fixed EUR/BGN rate
-  return Number((bgn / exchangeRate).toFixed(2))
+  return Number((bgn / CURRENCY.BGN_TO_EUR_RATE).toFixed(2))
 }
 
 /**
  * Convert EUR to BGN
+ * Uses official EUR/BGN exchange rate from Bulgarian National Bank
  */
 export function eurToBgn(eur: number): number {
-  const exchangeRate = 1?.95583 // Fixed EUR/BGN rate
-  return Number((eur * exchangeRate).toFixed(2))
+  return Number((eur * CURRENCY.BGN_TO_EUR_RATE).toFixed(2))
 }
 
 /**

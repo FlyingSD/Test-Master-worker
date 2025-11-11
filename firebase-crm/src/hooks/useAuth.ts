@@ -62,20 +62,21 @@ export function useAuth() {
 
       toast?.success('Влизането беше успешно!')
       return result?.user
-    } catch (error: any) {
+    } catch (error: unknown) {
       console?.error('Sign in error:', error)
 
       // User-friendly error messages
-      if (error?.code === 'auth/user-not-found') {
+      const err = error as { code?: string; message?: string }
+      if (err?.code === 'auth/user-not-found') {
         toast?.error('Потребителят не е намерен')
-      } else if (error?.code === 'auth/wrong-password') {
+      } else if (err?.code === 'auth/wrong-password') {
         toast?.error('Грешна парола')
-      } else if (error?.code === 'auth/invalid-email') {
+      } else if (err?.code === 'auth/invalid-email') {
         toast?.error('Невалиден имейл адрес')
-      } else if (error?.code === 'auth/too-many-requests') {
+      } else if (err?.code === 'auth/too-many-requests') {
         toast?.error('Твърде много опити. Опитайте по-късно')
       } else {
-        toast?.error('Грешка при влизане: ' + error?.message)
+        toast?.error('Грешка при влизане: ' + (err?.message || 'Неизвестна грешка'))
       }
 
       throw error
@@ -110,15 +111,16 @@ export function useAuth() {
 
       toast?.success('Влизането с Google беше успешно!')
       return result?.user
-    } catch (error: any) {
+    } catch (error: unknown) {
       console?.error('Google sign in error:', error)
 
-      if (error?.code === 'auth/popup-closed-by-user') {
+      const err = error as { code?: string; message?: string }
+      if (err?.code === 'auth/popup-closed-by-user') {
         toast?.error('Влизането беше отменено')
-      } else if (error?.code === 'auth/popup-blocked') {
+      } else if (err?.code === 'auth/popup-blocked') {
         toast?.error('Popup прозорецът беше блокиран от браузъра')
       } else {
-        toast?.error('Грешка при влизане с Google: ' + error?.message)
+        toast?.error('Грешка при влизане с Google: ' + (err?.message || 'Неизвестна грешка'))
       }
 
       throw error
@@ -154,17 +156,18 @@ export function useAuth() {
 
       toast?.success('Регистрацията беше успешна!')
       return result?.user
-    } catch (error: any) {
+    } catch (error: unknown) {
       console?.error('Sign up error:', error)
 
-      if (error?.code === 'auth/email-already-in-use') {
+      const err = error as { code?: string; message?: string }
+      if (err?.code === 'auth/email-already-in-use') {
         toast?.error('Имейлът вече е използван')
-      } else if (error?.code === 'auth/weak-password') {
+      } else if (err?.code === 'auth/weak-password') {
         toast?.error('Паролата трябва да е поне 6 символа')
-      } else if (error?.code === 'auth/invalid-email') {
+      } else if (err?.code === 'auth/invalid-email') {
         toast?.error('Невалиден имейл адрес')
       } else {
-        toast?.error('Грешка при регистрация: ' + error?.message)
+        toast?.error('Грешка при регистрация: ' + (err?.message || 'Неизвестна грешка'))
       }
 
       throw error
@@ -177,15 +180,16 @@ export function useAuth() {
     try {
       await sendPasswordResetEmail(auth, email)
       toast?.success('Имейл за възстановяване на парола беше изпратен')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console?.error('Password reset error:', error)
 
-      if (error?.code === 'auth/user-not-found') {
+      const err = error as { code?: string; message?: string }
+      if (err?.code === 'auth/user-not-found') {
         toast?.error('Потребителят не е намерен')
-      } else if (error?.code === 'auth/invalid-email') {
+      } else if (err?.code === 'auth/invalid-email') {
         toast?.error('Невалиден имейл адрес')
       } else {
-        toast?.error('Грешка при изпращане на имейл: ' + error?.message)
+        toast?.error('Грешка при изпращане на имейл: ' + (err?.message || 'Неизвестна грешка'))
       }
 
       throw error
@@ -196,7 +200,7 @@ export function useAuth() {
     try {
       await firebaseSignOut(auth)
       toast?.success('Излязохте успешно')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console?.error('Sign out error:', error)
       toast?.error('Грешка при излизане')
       throw error
