@@ -276,7 +276,7 @@ export default function InvoicesPage() {
               onClick={() => setStatusFilter('all')}
               className={`btn ${statusFilter === 'all' ? 'btn-primary' : 'btn-ghost'}`}
             >
-              Всички ({invoices?.length})
+              Всички ({invoices?.length || 0})
             </button>
             <button
               onClick={() => setStatusFilter('paid')}
