@@ -115,7 +115,7 @@ export default function SettingsPage() {
     expenses: 'Разходи',
     inventory: 'Склад',
     attendance: 'Присъствия',
-    events: 'Події',
+    events: 'Събития',
     discounts: 'Отстъпки',
     reports: 'Репорти',
     errors: '⚠️ Грешки',

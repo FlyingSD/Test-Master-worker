@@ -44,7 +44,7 @@ const mainNavigation: NavItem[] = [
   { name: 'Разходи', href: '/expenses', icon: TrendingDown, roles: ['admin', 'teacher'], feature: 'expenses' },
   { name: 'Склад', href: '/inventory', icon: Package, roles: ['admin', 'teacher'], feature: 'inventory' },
   { name: 'Присъствия', href: '/attendance', icon: UserCheck, roles: ['admin', 'teacher'], feature: 'attendance' },
-  { name: 'Події', href: '/events', icon: Calendar, roles: ['admin', 'teacher', 'parent'], feature: 'events' },
+  { name: 'Събития', href: '/events', icon: Calendar, roles: ['admin', 'teacher', 'parent'], feature: 'events' },
   { name: 'Отстъпки', href: '/discounts', icon: Percent, roles: ['admin', 'teacher'], feature: 'discounts' },
   { name: 'Репорти', href: '/reports', icon: FileText, roles: ['admin', 'teacher'], feature: 'reports' },
   { name: 'Настройки', href: '/settings', icon: Settings, roles: ['admin'] }, // No feature check - admin only
@@ -56,7 +56,7 @@ const parentNavigation: NavItem[] = [
   { name: 'Начало', href: '/', icon: LayoutDashboard, roles: ['parent'], feature: 'dashboard' },
   { name: 'Моите деца', href: '/my-children', icon: Users, roles: ['parent'], feature: 'my-children' },
   { name: 'Плащания', href: '/payments', icon: CreditCard, roles: ['parent'], feature: 'payments' },
-  { name: 'Події', href: '/events', icon: Calendar, roles: ['parent'], feature: 'events' },
+  { name: 'Събития', href: '/events', icon: Calendar, roles: ['parent'], feature: 'events' },
 ]
 
 // Admin-only navigation
@@ -110,7 +110,7 @@ export default function Layout() {
         { name: 'Начало', href: '/', icon: LayoutDashboard },
         { name: 'Деца', href: '/my-children', icon: Users },
         { name: 'Плащания', href: '/payments', icon: CreditCard },
-        { name: 'Події', href: '/events', icon: Calendar },
+        { name: 'Събития', href: '/events', icon: Calendar },
       ]
     }
 
@@ -118,7 +118,7 @@ export default function Layout() {
       { name: 'Начало', href: '/', icon: LayoutDashboard },
       { name: 'Ученици', href: '/students', icon: Users },
       { name: 'Плащания', href: '/payments', icon: CreditCard },
-      { name: 'Події', href: '/events', icon: Calendar },
+      { name: 'Събития', href: '/events', icon: Calendar },
       { name: 'Още', href: '/more', icon: Menu },
     ]
   }
