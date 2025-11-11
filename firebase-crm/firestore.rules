@@ -123,15 +123,10 @@ service cloud.firestore {
       allow create: if isAdminOrTeacher() &&
         request.resource.data.createdBy == request.auth.uid;
 
-      // Update: Only admins, owner, or parents linking themselves
-      // Parents can only add themselves to parentIds array
-      allow update: if canModifyDocument() ||
-        (
-          isParent() &&
-          request.auth.uid in request.resource.data.parentIds &&
-          !(request.auth.uid in resource.data.parentIds) &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['parentIds'])
-        );
+      // Update: Only admins or owner
+      // TODO: Implement parent self-linking with student code verification
+      // For now, parents must be linked by admin/teacher for security
+      allow update: if canModifyDocument();
 
       // Delete: Only admins or owner
       allow delete: if canModifyDocument();
