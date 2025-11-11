@@ -350,6 +350,45 @@ service cloud.firestore {
 
 
     // ========================================
+    // GROUPS COLLECTION
+    // ========================================
+    match /groups/{groupId} {
+      // Read: Everyone authenticated (students/parents need to see group info)
+      allow read: if isAuthenticated();
+
+      // Create: Only admins and teachers
+      allow create: if isAdminOrTeacher() &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      // Update: Only admins or owner (teacher who created it)
+      // Teachers cannot change price, priceEUR, teacherId, teacherName
+      allow update: if canModifyDocument() && (
+        isAdmin() ||
+        (
+          isTeacher() &&
+          ownsDocument() &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['price', 'priceEUR', 'teacherId', 'teacherName'])
+        )
+      );
+
+      // Delete: Only admins
+      allow delete: if isAdmin();
+    }
+
+
+    // ========================================
+    // SETTINGS COLLECTION (Labels, Config, etc.)
+    // ========================================
+    match /settings/{docId} {
+      // Read: All authenticated users (everyone needs to see labels)
+      allow read: if isAuthenticated();
+
+      // Write: Only admins (labels, system config, etc.)
+      allow write: if isAdmin();
+    }
+
+
+    // ========================================
     // DEFAULT DENY ALL
     // ========================================
     // Any collection not explicitly defined above is denied
