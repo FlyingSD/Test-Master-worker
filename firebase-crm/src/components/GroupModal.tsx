@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { X, Save, Calendar, Plus, Trash2 } from 'lucide-react'
 import { useAddGroup, useUpdateGroup } from '@/hooks/useGroups'
+import { useTeachers } from '@/hooks/useTeachers'
 import { Group } from '@/types'
 import { bgnToEur, eurToBgn } from '@/utils/formatters'
-import { Timestamp, collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { Timestamp } from 'firebase/firestore'
 import {
   GROUP_STATUS,
   GROUP_STATUS_OPTIONS,
@@ -12,17 +12,10 @@ import {
   GROUP_LEVEL_OPTIONS,
   DAYS_OF_WEEK_OPTIONS,
 } from '@/constants/appConstants'
-import { COLLECTIONS } from '@/lib/collections'
 
 interface GroupModalProps {
   group?: Group | null
   onClose: () => void
-}
-
-interface Teacher {
-  id: string
-  name: string
-  email: string
 }
 
 interface ScheduleItem {
@@ -36,37 +29,8 @@ export default function GroupModal({ group, onClose }: GroupModalProps) {
   const addGroup = useAddGroup()
   const updateGroup = useUpdateGroup()
 
-  // Fetch teachers
-  const [teachers, setTeachers] = useState<Teacher[]>([])
-  const [loadingTeachers, setLoadingTeachers] = useState(true)
-
-  useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const usersRef = collection(db, COLLECTIONS?.USERS)
-        const q = query(usersRef, where('role', '==', 'teacher'))
-        const snapshot = await getDocs(q)
-
-        const teachersList: Teacher[] = []
-        snapshot?.forEach((doc) => {
-          const data = doc?.data()
-          teachersList?.push({
-            id: doc?.id,
-            name: data?.name || data?.email,
-            email: data?.email,
-          })
-        })
-
-        setTeachers(teachersList)
-      } catch (error) {
-        console?.error('Error fetching teachers:', error)
-      } finally {
-        setLoadingTeachers(false)
-      }
-    }
-
-    fetchTeachers()
-  }, [])
+  // Fetch teachers using hook (HIGH PRIORITY FIX: Extracted direct Firestore query)
+  const { teachers, loading: loadingTeachers } = useTeachers()
 
   const [formData, setFormData] = useState({
     name: '',

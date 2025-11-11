@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -22,11 +22,10 @@ import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useFeaturePermissions } from '@/hooks/useFeaturePermissions'
 import { useLabels } from '@/hooks/useLabels'
+import { useSettings } from '@/hooks/useSettings'
 import { isAdmin, getRoleDisplayName, getRoleBadgeColor } from '@/utils/permissions'
 import { triggerHaptic } from '@/utils/touchGestures'
-import { FeatureName, SystemSettings } from '@/types'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { FeatureName } from '@/types'
 
 // Navigation item type
 interface NavItem {
@@ -74,27 +73,13 @@ export default function Layout() {
   const { hasFeatureAccess, loading: permissionsLoading } = useFeaturePermissions()
   const { labels } = useLabels()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [settings, setSettings] = useState<Partial<SystemSettings>>({})
   const location = useLocation()
+
+  // Load system settings for logo (HIGH PRIORITY FIX: Extracted direct Firestore query)
+  const { settings } = useSettings()
 
   // Get user role
   const userRole = userData?.role || 'parent'
-
-  // Load system settings for logo
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const docRef = doc(db, 'settings', 'system')
-        const docSnap = await getDoc(docRef)
-        if (docSnap?.exists()) {
-          setSettings(docSnap?.data() as SystemSettings)
-        }
-      } catch (error) {
-        console?.error('Error loading settings:', error)
-      }
-    }
-    loadSettings()
-  }, [])
 
   // Generate navigation items with labels
   const mainNavigation = getMainNavigation(labels)
