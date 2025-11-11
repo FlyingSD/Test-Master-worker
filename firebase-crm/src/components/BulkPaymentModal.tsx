@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, memo } from 'react'
 import { X, DollarSign, CheckCircle } from 'lucide-react'
 import { useStudents } from '@/hooks/useStudents'
 import { useBulkAddPayments } from '@/hooks/usePayments'
@@ -9,11 +9,15 @@ interface BulkPaymentModalProps {
   onClose: () => void
 }
 
-export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
+function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
   const { students } = useStudents()
   const bulkAddPayments = useBulkAddPayments()
 
-  const activeStudents = students?.filter((s) => s?.status === STUDENT_STATUS?.ACTIVE)
+  // PERFORMANCE FIX: Memoize activeStudents filter to prevent re-computation on every render
+  const activeStudents = useMemo(
+    () => students?.filter((s) => s?.status === STUDENT_STATUS?.ACTIVE) || [],
+    [students]
+  )
 
   const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(new Set())
   const [amount, setAmount] = useState<number>(0)
@@ -271,3 +275,6 @@ export default function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
     </div>
   )
 }
+
+// PERFORMANCE FIX: Wrap in React.memo to prevent unnecessary re-renders
+export default memo(BulkPaymentModal)

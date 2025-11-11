@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { X, Save, Calendar, QrCode, Download } from 'lucide-react'
 import { useAddStudent, useUpdateStudent } from '@/hooks/useStudents'
 import { useGroups } from '@/hooks/useGroups'
@@ -15,7 +15,7 @@ interface StudentModalProps {
   onClose: () => void
 }
 
-export default function StudentModal({ student, onClose }: StudentModalProps) {
+function StudentModal({ student, onClose }: StudentModalProps) {
   const addStudent = useAddStudent()
   const updateStudent = useUpdateStudent()
   const { groups, loading: loadingGroups } = useGroups()
@@ -479,3 +479,6 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
     </div>
   )
 }
+
+// PERFORMANCE FIX: Wrap in React.memo to prevent unnecessary re-renders
+export default memo(StudentModal)

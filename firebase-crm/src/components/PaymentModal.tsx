@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, memo } from 'react'
 import { X, Save, Calendar } from 'lucide-react'
 import { useAddPayment, useUpdatePayment } from '@/hooks/usePayments'
 import { useStudents } from '@/hooks/useStudents'
@@ -14,10 +14,16 @@ interface PaymentModalProps {
   onClose: () => void
 }
 
-export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
+function PaymentModal({ payment, onClose }: PaymentModalProps) {
   const addPayment = useAddPayment()
   const updatePayment = useUpdatePayment()
   const { students } = useStudents()
+
+  // PERFORMANCE FIX: Memoize active students filter to prevent re-computation on every render
+  const activeStudents = useMemo(
+    () => students?.filter((s) => s?.status === 'active') || [],
+    [students]
+  )
 
   const [formData, setFormData] = useState<PaymentFormValues>({
     studentId: '',
@@ -202,13 +208,11 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
               disabled={!!payment} // Can't change student when editing
             >
               <option value="">Избери ученик</option>
-              {students
-                .filter((s) => s?.status === 'active')
-                .map((student) => (
-                  <option key={student?.id} value={student?.id}>
-                    {student?.name} - {student?.group}
-                  </option>
-                ))}
+              {activeStudents.map((student) => (
+                <option key={student?.id} value={student?.id}>
+                  {student?.name} - {student?.group}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -403,3 +407,6 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
     </div>
   )
 }
+
+// PERFORMANCE FIX: Wrap in React.memo to prevent unnecessary re-renders
+export default memo(PaymentModal)
