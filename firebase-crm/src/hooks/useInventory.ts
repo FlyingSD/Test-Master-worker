@@ -13,6 +13,8 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
+  runTransaction,
+  writeBatch,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { InventoryItem, StockTransaction, InventoryFormValues, StockTransactionFormValues } from '@/types'
@@ -478,6 +480,9 @@ export function useStockTransactionsByItem(itemId: string) {
 /**
  * Hook to add a stock transaction and update inventory
  * IMPORTANT: If it's a sale (OUT + student), automatically creates Payment record
+ *
+ * @security 🔒 CRITICAL FIX #6: Uses Firestore transactions for atomicity
+ * All operations (stock transaction + payment + inventory update) succeed or fail together
  */
 export function useAddStockTransaction() {
   const queryClient = useQueryClient()
@@ -494,6 +499,7 @@ export function useAddStockTransaction() {
       if (!user) {
         throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
+
       // Calculate new stock level
       const newStock = data?.type === 'IN'
         ? inventoryItem?.currentStock + data?.quantity
@@ -503,71 +509,102 @@ export function useAddStockTransaction() {
         throw new Error(ERROR_MESSAGES?.INSUFFICIENT_STOCK)
       }
 
-      // Create transaction
-      const transactionData: any = {
-        ...data,
-        inventoryItemName: inventoryItem?.name,
-        totalPrice: data?.quantity * data?.pricePerUnit,
-        createdBy: user?.uid,
-        createdAt: serverTimestamp(),
-      }
+      // 🔒 ATOMICITY FIX: Use Firestore transaction to ensure all operations succeed or fail together
+      const result = await runTransaction(db, async (transaction) => {
+        const inventoryRef = doc(db, COLLECTIONS?.INVENTORY, inventoryItem?.id)
 
-      const transactionRef = await addDoc(stockTransactionsCollection, transactionData)
-
-      // 🔗 CRITICAL FIX: If selling to student, auto-create Payment record!
-      if (
-        data?.type === 'OUT' &&
-        data?.reason === 'Продажба на ученик' &&
-        data?.relatedStudentId
-      ) {
-        // Get student name for payment record
-        const studentRef = doc(db, COLLECTIONS?.STUDENTS, data?.relatedStudentId)
-        const studentSnap = await getDoc(studentRef)
-
-        if (studentSnap?.exists()) {
-          const student = studentSnap?.data()
-
-          // Create linked payment automatically
-          const paymentData = {
-            studentId: data?.relatedStudentId,
-            studentName: student?.name,
-            amount: data?.totalPrice,
-            article: inventoryItem?.name, // Inventory item name
-            method: 'Кеш', // Default to cash, can be customized
-            date: serverTimestamp(),
-            notes: `Автоматично създадено от складова продажба: ${inventoryItem?.name} x${data?.quantity}`,
-            createdBy: user?.uid,
-            createdAt: serverTimestamp(),
-          }
-
-          const paymentRef = await addDoc(collection(db, COLLECTIONS?.PAYMENTS), paymentData)
-
-          // Link payment to transaction
-          await updateDoc(transactionRef, {
-            relatedPaymentId: paymentRef?.id
-          })
-
-          // Link transaction to payment (for reverse lookup)
-          await updateDoc(paymentRef, {
-            relatedStockTransactionId: transactionRef?.id
-          })
+        // Read inventory document to verify current state
+        const inventoryDoc = await transaction.get(inventoryRef)
+        if (!inventoryDoc?.exists()) {
+          throw new Error('Inventory item not found')
         }
-      }
 
-      // Update inventory item stock
-      const inventoryRef = doc(db, 'inventory', inventoryItem?.id)
-      await updateDoc(inventoryRef, {
-        currentStock: newStock,
-        lastRestockDate: data?.type === 'IN' ? serverTimestamp() : inventoryItem?.lastRestockDate,
-        updatedAt: serverTimestamp(),
+        const currentInventoryData = inventoryDoc?.data()
+        const currentStock = currentInventoryData?.currentStock || 0
+
+        // Recalculate newStock based on current data to avoid race conditions
+        const verifiedNewStock = data?.type === 'IN'
+          ? currentStock + data?.quantity
+          : currentStock - data?.quantity
+
+        if (verifiedNewStock < 0) {
+          throw new Error(ERROR_MESSAGES?.INSUFFICIENT_STOCK)
+        }
+
+        // Prepare transaction data
+        const transactionData: any = {
+          ...data,
+          inventoryItemName: inventoryItem?.name,
+          totalPrice: data?.quantity * data?.pricePerUnit,
+          createdBy: user?.uid,
+          createdAt: serverTimestamp(),
+        }
+
+        // Create stock transaction document reference
+        const stockTransactionRef = doc(collection(db, COLLECTIONS?.STOCK_TRANSACTIONS))
+
+        // Handle sale to student - auto-create payment
+        let paymentRef = null
+        if (
+          data?.type === 'OUT' &&
+          data?.reason === 'Продажба на ученик' &&
+          data?.relatedStudentId
+        ) {
+          // Read student document to get name
+          const studentRef = doc(db, COLLECTIONS?.STUDENTS, data?.relatedStudentId)
+          const studentDoc = await transaction.get(studentRef)
+
+          if (studentDoc?.exists()) {
+            const student = studentDoc?.data()
+
+            // Create payment document reference
+            paymentRef = doc(collection(db, COLLECTIONS?.PAYMENTS))
+
+            // Prepare payment data
+            const paymentData = {
+              studentId: data?.relatedStudentId,
+              studentName: student?.name,
+              amount: transactionData?.totalPrice,
+              article: inventoryItem?.name,
+              method: 'Кеш', // Default to cash
+              date: serverTimestamp(),
+              notes: `Автоматично създадено от складова продажба: ${inventoryItem?.name} x${data?.quantity}`,
+              createdBy: user?.uid,
+              createdAt: serverTimestamp(),
+              relatedStockTransactionId: stockTransactionRef?.id, // Link to transaction
+            }
+
+            // Add payment to batch
+            transaction.set(paymentRef, paymentData)
+
+            // Link payment to transaction
+            transactionData.relatedPaymentId = paymentRef?.id
+          }
+        }
+
+        // Write all operations atomically:
+
+        // 1. Create stock transaction
+        transaction.set(stockTransactionRef, transactionData)
+
+        // 2. Update inventory stock
+        transaction.update(inventoryRef, {
+          currentStock: verifiedNewStock,
+          lastRestockDate: data?.type === 'IN' ? serverTimestamp() : currentInventoryData?.lastRestockDate,
+          updatedAt: serverTimestamp(),
+        })
+
+        return { newStock: verifiedNewStock, paymentCreated: !!paymentRef }
       })
 
-      return { newStock }
+      return result
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.inventory })
       queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.stockTransactions })
-      queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.payments }) // NEW: Invalidate payments too!
+      if (result?.paymentCreated) {
+        queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.payments })
+      }
       toast?.success(SUCCESS_MESSAGES?.STOCK_TRANSACTION_ADDED)
     },
     onError: (error: Error) => {
