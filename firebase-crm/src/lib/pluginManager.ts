@@ -5,6 +5,7 @@
  */
 
 import { Plugin, PluginRegistryEntry, PluginAPI } from '@/types/plugin'
+import { ComponentType } from 'react'
 import toast from 'react-hot-toast'
 
 class PluginManager {
@@ -19,7 +20,7 @@ class PluginManager {
         // Get from auth context
         return null
       },
-      registerRoute: (path: string, component: React?.ComponentType) => {
+      registerRoute: (path: string, component: ComponentType) => {
         console?.log(`Plugin registered route: ${path}`)
       },
       notify: (message: string, type: 'success' | 'error' | 'info') => {

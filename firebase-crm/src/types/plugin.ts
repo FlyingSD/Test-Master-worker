@@ -4,7 +4,7 @@
  * Defines the plugin architecture for extensibility
  */
 
-import { ReactNode } from 'react'
+import { ReactNode, ComponentType } from 'react'
 
 /**
  * Plugin lifecycle hooks
@@ -39,7 +39,7 @@ export interface PluginMenuItem {
 export interface PluginWidget {
   id: string
   title: string
-  component: React?.ComponentType
+  component: ComponentType
   size?: 'small' | 'medium' | 'large'
   order?: number
 }
@@ -48,7 +48,7 @@ export interface PluginWidget {
  * Plugin settings panel
  */
 export interface PluginSettings {
-  component: React?.ComponentType
+  component: ComponentType
   title: string
   description?: string
 }
@@ -142,7 +142,7 @@ export interface PluginAPI {
   getCurrentUser: () => any
 
   /** Register custom route */
-  registerRoute: (path: string, component: React?.ComponentType) => void
+  registerRoute: (path: string, component: ComponentType) => void
 
   /** Add notification */
   notify: (message: string, type: 'success' | 'error' | 'info') => void
