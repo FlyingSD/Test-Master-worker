@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, memo } from 'react'
 import { X, Save, Calendar, BookOpen, User, FileText } from 'lucide-react'
 import { useAddHomework, useUpdateHomework } from '@/hooks/useHomework'
 import { useStudents } from '@/hooks/useStudents'
@@ -30,7 +30,7 @@ interface HomeworkModalProps {
   onClose: () => void
 }
 
-export default function HomeworkModal({
+function HomeworkModal({
   homework,
   studentId: initialStudentId,
   onClose
@@ -298,8 +298,11 @@ export default function HomeworkModal({
     )
   }
 
-  // Get active students only (filtered)
-  const activeStudents = students?.filter(s => s?.status === 'active')
+  // PERFORMANCE FIX: Memoize activeStudents filter to prevent re-computation on every render
+  const activeStudents = useMemo(
+    () => students?.filter(s => s?.status === 'active') || [],
+    [students]
+  )
 
   // ============================================================================
   // RENDER (SoC: UI Layer)
@@ -573,3 +576,6 @@ export default function HomeworkModal({
     </div>
   )
 }
+
+// PERFORMANCE FIX: Wrap in React.memo to prevent unnecessary re-renders
+export default memo(HomeworkModal)

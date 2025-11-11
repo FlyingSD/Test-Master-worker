@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { X, Save, Calendar, Clock, MapPin, Briefcase } from 'lucide-react'
 import { useAddEvent, useUpdateEvent } from '@/hooks/useEvents'
 import { useGroups } from '@/hooks/useGroups'
@@ -10,7 +10,7 @@ interface EventModalProps {
   onClose: () => void
 }
 
-export default function EventModal({ event, onClose }: EventModalProps) {
+function EventModal({ event, onClose }: EventModalProps) {
   const addEvent = useAddEvent()
   const updateEvent = useUpdateEvent()
   const { groups, loading: loadingGroups } = useGroups()
@@ -349,3 +349,6 @@ export default function EventModal({ event, onClose }: EventModalProps) {
     </div>
   )
 }
+
+// PERFORMANCE FIX: Wrap in React.memo to prevent unnecessary re-renders
+export default memo(EventModal)

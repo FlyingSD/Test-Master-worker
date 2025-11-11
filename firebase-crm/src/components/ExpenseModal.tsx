@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { X, Save, Calendar, DollarSign } from 'lucide-react'
 import { useAddExpense, useUpdateExpense } from '@/hooks/useExpenses'
 import { Expense, ExpenseFormValues } from '@/types'
@@ -9,7 +9,7 @@ interface ExpenseModalProps {
   onClose: () => void
 }
 
-export default function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
+function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
   const addExpense = useAddExpense()
   const updateExpense = useUpdateExpense()
 
@@ -211,3 +211,6 @@ export default function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
     </div>
   )
 }
+
+// PERFORMANCE FIX: Wrap in React.memo to prevent unnecessary re-renders
+export default memo(ExpenseModal)
