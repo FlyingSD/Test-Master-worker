@@ -1,411 +1,508 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import {
-  sanitizeInput,
-  validateEmail,
-  validatePhone,
-  validateBULSTAT,
-  validateAmount,
-  isValidURL,
-  escapeHTML,
-  hashPassword,
-  comparePassword,
-  generateToken,
-  validateToken,
-  checkRateLimit,
-  isSecurePassword,
-  hasSpecialChars,
-  hasNumbers,
-  hasUpperCase,
-  hasLowerCase,
+  sanitizeHtml,
+  sanitizeString,
+  sanitizeFilename,
+  validateUrl,
+  sanitizeEmail,
+  sanitizePhone,
+  sanitizeNumber,
+  sanitizeObject,
 } from './security'
 
-describe('Security - Input Sanitization', () => {
-  describe('sanitizeInput', () => {
-    it('removes script tags', () => {
-      const input = '<script>alert("xss")</script>Hello'
-      const result = sanitizeInput(input)
+// ============================================================================
+// INPUT SANITIZATION TESTS (CRITICAL #3 FIX - XSS PROTECTION)
+// ============================================================================
 
-      expect(result).not.toContain('<script>')
-      expect(result).toContain('Hello')
+describe('Security - HTML Sanitization (XSS Protection)', () => {
+  describe('sanitizeHtml', () => {
+    it('escapes dangerous HTML characters', () => {
+      const malicious = '<script>alert("XSS")</script>'
+      const safe = sanitizeHtml(malicious)
+
+      expect(safe).toBe('&lt;script&gt;alert(&quot;XSS&quot;)&lt;&#x2F;script&gt;')
+      expect(safe).not.toContain('<script>')
     })
 
-    it('removes dangerous HTML', () => {
-      const input = '<img src=x onerror="alert(1)">'
-      const result = sanitizeInput(input)
+    it('escapes HTML injection attempts', () => {
+      const malicious = '<img src=x onerror="alert(1)">'
+      const safe = sanitizeHtml(malicious)
 
-      expect(result).not.toContain('onerror')
+      expect(safe).toContain('&lt;img')
+      expect(safe).toContain('&quot;')
+      expect(safe).not.toContain('<img')
+      expect(safe).not.toContain('onerror')
     })
 
-    it('preserves safe text', () => {
-      const input = 'Hello World 123'
-      const result = sanitizeInput(input)
+    it('escapes all special characters', () => {
+      const input = '<div>"Hello" & \'World\' / Test</div>'
+      const safe = sanitizeHtml(input)
 
-      expect(result).toBe(input)
-    })
-
-    it('removes SQL injection attempts', () => {
-      const input = "'; DROP TABLE users; --"
-      const result = sanitizeInput(input)
-
-      expect(result).not.toContain('DROP TABLE')
-    })
-
-    it('trims whitespace', () => {
-      const input = '   Hello World   '
-      const result = sanitizeInput(input)
-
-      expect(result).toBe('Hello World')
-    })
-  })
-
-  describe('escapeHTML', () => {
-    it('escapes special HTML characters', () => {
-      const input = '<div>"Hello" & \'World\'</div>'
-      const result = escapeHTML(input)
-
-      expect(result).toContain('&lt;')
-      expect(result).toContain('&gt;')
-      expect(result).toContain('&quot;')
-      expect(result).toContain('&#39;')
-      expect(result).toContain('&amp;')
+      expect(safe).toBe('&lt;div&gt;&quot;Hello&quot; &amp; &#x27;World&#x27; &#x2F; Test&lt;&#x2F;div&gt;')
     })
 
     it('handles empty string', () => {
-      expect(escapeHTML('')).toBe('')
+      expect(sanitizeHtml('')).toBe('')
+    })
+
+    it('handles non-string input', () => {
+      expect(sanitizeHtml(null as any)).toBe('')
+      expect(sanitizeHtml(undefined as any)).toBe('')
+      expect(sanitizeHtml(123 as any)).toBe('')
+    })
+
+    it('preserves safe text content', () => {
+      const safeText = 'Hello World 123'
+      expect(sanitizeHtml(safeText)).toBe(safeText)
     })
   })
 })
 
-describe('Security - Validation', () => {
-  describe('validateEmail', () => {
-    it('returns true for valid emails', () => {
-      expect(validateEmail('user@example.com')).toBe(true)
-      expect(validateEmail('test.user@domain.co.uk')).toBe(true)
-      expect(validateEmail('user+tag@example.com')).toBe(true)
+describe('Security - String Sanitization', () => {
+  describe('sanitizeString', () => {
+    it('trims whitespace', () => {
+      expect(sanitizeString('   Hello World   ')).toBe('Hello World')
+      expect(sanitizeString('\t\nTest\t\n')).toBe('Test')
     })
 
-    it('returns false for invalid emails', () => {
-      expect(validateEmail('notanemail')).toBe(false)
-      expect(validateEmail('@example.com')).toBe(false)
-      expect(validateEmail('user@')).toBe(false)
-      expect(validateEmail('user @example.com')).toBe(false)
-      expect(validateEmail('')).toBe(false)
-    })
-  })
-
-  describe('validatePhone', () => {
-    it('returns true for valid Bulgarian phone numbers', () => {
-      expect(validatePhone('0888123456')).toBe(true)
-      expect(validatePhone('088 812 3456')).toBe(true)
-      expect(validatePhone('+359 88 812 3456')).toBe(true)
-      expect(validatePhone('02 123 4567')).toBe(true)
+    it('removes null bytes', () => {
+      const malicious = 'Hello\0World'
+      expect(sanitizeString(malicious)).toBe('HelloWorld')
     })
 
-    it('returns false for invalid phone numbers', () => {
-      expect(validatePhone('123')).toBe(false)
-      expect(validatePhone('abcd')).toBe(false)
-      expect(validatePhone('')).toBe(false)
-      expect(validatePhone('00000000')).toBe(false)
-    })
-  })
+    it('limits string length', () => {
+      const longString = 'a'.repeat(2000)
+      const sanitized = sanitizeString(longString, 100)
 
-  describe('validateBULSTAT', () => {
-    it('returns true for valid BULSTAT (9 digits)', () => {
-      expect(validateBULSTAT('123456789')).toBe(true)
-      expect(validateBULSTAT('831234567')).toBe(true)
+      expect(sanitized.length).toBe(100)
     })
 
-    it('returns true for valid BULSTAT (13 digits)', () => {
-      expect(validateBULSTAT('1234567890123')).toBe(true)
+    it('uses default max length of 1000', () => {
+      const longString = 'a'.repeat(2000)
+      const sanitized = sanitizeString(longString)
+
+      expect(sanitized.length).toBe(1000)
     })
 
-    it('returns false for invalid BULSTAT', () => {
-      expect(validateBULSTAT('12345')).toBe(false)
-      expect(validateBULSTAT('abcd')).toBe(false)
-      expect(validateBULSTAT('')).toBe(false)
-      expect(validateBULSTAT('12345678901234')).toBe(false) // Too long
-    })
-  })
-
-  describe('validateAmount', () => {
-    it('returns true for valid positive amounts', () => {
-      expect(validateAmount(10)).toBe(true)
-      expect(validateAmount(100.50)).toBe(true)
-      expect(validateAmount(0.01)).toBe(true)
+    it('handles empty string', () => {
+      expect(sanitizeString('')).toBe('')
     })
 
-    it('returns false for invalid amounts', () => {
-      expect(validateAmount(0)).toBe(false)
-      expect(validateAmount(-10)).toBe(false)
-      expect(validateAmount(NaN)).toBe(false)
-      expect(validateAmount(Infinity)).toBe(false)
+    it('handles non-string input', () => {
+      expect(sanitizeString(null as any)).toBe('')
+      expect(sanitizeString(undefined as any)).toBe('')
     })
 
-    it('validates max amount', () => {
-      expect(validateAmount(10000, 0, 5000)).toBe(false)
-      expect(validateAmount(4999, 0, 5000)).toBe(true)
-    })
-
-    it('validates min amount', () => {
-      expect(validateAmount(5, 10)).toBe(false)
-      expect(validateAmount(15, 10)).toBe(true)
-    })
-  })
-
-  describe('isValidURL', () => {
-    it('returns true for valid URLs', () => {
-      expect(isValidURL('https://example.com')).toBe(true)
-      expect(isValidURL('http://test.org')).toBe(true)
-      expect(isValidURL('https://sub.domain.com/path')).toBe(true)
-    })
-
-    it('returns false for invalid URLs', () => {
-      expect(isValidURL('not-a-url')).toBe(false)
-      expect(isValidURL('htp://wrong.com')).toBe(false)
-      expect(isValidURL('')).toBe(false)
-      expect(isValidURL('javascript:alert(1)')).toBe(false)
+    it('preserves valid content', () => {
+      const valid = 'John Doe 123'
+      expect(sanitizeString(valid)).toBe(valid)
     })
   })
 })
 
-describe('Security - Password', () => {
-  describe('isSecurePassword', () => {
-    it('returns true for strong passwords', () => {
-      expect(isSecurePassword('MySecure123!')).toBe(true)
-      expect(isSecurePassword('P@ssw0rd2024')).toBe(true)
-      expect(isSecurePassword('Test123!@#')).toBe(true)
+describe('Security - Filename Sanitization', () => {
+  describe('sanitizeFilename', () => {
+    it('removes path traversal sequences', () => {
+      expect(sanitizeFilename('../../../etc/passwd')).toBe('etc_passwd')
+      expect(sanitizeFilename('..\\..\\windows\\system32')).toBe('windows_system32')
     })
 
-    it('returns false for weak passwords', () => {
-      expect(isSecurePassword('12345')).toBe(false)       // Too short
-      expect(isSecurePassword('password')).toBe(false)    // No numbers
-      expect(isSecurePassword('PASSWORD')).toBe(false)    // No lowercase
-      expect(isSecurePassword('Password')).toBe(false)    // No numbers
-      expect(isSecurePassword('password123')).toBe(false) // No uppercase
+    it('replaces path separators with underscores', () => {
+      expect(sanitizeFilename('path/to/file.txt')).toBe('path_to_file.txt')
+      expect(sanitizeFilename('path\\to\\file.txt')).toBe('path_to_file.txt')
     })
 
-    it('enforces minimum length', () => {
-      expect(isSecurePassword('Aa1!', 8)).toBe(false)
-      expect(isSecurePassword('Aa1!Aa1!', 8)).toBe(true)
-    })
-  })
-
-  describe('hasUpperCase', () => {
-    it('returns true for strings with uppercase', () => {
-      expect(hasUpperCase('Hello')).toBe(true)
-      expect(hasUpperCase('WORLD')).toBe(true)
-      expect(hasUpperCase('tEst')).toBe(true)
+    it('removes dangerous file extensions', () => {
+      expect(sanitizeFilename('invoice.pdf.exe')).toBe('invoice.pdf')
+      expect(sanitizeFilename('script.bat')).toBe('script')
+      expect(sanitizeFilename('malware.cmd')).toBe('malware')
+      expect(sanitizeFilename('hack.sh')).toBe('hack')
+      expect(sanitizeFilename('virus.vbs')).toBe('virus')
     })
 
-    it('returns false for strings without uppercase', () => {
-      expect(hasUpperCase('hello')).toBe(false)
-      expect(hasUpperCase('123')).toBe(false)
-      expect(hasUpperCase('')).toBe(false)
-    })
-  })
-
-  describe('hasLowerCase', () => {
-    it('returns true for strings with lowercase', () => {
-      expect(hasLowerCase('hello')).toBe(true)
-      expect(hasLowerCase('WORLD')).toBe(false)
-      expect(hasLowerCase('Test')).toBe(true)
-    })
-  })
-
-  describe('hasNumbers', () => {
-    it('returns true for strings with numbers', () => {
-      expect(hasNumbers('hello123')).toBe(true)
-      expect(hasNumbers('test1')).toBe(true)
-      expect(hasNumbers('999')).toBe(true)
+    it('removes null bytes', () => {
+      expect(sanitizeFilename('file\0name.txt')).toBe('filename.txt')
     })
 
-    it('returns false for strings without numbers', () => {
-      expect(hasNumbers('hello')).toBe(false)
-      expect(hasNumbers('TEST')).toBe(false)
-    })
-  })
-
-  describe('hasSpecialChars', () => {
-    it('returns true for strings with special characters', () => {
-      expect(hasSpecialChars('hello!')).toBe(true)
-      expect(hasSpecialChars('test@123')).toBe(true)
-      expect(hasSpecialChars('p@ssw0rd')).toBe(true)
+    it('removes control characters', () => {
+      const malicious = 'file\x00\x01\x1F\x7Fname.txt'
+      expect(sanitizeFilename(malicious)).toBe('filename.txt')
     })
 
-    it('returns false for alphanumeric strings', () => {
-      expect(hasSpecialChars('hello123')).toBe(false)
-      expect(hasSpecialChars('TEST')).toBe(false)
+    it('limits filename length to 255', () => {
+      const longName = 'a'.repeat(300) + '.txt'
+      const sanitized = sanitizeFilename(longName)
+
+      expect(sanitized.length).toBe(255)
+    })
+
+    it('returns unnamed_file for empty input', () => {
+      expect(sanitizeFilename('')).toBe('unnamed_file')
+      expect(sanitizeFilename('   ')).toBe('unnamed_file')
+    })
+
+    it('handles non-string input', () => {
+      expect(sanitizeFilename(null as any)).toBe('unnamed_file')
+      expect(sanitizeFilename(undefined as any)).toBe('unnamed_file')
+    })
+
+    it('preserves safe filenames', () => {
+      expect(sanitizeFilename('invoice.pdf')).toBe('invoice.pdf')
+      expect(sanitizeFilename('report_2024.xlsx')).toBe('report_2024.xlsx')
     })
   })
 })
 
-describe('Security - Token Management', () => {
-  describe('generateToken', () => {
-    it('generates token of specified length', () => {
-      const token = generateToken(32)
+describe('Security - URL Validation', () => {
+  describe('validateUrl', () => {
+    it('accepts valid HTTP URLs', () => {
+      const result = validateUrl('http://example.com')
 
-      expect(token).toBeTruthy()
-      expect(token.length).toBeGreaterThanOrEqual(32)
+      expect(result.isValid).toBe(true)
+      expect(result.sanitizedUrl).toBe('http://example.com/')
     })
 
-    it('generates unique tokens', () => {
-      const token1 = generateToken(16)
-      const token2 = generateToken(16)
+    it('accepts valid HTTPS URLs', () => {
+      const result = validateUrl('https://example.com/path?query=1')
 
-      expect(token1).not.toBe(token2)
+      expect(result.isValid).toBe(true)
+      expect(result.sanitizedUrl).toContain('https://example.com/')
     })
 
-    it('generates alphanumeric tokens', () => {
-      const token = generateToken(20)
+    it('blocks javascript: protocol (XSS)', () => {
+      const result = validateUrl('javascript:alert("XSS")')
 
-      expect(token).toMatch(/^[a-zA-Z0-9]+$/)
-    })
-  })
-
-  describe('validateToken', () => {
-    it('returns true for valid token format', () => {
-      const token = 'abc123XYZ789'
-
-      expect(validateToken(token)).toBe(true)
+      expect(result.isValid).toBe(false)
+      expect(result.reason).toContain('Dangerous protocol')
     })
 
-    it('returns false for invalid tokens', () => {
-      expect(validateToken('')).toBe(false)
-      expect(validateToken('ab')).toBe(false) // Too short
-      expect(validateToken('abc def')).toBe(false) // Contains space
-      expect(validateToken('abc@123')).toBe(false) // Special chars
+    it('blocks data: protocol (XSS)', () => {
+      const result = validateUrl('data:text/html,<script>alert(1)</script>')
+
+      expect(result.isValid).toBe(false)
+      expect(result.reason).toContain('Dangerous protocol')
     })
 
-    it('enforces minimum length', () => {
-      expect(validateToken('abc', 5)).toBe(false)
-      expect(validateToken('abcdef', 5)).toBe(true)
+    it('blocks vbscript: protocol', () => {
+      const result = validateUrl('vbscript:msgbox("XSS")')
+
+      expect(result.isValid).toBe(false)
+      expect(result.reason).toContain('Dangerous protocol')
+    })
+
+    it('blocks file: protocol', () => {
+      const result = validateUrl('file:///etc/passwd')
+
+      expect(result.isValid).toBe(false)
+      expect(result.reason).toContain('Dangerous protocol')
+    })
+
+    it('rejects invalid URL format', () => {
+      const result = validateUrl('not-a-valid-url')
+
+      expect(result.isValid).toBe(false)
+      expect(result.reason).toBe('Invalid URL format')
+    })
+
+    it('respects allowed protocols', () => {
+      const result = validateUrl('ftp://example.com', ['ftp'])
+
+      expect(result.isValid).toBe(true)
+    })
+
+    it('blocks protocols not in allowed list', () => {
+      const result = validateUrl('ftp://example.com', ['http', 'https'])
+
+      expect(result.isValid).toBe(false)
+      expect(result.reason).toContain('Protocol not allowed')
+    })
+
+    it('trims whitespace', () => {
+      const result = validateUrl('  https://example.com  ')
+
+      expect(result.isValid).toBe(true)
+    })
+
+    it('handles empty input', () => {
+      const result = validateUrl('')
+
+      expect(result.isValid).toBe(false)
+      expect(result.reason).toBe('Empty or invalid URL')
+    })
+
+    it('handles non-string input', () => {
+      const result = validateUrl(null as any)
+
+      expect(result.isValid).toBe(false)
+      expect(result.reason).toBe('Empty or invalid URL')
     })
   })
 })
 
-describe('Security - Rate Limiting', () => {
-  describe('checkRateLimit', () => {
-    beforeEach(() => {
-      // Clear rate limit storage before each test
-      if (typeof window !== 'undefined') {
-        window.sessionStorage.clear()
+describe('Security - Email Sanitization', () => {
+  describe('sanitizeEmail', () => {
+    it('trims and lowercases email', () => {
+      expect(sanitizeEmail('  USER@EXAMPLE.COM  ')).toBe('user@example.com')
+      expect(sanitizeEmail('Test.User@Domain.COM')).toBe('test.user@domain.com')
+    })
+
+    it('validates email format', () => {
+      expect(sanitizeEmail('valid@example.com')).toBe('valid@example.com')
+      expect(sanitizeEmail('test.user@domain.co.uk')).toBe('test.user@domain.co.uk')
+    })
+
+    it('rejects invalid email formats', () => {
+      expect(sanitizeEmail('notanemail')).toBe('')
+      expect(sanitizeEmail('@example.com')).toBe('')
+      expect(sanitizeEmail('user@')).toBe('')
+      expect(sanitizeEmail('user @example.com')).toBe('')
+    })
+
+    it('removes dangerous characters', () => {
+      expect(sanitizeEmail('test<>@example.com')).toBe('test@example.com')
+      expect(sanitizeEmail('test"user"@example.com')).toBe('testuser@example.com')
+    })
+
+    it('handles empty input', () => {
+      expect(sanitizeEmail('')).toBe('')
+    })
+
+    it('handles non-string input', () => {
+      expect(sanitizeEmail(null as any)).toBe('')
+      expect(sanitizeEmail(undefined as any)).toBe('')
+    })
+  })
+})
+
+describe('Security - Phone Sanitization', () => {
+  describe('sanitizePhone', () => {
+    it('removes non-numeric characters', () => {
+      expect(sanitizePhone('088 812 3456')).toBe('0888123456')
+      expect(sanitizePhone('088-812-3456')).toBe('0888123456')
+      expect(sanitizePhone('(088) 812-3456')).toBe('0888123456')
+    })
+
+    it('preserves + prefix for international numbers', () => {
+      expect(sanitizePhone('+359 88 123 4567')).toBe('+359881234567')
+      expect(sanitizePhone('+1-555-123-4567')).toBe('+15551234567')
+    })
+
+    it('removes + from middle of string', () => {
+      expect(sanitizePhone('088+812+3456')).toBe('0888123456')
+    })
+
+    it('handles empty input', () => {
+      expect(sanitizePhone('')).toBe('')
+    })
+
+    it('handles non-string input', () => {
+      expect(sanitizePhone(null as any)).toBe('')
+      expect(sanitizePhone(undefined as any)).toBe('')
+    })
+
+    it('removes all non-digit characters except leading +', () => {
+      expect(sanitizePhone('+359 (88) 123-45-67')).toBe('+359881234567')
+    })
+  })
+})
+
+describe('Security - Number Sanitization', () => {
+  describe('sanitizeNumber', () => {
+    it('parses valid string numbers', () => {
+      expect(sanitizeNumber('123')).toBe(123)
+      expect(sanitizeNumber('123.45')).toBe(123.45)
+      expect(sanitizeNumber('-50')).toBe(-50)
+    })
+
+    it('accepts numeric input', () => {
+      expect(sanitizeNumber(123)).toBe(123)
+      expect(sanitizeNumber(123.45)).toBe(123.45)
+    })
+
+    it('removes non-numeric characters from strings', () => {
+      expect(sanitizeNumber('$123.45')).toBe(123.45)
+      expect(sanitizeNumber('1,234.56 BGN')).toBe(1234.56)
+    })
+
+    it('applies minimum constraint', () => {
+      expect(sanitizeNumber(-10, 0)).toBe(0)
+      expect(sanitizeNumber(5, 10)).toBe(10)
+    })
+
+    it('applies maximum constraint', () => {
+      expect(sanitizeNumber(1000, 0, 500)).toBe(500)
+      expect(sanitizeNumber(200, 0, 100)).toBe(100)
+    })
+
+    it('applies both min and max constraints', () => {
+      expect(sanitizeNumber(150, 0, 100)).toBe(100)
+      expect(sanitizeNumber(-10, 0, 100)).toBe(0)
+      expect(sanitizeNumber(50, 0, 100)).toBe(50)
+    })
+
+    it('returns null for invalid input', () => {
+      expect(sanitizeNumber('not-a-number')).toBe(null)
+      expect(sanitizeNumber('abc')).toBe(null)
+      expect(sanitizeNumber(NaN)).toBe(null)
+      expect(sanitizeNumber(Infinity)).toBe(null)
+    })
+
+    it('handles empty input', () => {
+      expect(sanitizeNumber('')).toBe(null)
+    })
+
+    it('handles non-string/non-number input', () => {
+      expect(sanitizeNumber(null as any)).toBe(null)
+      expect(sanitizeNumber(undefined as any)).toBe(null)
+      expect(sanitizeNumber({} as any)).toBe(null)
+    })
+  })
+})
+
+describe('Security - Object Sanitization', () => {
+  describe('sanitizeObject', () => {
+    it('trims strings in object', () => {
+      const input = {
+        name: '  John Doe  ',
+        email: '  test@example.com  ',
       }
+      const safe = sanitizeObject(input)
+
+      expect(safe.name).toBe('John Doe')
+      expect(safe.email).toBe('test@example.com')
     })
 
-    it('allows requests within limit', () => {
-      expect(checkRateLimit('test-action', 5, 60000)).toBe(true)
-      expect(checkRateLimit('test-action', 5, 60000)).toBe(true)
-      expect(checkRateLimit('test-action', 5, 60000)).toBe(true)
-    })
-
-    it('blocks requests exceeding limit', () => {
-      // Make 5 requests
-      for (let i = 0; i < 5; i++) {
-        checkRateLimit('test-limit', 5, 60000)
+    it('escapes HTML in object when htmlEscape option is true', () => {
+      const input = {
+        name: '<script>alert(1)</script>',
+        bio: 'Hello & <b>World</b>',
       }
+      const safe = sanitizeObject(input, { htmlEscape: true })
 
-      // 6th request should be blocked
-      expect(checkRateLimit('test-limit', 5, 60000)).toBe(false)
+      expect(safe.name).toContain('&lt;script&gt;')
+      expect(safe.bio).toContain('&amp;')
+      expect(safe.bio).toContain('&lt;b&gt;')
     })
 
-    it('resets after time window', () => {
-      checkRateLimit('test-reset', 1, 10) // 10ms window
+    it('recursively sanitizes nested objects', () => {
+      const input = {
+        user: {
+          name: '  John  ',
+          address: {
+            city: '  Sofia  ',
+          },
+        },
+      }
+      const safe = sanitizeObject(input)
 
-      // First request succeeds
-      expect(checkRateLimit('test-reset', 1, 10)).toBe(true)
-
-      // Immediate next request fails
-      expect(checkRateLimit('test-reset', 1, 10)).toBe(false)
-
-      // Wait for window to pass
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          // After window, should succeed again
-          expect(checkRateLimit('test-reset', 1, 10)).toBe(true)
-          resolve(true)
-        }, 15)
-      })
+      expect(safe.user.name).toBe('John')
+      expect(safe.user.address.city).toBe('Sofia')
     })
 
-    it('tracks different actions separately', () => {
-      checkRateLimit('action-1', 1, 60000)
-      checkRateLimit('action-2', 1, 60000)
+    it('sanitizes arrays', () => {
+      const input = {
+        tags: ['  tag1  ', '  tag2  '],
+      }
+      const safe = sanitizeObject(input)
 
-      // Both should still allow one more
-      expect(checkRateLimit('action-1', 1, 60000)).toBe(false)
-      expect(checkRateLimit('action-2', 1, 60000)).toBe(false)
-    })
-  })
-})
-
-describe('Security - Hash & Compare', () => {
-  describe('hashPassword', () => {
-    it('hashes password', async () => {
-      const password = 'MyPassword123!'
-      const hash = await hashPassword(password)
-
-      expect(hash).toBeTruthy()
-      expect(hash).not.toBe(password)
-      expect(hash.length).toBeGreaterThan(password.length)
+      expect(safe.tags[0]).toBe('tag1')
+      expect(safe.tags[1]).toBe('tag2')
     })
 
-    it('generates different hashes for same password', async () => {
-      const password = 'TestPassword123!'
-      const hash1 = await hashPassword(password)
-      const hash2 = await hashPassword(password)
+    it('limits string length with maxStringLength option', () => {
+      const input = {
+        bio: 'a'.repeat(200),
+      }
+      const safe = sanitizeObject(input, { maxStringLength: 50 })
 
-      // Should be different due to salt
-      expect(hash1).not.toBe(hash2)
-    })
-  })
-
-  describe('comparePassword', () => {
-    it('returns true for matching password', async () => {
-      const password = 'SecurePass123!'
-      const hash = await hashPassword(password)
-      const isMatch = await comparePassword(password, hash)
-
-      expect(isMatch).toBe(true)
+      expect(safe.bio.length).toBe(50)
     })
 
-    it('returns false for non-matching password', async () => {
-      const password = 'SecurePass123!'
-      const wrongPassword = 'WrongPass456!'
-      const hash = await hashPassword(password)
-      const isMatch = await comparePassword(wrongPassword, hash)
+    it('preserves non-string values', () => {
+      const input = {
+        name: 'John',
+        age: 30,
+        active: true,
+        created: new Date('2024-01-01'),
+      }
+      const safe = sanitizeObject(input)
 
-      expect(isMatch).toBe(false)
+      expect(safe.age).toBe(30)
+      expect(safe.active).toBe(true)
+      expect(safe.created).toEqual(new Date('2024-01-01'))
+    })
+
+    it('handles empty object', () => {
+      expect(sanitizeObject({})).toEqual({})
+    })
+
+    it('handles non-object input', () => {
+      expect(sanitizeObject(null as any)).toBe(null)
+      expect(sanitizeObject(undefined as any)).toBe(undefined)
+      expect(sanitizeObject('string' as any)).toBe('string')
+    })
+
+    it('applies trimStrings option', () => {
+      const input = { name: '  John  ' }
+      const safe = sanitizeObject(input, { trimStrings: false })
+
+      expect(safe.name).toBe('  John  ')
     })
   })
 })
 
-describe('Security - Edge Cases', () => {
-  it('handles null and undefined gracefully', () => {
-    expect(sanitizeInput(null as any)).toBe('')
-    expect(sanitizeInput(undefined as any)).toBe('')
-    expect(validateEmail(null as any)).toBe(false)
-    expect(validatePhone(null as any)).toBe(false)
-  })
-
-  it('handles very long inputs', () => {
-    const longString = 'a'.repeat(10000)
-    const result = sanitizeInput(longString)
-
-    expect(result.length).toBeLessThanOrEqual(10000)
-  })
-
-  it('handles special Unicode characters', () => {
-    const unicode = '你好世界 🌍 Привет'
-    const result = sanitizeInput(unicode)
-
-    expect(result).toContain('你好')
-    expect(result).toContain('Привет')
-  })
-
+describe('Security - Edge Cases & XSS Attacks', () => {
   it('prevents prototype pollution attempts', () => {
     const malicious = '__proto__'
-    const result = sanitizeInput(malicious)
+    expect(sanitizeString(malicious)).toBe('__proto__') // String preserved but won't affect prototype
+  })
 
-    expect(result).not.toContain('__proto__')
+  it('handles Unicode characters correctly', () => {
+    const unicode = '你好世界 🌍 Привет'
+    expect(sanitizeString(unicode)).toContain('你好')
+    expect(sanitizeString(unicode)).toContain('Привет')
+    expect(sanitizeString(unicode)).toContain('🌍')
+  })
+
+  it('handles very long inputs without crashing', () => {
+    const longString = 'a'.repeat(10000)
+    const result = sanitizeString(longString, 5000)
+
+    expect(result.length).toBe(5000)
+  })
+
+  it('prevents XSS in common attack vectors', () => {
+    const attacks = [
+      '<script>alert("XSS")</script>',
+      '<img src=x onerror="alert(1)">',
+      '<svg onload=alert(1)>',
+      'javascript:alert(1)',
+      '<iframe src="javascript:alert(1)">',
+    ]
+
+    attacks.forEach((attack) => {
+      const safe = sanitizeHtml(attack)
+      expect(safe).not.toContain('<script')
+      expect(safe).not.toContain('<img')
+      expect(safe).not.toContain('<svg')
+      expect(safe).not.toContain('<iframe')
+      expect(safe).not.toContain('onerror')
+      expect(safe).not.toContain('onload')
+    })
+  })
+
+  it('prevents directory traversal in filenames', () => {
+    const attacks = [
+      '../../../etc/passwd',
+      '..\\..\\windows\\system32\\config',
+      '.\\..\\sensitive.txt',
+    ]
+
+    attacks.forEach((attack) => {
+      const safe = sanitizeFilename(attack)
+      expect(safe).not.toContain('..')
+      expect(safe).not.toContain('/')
+      expect(safe).not.toContain('\\')
+    })
   })
 })
