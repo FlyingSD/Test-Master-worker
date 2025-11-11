@@ -127,6 +127,10 @@ export function usePayments() {
 
     // For teachers, we need to first get their students, then filter payments
     if (isTeacher && userData?.assignedGroups && userData?.assignedGroups.length > 0) {
+      // Track ALL subscriptions at the same level to prevent memory leaks
+      const allUnsubscribes: (() => void)[] = []
+      let paymentUnsubscribes: (() => void)[] = []
+
       // Get students in teacher's assigned groups
       const studentsQuery = query(
         collection(db, COLLECTIONS?.STUDENTS),
@@ -136,6 +140,10 @@ export function usePayments() {
       const unsubscribeStudents = onSnapshot(studentsQuery, (studentsSnapshot) => {
         const studentIds: string[] = []
         studentsSnapshot?.forEach((doc) => studentIds?.push(doc?.id))
+
+        // 🔒 MEMORY LEAK FIX: Cleanup old payment subscriptions before creating new ones
+        paymentUnsubscribes?.forEach((unsub) => unsub())
+        paymentUnsubscribes = []
 
         if (studentIds?.length === 0) {
           setPayments([])
@@ -151,7 +159,6 @@ export function usePayments() {
           batches?.push(studentIds?.slice(i, i + batchSize))
         }
 
-        const unsubscribePayments: (() => void)[] = []
         const allPayments = new Map<string, Payment>()
 
         batches?.forEach((batch) => {
@@ -170,13 +177,17 @@ export function usePayments() {
             setError(null)
           })
 
-          unsubscribePayments?.push(unsubscribe)
+          paymentUnsubscribes?.push(unsubscribe)
         })
-
-        return () => unsubscribePayments?.forEach((unsub) => unsub())
       })
 
-      return () => unsubscribeStudents()
+      allUnsubscribes?.push(unsubscribeStudents)
+
+      // 🔒 MEMORY LEAK FIX: Cleanup ALL subscriptions (students + payments)
+      return () => {
+        allUnsubscribes?.forEach((unsub) => unsub())
+        paymentUnsubscribes?.forEach((unsub) => unsub())
+      }
     }
 
     // For admins: get ALL payments
