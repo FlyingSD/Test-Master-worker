@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
-import { X, Save, Calendar } from 'lucide-react'
+import { X, Save, Calendar, QrCode, Download } from 'lucide-react'
 import { useAddStudent, useUpdateStudent } from '@/hooks/useStudents'
 import { useGroups } from '@/hooks/useGroups'
 import { Student, StudentFormValues } from '@/types'
 import { bgnToEur, eurToBgn } from '@/utils/formatters'
 import { Timestamp } from 'firebase/firestore'
 import { STUDENT_STATUS, STUDY_TYPES, STUDY_TYPE_OPTIONS, STUDENT_STATUS_LABELS, CURRENCY } from '@/constants/appConstants'
+import { generateQRCodeDataUrl, downloadQRCode } from '@/utils/qrCode'
+import { formatStudentCode } from '@/utils/studentCode'
+import toast from 'react-hot-toast'
 
 interface StudentModalProps {
   student?: Student | null
@@ -25,12 +28,25 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
     dueDate: new Date(),
     status: STUDENT_STATUS?.ACTIVE,
     studyType: STUDY_TYPES?.GROUP,
-    parentId: '',
+    parentIds: [],
     notes: '',
   })
 
   const [currencyInput, setCurrencyInput] = useState<'BGN' | 'EUR'>('BGN')
   const [customGroup, setCustomGroup] = useState(false)
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null)
+  const [showQR, setShowQR] = useState(false)
+
+  // Generate QR code for existing students
+  useEffect(() => {
+    if (student?.studentCode) {
+      generateQRCodeDataUrl(student?.studentCode)
+        .then(setQrCodeUrl)
+        .catch((error) => {
+          console?.error('Failed to generate QR code:', error)
+        })
+    }
+  }, [student?.studentCode])
 
   // Load student data if editing
   useEffect(() => {
@@ -43,9 +59,14 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
         dueDate: student?.dueDate instanceof Timestamp
           ? student?.dueDate.toDate()
           : student?.dueDate,
+        dateOfBirth: student?.dateOfBirth
+          ? (student?.dateOfBirth instanceof Timestamp
+              ? student?.dateOfBirth.toDate()
+              : student?.dateOfBirth)
+          : undefined,
         status: student?.status,
         studyType: student?.studyType,
-        parentId: student?.parentId,
+        parentIds: student?.parentIds || [],
         notes: student?.notes || '',
       })
     }
@@ -81,6 +102,18 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
         feeEUR: value,
         fee: eurToBgn(value),
       })
+    }
+  }
+
+  const handleDownloadQR = async () => {
+    if (!student?.studentCode || !student?.name) return
+
+    try {
+      await downloadQRCode(student?.studentCode, student?.name)
+      toast?.success('QR код изтеглен успешно!')
+    } catch (error) {
+      toast?.error('Грешка при изтегляне на QR код')
+      console?.error(error)
     }
   }
 
@@ -249,46 +282,77 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
             </p>
           </div>
 
-          {/* Due Date */}
-          <div>
-            <label className="label">
-              Дата на падеж <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="date"
-                required
-                className="input pl-10"
-                value={
-                  formData?.dueDate instanceof Date
-                    ? formData?.dueDate?.toISOString().split('T')[0]
-                    : ''
-                }
-                onChange={(e) =>
-                  setFormData({ ...formData, dueDate: new Date(e?.target.value) })
-                }
-              />
+          {/* Due Date & Date of Birth */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="label">
+                Дата на падеж <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="date"
+                  required
+                  className="input pl-10"
+                  value={
+                    formData?.dueDate instanceof Date
+                      ? formData?.dueDate?.toISOString().split('T')[0]
+                      : ''
+                  }
+                  onChange={(e) =>
+                    setFormData({ ...formData, dueDate: new Date(e?.target.value) })
+                  }
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Дата на падеж за такса
+              </p>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Датата когато трябва да се плаща месечната такса
-            </p>
+
+            <div>
+              <label className="label">Дата на раждане</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="date"
+                  className="input pl-10"
+                  value={
+                    formData?.dateOfBirth instanceof Date
+                      ? formData?.dateOfBirth?.toISOString().split('T')[0]
+                      : ''
+                  }
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      dateOfBirth: e?.target.value ? new Date(e?.target.value) : undefined,
+                    })
+                  }
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Опционално
+              </p>
+            </div>
           </div>
 
-          {/* Parent ID */}
+          {/* Parent IDs */}
           <div>
-            <label className="label">ID на родител (временно)</label>
+            <label className="label">ID-та на родители</label>
             <input
               type="text"
               className="input"
-              placeholder="parent_123"
-              value={formData?.parentId}
-              onChange={(e) =>
-                setFormData({ ...formData, parentId: e?.target.value })
-              }
+              placeholder="parent_123, parent_456"
+              value={formData?.parentIds?.join(', ')}
+              onChange={(e) => {
+                const value = e?.target.value
+                const parentIds = value
+                  ? value?.split(',').map(id => id?.trim()).filter(id => id?.length > 0)
+                  : []
+                setFormData({ ...formData, parentIds })
+              }}
             />
             <p className="text-xs text-gray-500 mt-1">
-              По-късно ще има dropdown с родители
+              Разделете с запетая за множество родители (напр. "parent_123, parent_456")
             </p>
           </div>
 
@@ -324,6 +388,51 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
               </label>
             </div>
           </div>
+
+          {/* QR Code Section - Only for existing students */}
+          {student?.studentCode && (
+            <div className="border-2 border-dashed border-primary/30 rounded-xl p-6 bg-primary/5">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <QrCode className="w-5 h-5 text-primary" />
+                    QR Код за свързване
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Код на ученика: <span className="font-mono font-bold text-primary">{formatStudentCode(student?.studentCode)}</span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowQR(!showQR)}
+                  className="btn btn-ghost text-sm"
+                >
+                  {showQR ? 'Скрий QR' : 'Покажи QR'}
+                </button>
+              </div>
+
+              {showQR && qrCodeUrl && (
+                <div className="flex flex-col items-center gap-4 animate-scale-in">
+                  <img
+                    src={qrCodeUrl}
+                    alt="QR Code"
+                    className="w-48 h-48 border-4 border-white shadow-lg rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleDownloadQR}
+                    className="btn btn-primary btn-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    Изтегли QR код
+                  </button>
+                  <p className="text-xs text-center text-gray-500 max-w-sm">
+                    Родителите могат да сканират този QR код за да свържат детето си със своя акаунт
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Notes */}
           <div>

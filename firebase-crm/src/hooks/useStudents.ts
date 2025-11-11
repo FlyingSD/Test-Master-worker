@@ -26,6 +26,7 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/constants/messages'
 import { validateDocumentGroupAccess, validateDocumentOwnership } from '@/utils/security'
 import { toTimestamp } from '@/utils/date'
 import { QUERY_KEYS } from '@/constants/queryKeys'
+import { generateStudentCode } from '@/utils/studentCode'
 
 // Collection reference
 const studentsCollection = collection(db, COLLECTIONS?.STUDENTS)
@@ -308,10 +309,16 @@ export function useAddStudent() {
         throw new Error(ERROR_MESSAGES?.NOT_LOGGED_IN)
       }
 
+      // 🆕 Auto-generate studentCode if not provided
+      const studentCode = studentData?.studentCode || generateStudentCode()
+
       // Convert dueDate to Timestamp if it's a Date
+      // Convert dateOfBirth to Timestamp if it's a Date
       const data = {
         ...studentData,
+        studentCode, // Add generated or provided studentCode
         dueDate: toTimestamp(studentData?.dueDate),
+        dateOfBirth: studentData?.dateOfBirth ? toTimestamp(studentData?.dateOfBirth) : undefined,
         createdBy: user?.uid, // 🔒 SECURITY: Track who created this student
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),

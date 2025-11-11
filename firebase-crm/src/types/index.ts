@@ -522,7 +522,10 @@ export interface UserProfile extends User {
 }
 
 // Form values for creating/editing
-export type StudentFormValues = Omit<Student, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>
+// studentCode is auto-generated, so it's optional in the form
+export type StudentFormValues = Omit<Student, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'studentCode'> & {
+  studentCode?: string // Optional - auto-generated if not provided
+}
 export type ParentFormValues = Omit<Parent, 'id' | 'createdAt' | 'updatedAt' | 'studentIds'>
 export type StudentPaymentFormValues = Omit<StudentPayment, 'id' | 'createdAt' | 'createdBy'>
 export type ExpenseFormValues = Omit<Expense, 'id' | 'createdAt' | 'createdBy'>
