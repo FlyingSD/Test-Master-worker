@@ -8,9 +8,18 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:run": "vitest run",
     "deploy": "npm run build && firebase deploy",
     "migrate": "tsx migrate-students.ts",
-    "migrate:live": "DRY_RUN=false tsx migrate-students.ts"
+    "migrate:live": "DRY_RUN=false tsx migrate-students.ts",
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
