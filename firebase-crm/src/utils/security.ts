@@ -659,3 +659,270 @@ export function sanitizeObject<T extends Record<string, any>>(
 
   return sanitized as T
 }
+
+// ============================================================================
+// 🔒 PASSWORD SECURITY (CRITICAL FIX - AUTHENTICATION SECURITY)
+// ============================================================================
+
+/**
+ * Password strength level
+ */
+export type PasswordStrength = 'weak' | 'medium' | 'strong' | 'very-strong'
+
+/**
+ * Password validation result
+ */
+export interface PasswordValidationResult {
+  isValid: boolean
+  strength: PasswordStrength
+  errors: string[]
+  suggestions: string[]
+}
+
+/**
+ * Validate password strength and security
+ * Checks for common password requirements and patterns
+ *
+ * @param password - Password to validate
+ * @param options - Validation options
+ * @returns Validation result with strength and suggestions
+ *
+ * @example
+ * const result = validatePassword('MyP@ssw0rd123')
+ * if (!result.isValid) {
+ *   alert(result.errors.join(', '))
+ * }
+ * // Returns: { isValid: true, strength: 'strong', errors: [], suggestions: [] }
+ */
+export function validatePassword(
+  password: string,
+  options: {
+    minLength?: number
+    requireUppercase?: boolean
+    requireLowercase?: boolean
+    requireNumbers?: boolean
+    requireSpecialChars?: boolean
+    maxLength?: number
+  } = {}
+): PasswordValidationResult {
+  const {
+    minLength = 8,
+    requireUppercase = true,
+    requireLowercase = true,
+    requireNumbers = true,
+    requireSpecialChars = true,
+    maxLength = 128,
+  } = options
+
+  const errors: string[] = []
+  const suggestions: string[] = []
+
+  // Basic validation
+  if (!password || typeof password !== 'string') {
+    return {
+      isValid: false,
+      strength: 'weak',
+      errors: ['Паролата е задължителна'],
+      suggestions: ['Въведете парола'],
+    }
+  }
+
+  // Length checks
+  if (password.length < minLength) {
+    errors.push(`Паролата трябва да е поне ${minLength} символа`)
+  }
+
+  if (password.length > maxLength) {
+    errors.push(`Паролата не може да е повече от ${maxLength} символа`)
+  }
+
+  // Character type requirements
+  if (requireUppercase && !/[A-Z]/.test(password)) {
+    errors.push('Паролата трябва да съдържа поне една главна буква')
+    suggestions.push('Добавете главна буква (A-Z)')
+  }
+
+  if (requireLowercase && !/[a-z]/.test(password)) {
+    errors.push('Паролата трябва да съдържа поне една малка буква')
+    suggestions.push('Добавете малка буква (a-z)')
+  }
+
+  if (requireNumbers && !/\d/.test(password)) {
+    errors.push('Паролата трябва да съдържа поне една цифра')
+    suggestions.push('Добавете цифра (0-9)')
+  }
+
+  if (requireSpecialChars && !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    errors.push('Паролата трябва да съдържа поне един специален символ')
+    suggestions.push('Добавете специален символ (!@#$%^&*)')
+  }
+
+  // Common weak passwords check
+  const commonPasswords = [
+    'password',
+    '123456',
+    '12345678',
+    'qwerty',
+    'abc123',
+    'password123',
+    'admin',
+    'letmein',
+    'welcome',
+    '123123',
+  ]
+
+  if (commonPasswords.includes(password.toLowerCase())) {
+    errors.push('Паролата е твърде често срещана')
+    suggestions.push('Използвайте уникална парола')
+  }
+
+  // Sequential characters check
+  if (/(.)\1{2,}/.test(password)) {
+    suggestions.push('Избягвайте повтарящи се символи (напр. "aaa", "111")')
+  }
+
+  if (/012|123|234|345|456|567|678|789|890|abc|bcd|cde/.test(password.toLowerCase())) {
+    suggestions.push('Избягвайте последователни символи (напр. "123", "abc")')
+  }
+
+  // Calculate strength
+  let strength: PasswordStrength = 'weak'
+  let strengthScore = 0
+
+  if (password.length >= minLength) strengthScore++
+  if (password.length >= 12) strengthScore++
+  if (/[A-Z]/.test(password)) strengthScore++
+  if (/[a-z]/.test(password)) strengthScore++
+  if (/\d/.test(password)) strengthScore++
+  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) strengthScore++
+  if (password.length >= 16) strengthScore++
+
+  if (strengthScore <= 2) {
+    strength = 'weak'
+  } else if (strengthScore <= 4) {
+    strength = 'medium'
+  } else if (strengthScore <= 6) {
+    strength = 'strong'
+  } else {
+    strength = 'very-strong'
+  }
+
+  return {
+    isValid: errors.length === 0,
+    strength,
+    errors,
+    suggestions,
+  }
+}
+
+/**
+ * Check if password has been compromised (basic check)
+ * In production, integrate with Have I Been Pwned API
+ *
+ * @param password - Password to check
+ * @returns True if password appears compromised
+ *
+ * @example
+ * if (isPasswordCompromised('password123')) {
+ *   alert('This password has been compromised. Choose a different one.')
+ * }
+ */
+export function isPasswordCompromised(password: string): boolean {
+  // Basic compromised password list (top 100 most common)
+  const compromisedPasswords = [
+    'password',
+    '123456',
+    '12345678',
+    'qwerty',
+    'abc123',
+    'monkey',
+    '1234567',
+    'letmein',
+    'trustno1',
+    'dragon',
+    'baseball',
+    'iloveyou',
+    'master',
+    'sunshine',
+    'ashley',
+    'bailey',
+    'passw0rd',
+    'shadow',
+    '123123',
+    '654321',
+    'superman',
+    'qazwsx',
+    'michael',
+    'football',
+    'welcome',
+    'jesus',
+    'ninja',
+    'mustang',
+    'password1',
+    '123456789',
+    'adobe123',
+    'admin',
+    '12345678910',
+  ]
+
+  return compromisedPasswords.includes(password.toLowerCase())
+}
+
+/**
+ * Generate password strength indicator text
+ *
+ * @param strength - Password strength level
+ * @returns Human-readable strength text
+ *
+ * @example
+ * const strength = validatePassword('MyP@ss123').strength
+ * const text = getPasswordStrengthText(strength)
+ * // Returns: 'Силна парола'
+ */
+export function getPasswordStrengthText(strength: PasswordStrength): string {
+  const strengthMap: Record<PasswordStrength, string> = {
+    weak: 'Слаба парола',
+    medium: 'Средна парола',
+    strong: 'Силна парола',
+    'very-strong': 'Много силна парола',
+  }
+
+  return strengthMap[strength] || 'Неизвестна'
+}
+
+/**
+ * Generate password strength color for UI
+ *
+ * @param strength - Password strength level
+ * @returns CSS color class or hex color
+ *
+ * @example
+ * const color = getPasswordStrengthColor('strong')
+ * // Returns: '#10B981' (green)
+ */
+export function getPasswordStrengthColor(strength: PasswordStrength): string {
+  const colorMap: Record<PasswordStrength, string> = {
+    weak: '#EF4444', // red
+    medium: '#F59E0B', // orange
+    strong: '#10B981', // green
+    'very-strong': '#3B82F6', // blue
+  }
+
+  return colorMap[strength] || '#6B7280' // gray
+}
+
+/**
+ * Validate password confirmation matches
+ *
+ * @param password - Original password
+ * @param confirmation - Password confirmation
+ * @returns True if passwords match
+ *
+ * @example
+ * if (!passwordsMatch(password, confirmPassword)) {
+ *   alert('Passwords do not match')
+ * }
+ */
+export function passwordsMatch(password: string, confirmation: string): boolean {
+  return password === confirmation && password.length > 0
+}

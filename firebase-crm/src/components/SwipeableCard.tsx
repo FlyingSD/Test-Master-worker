@@ -7,6 +7,14 @@
  * - Haptic feedback on swipe
  * - Smooth animations
  *
+ * 🔒 CRITICAL FIX: Full keyboard accessibility
+ * - Arrow Left/Right: Reveal actions
+ * - Enter/Space: Trigger revealed action
+ * - Escape: Cancel/reset
+ * - Tab: Focus navigation
+ * - Visual focus indicator
+ * - ARIA labels for screen readers
+ *
  * @module components/SwipeableCard
  */
 
@@ -57,6 +65,7 @@ export default function SwipeableCard({
   const [offsetX, setOffsetX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [actionRevealed, setActionRevealed] = useState<'edit' | 'delete' | null>(null)
+  const [isFocused, setIsFocused] = useState(false)
   const startX = useRef(0)
   const currentX = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -133,6 +142,56 @@ export default function SwipeableCard({
     setActionRevealed(null)
   }
 
+  // 🔒 CRITICAL FIX: Keyboard support for accessibility
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!enableSwipe) return
+
+    // Arrow Left: Reveal delete action
+    if (e.key === 'ArrowLeft' && hasLeftAction) {
+      e.preventDefault()
+      setOffsetX(-swipeThreshold)
+      setActionRevealed('delete')
+      triggerHaptic('light')
+    }
+
+    // Arrow Right: Reveal edit/view action
+    if (e.key === 'ArrowRight' && hasRightAction) {
+      e.preventDefault()
+      setOffsetX(swipeThreshold)
+      setActionRevealed('edit')
+      triggerHaptic('light')
+    }
+
+    // Enter or Space: Trigger revealed action
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+
+      if (actionRevealed === 'delete' && hasLeftAction) {
+        triggerHaptic('warning')
+        onDelete?.()
+        setOffsetX(0)
+        setActionRevealed(null)
+      } else if (actionRevealed === 'edit' && hasRightAction) {
+        triggerHaptic('success')
+        if (onEdit) {
+          onEdit()
+        } else if (onView) {
+          onView()
+        }
+        setOffsetX(0)
+        setActionRevealed(null)
+      }
+    }
+
+    // Escape: Reset/cancel action
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      setOffsetX(0)
+      setActionRevealed(null)
+      triggerHaptic('light')
+    }
+  }
+
   // Handle click outside to reset
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
@@ -158,10 +217,24 @@ export default function SwipeableCard({
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden ${className}`}
+      className={`relative overflow-hidden ${className} ${
+        isFocused ? 'ring-2 ring-blue-500 ring-offset-2' : ''
+      }`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onKeyDown={handleKeyDown}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => {
+        setIsFocused(false)
+        setOffsetX(0)
+        setActionRevealed(null)
+      }}
+      tabIndex={0}
+      role="group"
+      aria-label={`Swipeable card. ${
+        hasRightAction ? 'Press right arrow or swipe right to edit.' : ''
+      } ${hasLeftAction ? 'Press left arrow or swipe left to delete.' : ''}`}
     >
       {/* Left action (Delete) - shown when swiping left */}
       {hasLeftAction && (
