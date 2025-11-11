@@ -51,6 +51,38 @@ export interface Parent {
   updatedAt?: Date | Timestamp
 }
 
+// Group interface - Classes/Courses management (Групи/Класове)
+export interface Group {
+  id: string
+  name: string // Име на групата (напр. "Група по китара - напреднали")
+  description?: string // Описание на групата
+  teacherId?: string // ID на учителя
+  teacherName?: string // Име на учителя (денормализирано)
+  subject?: string // Предмет (напр. "Китара", "Абакус", "Рисуване")
+  level?: 'Начинаещи' | 'Напреднали' | 'Експерти' | 'Смесено' // Ниво
+  price: number // Месечна цена в BGN
+  priceEUR?: number // Месечна цена в EUR
+  capacity?: number // Максимален брой ученици
+  currentStudents: number // Текущ брой ученици (денормализирано)
+
+  // Schedule - График на занятията
+  schedule?: {
+    dayOfWeek: 'Понеделник' | 'Вторник' | 'Сряда' | 'Четвъртък' | 'Петък' | 'Събота' | 'Неделя'
+    startTime: string // HH:MM формат (напр. "17:00")
+    endTime: string // HH:MM формат (напр. "18:00")
+    location?: string // Локация/зала
+  }[]
+
+  status: 'active' | 'inactive' | 'archived' // Статус на групата
+  startDate?: Date | Timestamp // Дата на започване
+  endDate?: Date | Timestamp // Дата на приключване (за сезонни групи)
+  notes?: string // Бележки
+
+  createdBy: string // User ID на създателя
+  createdAt: Date | Timestamp
+  updatedAt?: Date | Timestamp
+}
+
 // 🎯 Clean Code: Renamed from Payment to StudentPayment for clarity
 // StudentPayment interface - Payments made by students/parents for courses
 export interface StudentPayment {
@@ -445,6 +477,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 export type FeatureName =
   | 'dashboard'
   | 'students'
+  | 'groups'
   | 'homework'
   | 'parents'
   | 'payments'

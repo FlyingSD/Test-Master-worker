@@ -38,6 +38,7 @@ interface NavItem {
 const mainNavigation: NavItem[] = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['admin', 'teacher'], feature: 'dashboard' },
   { name: 'Ученици', href: '/students', icon: Users, roles: ['admin', 'teacher'], feature: 'students' },
+  { name: 'Групи', href: '/groups', icon: Users, roles: ['admin', 'teacher'], feature: 'groups' },
   { name: 'Домашни', href: '/homework', icon: BookOpen, roles: ['admin', 'teacher'], feature: 'homework' },
   { name: 'Родители', href: '/parents', icon: Users, roles: ['admin', 'teacher'], feature: 'parents' },
   { name: 'Плащания', href: '/payments', icon: CreditCard, roles: ['admin', 'teacher', 'parent'], feature: 'payments' },

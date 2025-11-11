@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, Save, Calendar } from 'lucide-react'
 import { useAddStudent, useUpdateStudent } from '@/hooks/useStudents'
+import { useGroups } from '@/hooks/useGroups'
 import { Student, StudentFormValues } from '@/types'
 import { bgnToEur, eurToBgn } from '@/utils/formatters'
 import { Timestamp } from 'firebase/firestore'
@@ -14,6 +15,7 @@ interface StudentModalProps {
 export default function StudentModal({ student, onClose }: StudentModalProps) {
   const addStudent = useAddStudent()
   const updateStudent = useUpdateStudent()
+  const { groups, loading: loadingGroups } = useGroups()
 
   const [formData, setFormData] = useState<StudentFormValues>({
     name: '',
@@ -28,6 +30,7 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
   })
 
   const [currencyInput, setCurrencyInput] = useState<'BGN' | 'EUR'>('BGN')
+  const [customGroup, setCustomGroup] = useState(false)
 
   // Load student data if editing
   useEffect(() => {
@@ -122,16 +125,51 @@ export default function StudentModal({ student, onClose }: StudentModalProps) {
               <label className="label">
                 Група <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                required
-                className="input"
-                placeholder="Група 1"
-                value={formData.group}
-                onChange={(e) =>
-                  setFormData({ ...formData, group: e.target.value })
-                }
-              />
+              {loadingGroups ? (
+                <div className="input flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  Зареждане на групи...
+                </div>
+              ) : (
+                <>
+                  <select
+                    required={!customGroup}
+                    className="input"
+                    value={customGroup ? '__custom__' : formData.group}
+                    onChange={(e) => {
+                      if (e.target.value === '__custom__') {
+                        setCustomGroup(true)
+                        setFormData({ ...formData, group: '' })
+                      } else {
+                        setCustomGroup(false)
+                        setFormData({ ...formData, group: e.target.value })
+                      }
+                    }}
+                  >
+                    <option value="">Изберете група</option>
+                    {groups
+                      .filter(g => g.status === 'active')
+                      .map((group) => (
+                        <option key={group.id} value={group.name}>
+                          {group.name} {group.subject ? `(${group.subject})` : ''}
+                        </option>
+                      ))}
+                    <option value="__custom__">➕ Нова група (въведете име)</option>
+                  </select>
+                  {customGroup && (
+                    <input
+                      type="text"
+                      required
+                      className="input mt-2"
+                      placeholder="Име на нова група..."
+                      value={formData.group}
+                      onChange={(e) =>
+                        setFormData({ ...formData, group: e.target.value })
+                      }
+                    />
+                  )}
+                </>
+              )}
             </div>
 
             <div>

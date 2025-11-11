@@ -11,6 +11,7 @@ const DEFAULT_PERMISSIONS: RoleFeaturePermissions = {
   teacher: {
     dashboard: true,
     students: true,
+    groups: true, // Teachers see their groups
     homework: true,
     parents: true,
     payments: true,
@@ -26,6 +27,7 @@ const DEFAULT_PERMISSIONS: RoleFeaturePermissions = {
   parent: {
     dashboard: true, // Parent dashboard
     students: false, // Parents don't manage all students
+    groups: false, // Parents see groups in my-children
     homework: false, // Parents see homework in my-children
     parents: false, // Parents don't manage other parents
     payments: true, // Parents see their payments

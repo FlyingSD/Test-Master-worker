@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, Save, Calendar, Clock, MapPin, Briefcase } from 'lucide-react'
 import { useAddEvent, useUpdateEvent } from '@/hooks/useEvents'
+import { useGroups } from '@/hooks/useGroups'
 import { Event, EventFormValues } from '@/types'
 import { Timestamp } from 'firebase/firestore'
 
@@ -12,6 +13,7 @@ interface EventModalProps {
 export default function EventModal({ event, onClose }: EventModalProps) {
   const addEvent = useAddEvent()
   const updateEvent = useUpdateEvent()
+  const { groups, loading: loadingGroups } = useGroups()
 
   const [formData, setFormData] = useState<EventFormValues>({
     title: '',
@@ -26,6 +28,8 @@ export default function EventModal({ event, onClose }: EventModalProps) {
     notes: '',
     color: '#46B19D',
   })
+
+  const [customGroup, setCustomGroup] = useState(false)
 
   // Load event data if editing
   useEffect(() => {
@@ -134,15 +138,49 @@ export default function EventModal({ event, onClose }: EventModalProps) {
 
             <div>
               <label className="label">Група</label>
-              <input
-                type="text"
-                className="input"
-                placeholder="Група 1"
-                value={formData.group}
-                onChange={(e) =>
-                  setFormData({ ...formData, group: e.target.value })
-                }
-              />
+              {loadingGroups ? (
+                <div className="input flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  Зареждане на групи...
+                </div>
+              ) : (
+                <>
+                  <select
+                    className="input"
+                    value={customGroup ? '__custom__' : (formData.group || '')}
+                    onChange={(e) => {
+                      if (e.target.value === '__custom__') {
+                        setCustomGroup(true)
+                        setFormData({ ...formData, group: '' })
+                      } else {
+                        setCustomGroup(false)
+                        setFormData({ ...formData, group: e.target.value })
+                      }
+                    }}
+                  >
+                    <option value="">Без група</option>
+                    {groups
+                      .filter(g => g.status === 'active')
+                      .map((group) => (
+                        <option key={group.id} value={group.name}>
+                          {group.name} {group.subject ? `(${group.subject})` : ''}
+                        </option>
+                      ))}
+                    <option value="__custom__">➕ Нова група (въведете име)</option>
+                  </select>
+                  {customGroup && (
+                    <input
+                      type="text"
+                      className="input mt-2"
+                      placeholder="Име на нова група..."
+                      value={formData.group}
+                      onChange={(e) =>
+                        setFormData({ ...formData, group: e.target.value })
+                      }
+                    />
+                  )}
+                </>
+              )}
             </div>
           </div>
 

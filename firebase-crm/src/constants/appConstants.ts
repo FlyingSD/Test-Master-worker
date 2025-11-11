@@ -375,6 +375,67 @@ export const USER_ROLE_LABELS = {
   [USER_ROLES.PARENT]: 'Родител',
 } as const
 
+/**
+ * Group Status Values
+ */
+export const GROUP_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  ARCHIVED: 'archived',
+} as const
+
+export const GROUP_STATUS_LABELS = {
+  [GROUP_STATUS.ACTIVE]: 'Активна',
+  [GROUP_STATUS.INACTIVE]: 'Неактивна',
+  [GROUP_STATUS.ARCHIVED]: 'Архивирана',
+} as const
+
+export const GROUP_STATUS_OPTIONS = [
+  GROUP_STATUS.ACTIVE,
+  GROUP_STATUS.INACTIVE,
+  GROUP_STATUS.ARCHIVED,
+] as const
+
+/**
+ * Group Level Values
+ */
+export const GROUP_LEVELS = {
+  BEGINNER: 'Начинаещи',
+  ADVANCED: 'Напреднали',
+  EXPERT: 'Експерти',
+  MIXED: 'Смесено',
+} as const
+
+export const GROUP_LEVEL_OPTIONS = [
+  GROUP_LEVELS.BEGINNER,
+  GROUP_LEVELS.ADVANCED,
+  GROUP_LEVELS.EXPERT,
+  GROUP_LEVELS.MIXED,
+] as const
+
+/**
+ * Days of Week (Bulgarian)
+ */
+export const DAYS_OF_WEEK = {
+  MONDAY: 'Понеделник',
+  TUESDAY: 'Вторник',
+  WEDNESDAY: 'Сряда',
+  THURSDAY: 'Четвъртък',
+  FRIDAY: 'Петък',
+  SATURDAY: 'Събота',
+  SUNDAY: 'Неделя',
+} as const
+
+export const DAYS_OF_WEEK_OPTIONS = [
+  DAYS_OF_WEEK.MONDAY,
+  DAYS_OF_WEEK.TUESDAY,
+  DAYS_OF_WEEK.WEDNESDAY,
+  DAYS_OF_WEEK.THURSDAY,
+  DAYS_OF_WEEK.FRIDAY,
+  DAYS_OF_WEEK.SATURDAY,
+  DAYS_OF_WEEK.SUNDAY,
+] as const
+
 // ============================================================================
 // VALIDATION RULES
 // ============================================================================
@@ -436,3 +497,6 @@ export type StockTransactionReason = typeof STOCK_TRANSACTION_REASONS[keyof type
 export type ParentRelationship = typeof PARENT_RELATIONSHIPS[keyof typeof PARENT_RELATIONSHIPS]
 export type DiscountType = typeof DISCOUNT_TYPES[keyof typeof DISCOUNT_TYPES]
 export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES]
+export type GroupStatus = typeof GROUP_STATUS[keyof typeof GROUP_STATUS]
+export type GroupLevel = typeof GROUP_LEVELS[keyof typeof GROUP_LEVELS]
+export type DayOfWeek = typeof DAYS_OF_WEEK[keyof typeof DAYS_OF_WEEK]

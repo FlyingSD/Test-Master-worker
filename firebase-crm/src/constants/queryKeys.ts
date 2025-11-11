@@ -35,6 +35,11 @@ export const QUERY_KEYS = {
   expenses: ['expenses'] as const,
   expense: (id: string) => ['expense', id] as const,
 
+  // Groups
+  groups: ['groups'] as const,
+  group: (id: string) => ['group', id] as const,
+  groupsByTeacher: (teacherId: string) => ['groups', 'byTeacher', teacherId] as const,
+
   // Events
   events: ['events'] as const,
   event: (id: string) => ['event', id] as const,

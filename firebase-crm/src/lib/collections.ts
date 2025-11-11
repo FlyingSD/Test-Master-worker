@@ -29,6 +29,7 @@ export const COLLECTIONS = {
   STOCK_TRANSACTIONS: 'stockTransactions',
 
   // Academic
+  GROUPS: 'groups',
   EVENTS: 'events',
   HOMEWORK: 'homework',
   ATTENDANCE: 'attendance',

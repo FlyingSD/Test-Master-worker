@@ -11,6 +11,7 @@ import Layout from '@/components/Layout'
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
 const ParentDashboardPage = lazy(() => import('@/pages/ParentDashboardPage'))
 const StudentsPage = lazy(() => import('@/pages/StudentsPage'))
+const GroupsPage = lazy(() => import('@/pages/GroupsPage'))
 const PaymentsPage = lazy(() => import('@/pages/PaymentsPage'))
 const EventsPage = lazy(() => import('@/pages/EventsPage'))
 const DiscountsPage = lazy(() => import('@/pages/DiscountsPage'))
@@ -95,6 +96,14 @@ export default function App() {
                 element={
                   <Suspense fallback={<PageLoader />}>
                     <StudentsPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="groups"
+                element={
+                  <Suspense fallback={<PageLoader />}>
+                    <GroupsPage />
                   </Suspense>
                 }
               />

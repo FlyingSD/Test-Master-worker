@@ -16,6 +16,7 @@ export default function SettingsPage() {
     teacher: {
       dashboard: true,
       students: true,
+      groups: true,
       homework: true,
       parents: true,
       payments: true,
@@ -31,6 +32,7 @@ export default function SettingsPage() {
     parent: {
       dashboard: true,
       students: false,
+      groups: false,
       homework: false,
       parents: false,
       payments: true,
@@ -109,6 +111,7 @@ export default function SettingsPage() {
   const featureLabels: Record<FeatureName, string> = {
     dashboard: 'Dashboard',
     students: 'Ученици',
+    groups: 'Групи',
     homework: 'Домашни',
     parents: 'Родители',
     payments: 'Плащания',
