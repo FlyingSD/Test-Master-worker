@@ -291,7 +291,7 @@ export function useUpdateDiscount() {
       )
 
       const docRef = doc(db, COLLECTIONS?.DISCOUNTS, id)
-      const updateData: any = {
+      const updateData: Record<string, any> = {
         ...data,
         updatedAt: serverTimestamp(),
       }

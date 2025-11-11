@@ -174,7 +174,7 @@ export function useUpdateExpense() {
       // 🔒 SECURITY: Validate ownership using centralized utility
       await validateDocumentOwnership(COLLECTIONS?.EXPENSES, id, userData, ERROR_MESSAGES?.EXPENSE_NOT_FOUND)
 
-      const updateData: any = { ...data }
+      const updateData: Record<string, any> = { ...data }
       if (updateData?.date) {
         updateData?.date = toTimestamp(updateData?.date)
       }

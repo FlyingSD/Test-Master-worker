@@ -324,7 +324,7 @@ export function useUpdateEvent() {
       const docRef = doc(db, COLLECTIONS?.EVENTS, id)
 
       // Convert dates to Timestamps
-      const updateData: any = { ...data }
+      const updateData: Record<string, any> = { ...data }
       if (updateData?.startTime) {
         updateData?.startTime = toTimestamp(updateData?.startTime)
       }

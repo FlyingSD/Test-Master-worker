@@ -438,7 +438,7 @@ export function useUpdateStudent() {
       await validateDocumentGroupAccess(COLLECTIONS?.STUDENTS, id, userData, ERROR_MESSAGES?.STUDENT_NOT_FOUND)
 
       // Convert dueDate to Timestamp if it's a Date
-      const updateData: any = {
+      const updateData: Record<string, any> = {
         ...data,
         updatedAt: serverTimestamp(),
       }

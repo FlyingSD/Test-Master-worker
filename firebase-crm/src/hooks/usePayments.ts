@@ -411,7 +411,7 @@ export function useUpdatePayment() {
       await validateDocumentOwnership(COLLECTIONS?.PAYMENTS, id, userData, ERROR_MESSAGES?.PAYMENT_NOT_FOUND)
 
       // Convert date to Timestamp if it's a Date
-      const updateData: any = { ...data }
+      const updateData: Record<string, any> = { ...data }
       if (updateData?.date) {
         updateData?.date = toTimestamp(updateData?.date)
       }

@@ -157,7 +157,7 @@ export function useUpdatePaymentPlan() {
       )
 
       const docRef = doc(db, COLLECTIONS?.PAYMENT_PLANS, id)
-      const updateData: any = { ...data, updatedAt: serverTimestamp() }
+      const updateData: Record<string, any> = { ...data, updatedAt: serverTimestamp() }
 
       if (updateData?.startDate) {
         updateData?.startDate = toTimestamp(updateData?.startDate)

@@ -321,7 +321,7 @@ export function useUpdateGroup() {
       }
 
       // 🔒 SECURITY: Teachers CANNOT change price or teacherId
-      const updateData: any = { ...data }
+      const updateData: Record<string, any> = { ...data }
       if (isTeacher) {
         delete updateData?.price
         delete updateData?.priceEUR

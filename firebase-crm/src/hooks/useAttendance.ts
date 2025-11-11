@@ -333,7 +333,7 @@ export function useUpdateAttendance() {
       )
 
       const docRef = doc(db, COLLECTIONS?.ATTENDANCE, id)
-      const updateData: any = { ...data }
+      const updateData: Record<string, any> = { ...data }
       if (updateData?.date) {
         updateData?.date = toTimestamp(updateData?.date)
       }

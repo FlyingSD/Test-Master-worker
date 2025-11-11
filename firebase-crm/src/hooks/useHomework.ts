@@ -315,7 +315,7 @@ export function useUpdateHomework() {
       )
 
       // Convert dates to Timestamp
-      const updateData: any = { ...data }
+      const updateData: Record<string, any> = { ...data }
 
       if (updateData?.assignedDate) {
         updateData?.assignedDate = toTimestamp(updateData?.assignedDate)
