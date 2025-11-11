@@ -1,3 +1,6 @@
+/**
+ * Error message with title, description, solution, and severity type
+ */
 export interface ErrorMessage {
   title: string
   message: string
@@ -6,7 +9,22 @@ export interface ErrorMessage {
 }
 
 /**
- * Get user-friendly error message with solution
+ * Get user-friendly error message with solution based on error type
+ * Converts technical errors into localized Bulgarian messages with actionable solutions
+ *
+ * @param error - Error object or string
+ * @returns Formatted error message with title, message, solution, and type
+ *
+ * @example
+ * ```ts
+ * try {
+ *   await deleteDoc(docRef)
+ * } catch (error) {
+ *   const errorMsg = getErrorMessage(error)
+ *   toast.error(`${errorMsg.title}: ${errorMsg.message}`)
+ *   console.log('Solution:', errorMsg.solution)
+ * }
+ * ```
  */
 export function getErrorMessage(error: any): ErrorMessage {
   const errorString = error?.message?.toLowerCase() || error?.toString()?.toLowerCase() || ''
@@ -154,7 +172,7 @@ export const ValidationErrors = {
 }
 
 /**
- * Data inconsistency checks
+ * Data inconsistency issue with details and actionable solution
  */
 export interface DataIssue {
   id: string
@@ -166,7 +184,33 @@ export interface DataIssue {
 }
 
 /**
- * Check for data inconsistencies
+ * Check for data inconsistencies and anomalies across students, payments, and expenses
+ * Performs comprehensive validation to identify:
+ * - Overdue payments for active students
+ * - Missing receipt numbers for non-cash payments
+ * - Missing receipts for expenses
+ * - Unusually large payment amounts (possible typos)
+ * - Currency conversion mismatches (BGN vs EUR)
+ *
+ * @param students - Array of student records
+ * @param payments - Array of payment records
+ * @param expenses - Array of expense records
+ * @returns Array of data issues with details and solutions
+ *
+ * @example
+ * ```ts
+ * const issues = checkDataConsistency(students, payments, expenses)
+ *
+ * // Filter by severity
+ * const errors = issues.filter(i => i.type === 'error')
+ * const warnings = issues.filter(i => i.type === 'warning')
+ *
+ * // Display issues to user
+ * issues.forEach(issue => {
+ *   console.log(`${issue.title}: ${issue.description}`)
+ *   console.log(`Solution: ${issue.solution}`)
+ * })
+ * ```
  */
 export function checkDataConsistency(
   students: any[],
