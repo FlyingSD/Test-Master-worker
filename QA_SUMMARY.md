@@ -8,7 +8,10 @@
 
 ## ✅ QA ПРОЦЕСИ ИЗВЪРШЕНИ
 
-### 🤖 Automated QA (Code Guardian)
+### 🤖 Automated QA (Code Guardian - REMOVED)
+
+> **⚠️ NOTE:** Code Guardian tool has been permanently removed per user request (Commit: 7ea15c2).
+> All 500+ auto-fixes from previous sessions are preserved in the codebase.
 
 #### **Batch 1: Null Safety** (Commit: cb807e5)
 - ✅ 20+ files fixed
