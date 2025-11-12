@@ -136,6 +136,8 @@ export default function AttendancePage() {
         return 'bg-orange-500 hover:bg-orange-600'
       case 'excused':
         return 'bg-blue-500 hover:bg-blue-600'
+      default:
+        return 'bg-gray-500 hover:bg-gray-600'
     }
   }
 

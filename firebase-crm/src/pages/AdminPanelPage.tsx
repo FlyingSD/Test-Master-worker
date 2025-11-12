@@ -415,6 +415,14 @@ function AuditLogTab() {
 // EXPORT TAB - Data Export
 // ============================================
 function ExportTab() {
+  // Color mappings for Tailwind classes (must be static for purging)
+  const colorClasses: Record<string, { bg: string; text: string }> = {
+    blue: { bg: 'bg-blue-100', text: 'text-blue-600' },
+    green: { bg: 'bg-green-100', text: 'text-green-600' },
+    purple: { bg: 'bg-purple-100', text: 'text-purple-600' },
+    red: { bg: 'bg-red-100', text: 'text-red-600' },
+  }
+
   const exportOptions = [
     {
       title: 'Ученици',
@@ -464,14 +472,15 @@ function ExportTab() {
       <div className="grid grid-cols-2 gap-4">
         {exportOptions?.map((option) => {
           const Icon = option.icon
+          const colors = colorClasses[option.color] || colorClasses.blue
           return (
             <div key={option?.title} className="card hover:shadow-md transition-shadow cursor-pointer group" onClick={() => handleExport(option?.title)}>
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
                   <div
-                    className={`w-12 h-12 bg-${option?.color}-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
+                    className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
                   >
-                    <Icon className={`w-6 h-6 text-${option?.color}-600`} />
+                    <Icon className={`w-6 h-6 ${colors.text}`} />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">{option?.title}</h4>
