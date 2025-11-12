@@ -19,9 +19,9 @@
 export const CURRENCY = {
   /**
    * BGN to EUR conversion rate (fixed by Bulgarian National Bank)
-   * 1 EUR = 1?.95583 BGN
+   * 1 EUR = 1.95583 BGN
    */
-  BGN_TO_EUR_RATE: 1?.95583,
+  BGN_TO_EUR_RATE: 1.95583,
 
   /**
    * Default currency for the system

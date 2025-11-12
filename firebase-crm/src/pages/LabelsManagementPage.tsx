@@ -80,8 +80,8 @@ export default function LabelsManagementPage() {
     }
   }
 
-  const renderNestedObject = (obj: any, path: string[] = [], level: number = 0): JSX?.Element[] => {
-    const elements: JSX?.Element[] = []
+  const renderNestedObject = (obj: any, path: string[] = [], level: number = 0): JSX.Element[] => {
+    const elements: JSX.Element[] = []
 
     for (const [key, value] of Object.entries(obj)) {
       const currentPath = [...path, key]

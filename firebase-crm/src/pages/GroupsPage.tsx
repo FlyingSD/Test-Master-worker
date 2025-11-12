@@ -327,7 +327,7 @@ export default function GroupsPage() {
                                 className={`h-1?.5 rounded-full ${
                                   group?.currentStudents >= group?.capacity
                                     ? 'bg-red-500'
-                                    : group?.currentStudents / group?.capacity > 0?.8
+                                    : group?.currentStudents / group?.capacity > 0.8
                                     ? 'bg-yellow-500'
                                     : 'bg-green-500'
                                 }`}

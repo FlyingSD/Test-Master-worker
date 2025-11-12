@@ -311,11 +311,11 @@ export const DEFAULT_LABELS = {
 export type Labels = typeof DEFAULT_LABELS
 
 // Type for each section
-export type NavigationLabels = typeof DEFAULT_LABELS?.navigation
-export type PageLabels = typeof DEFAULT_LABELS?.pages
-export type CommonLabels = typeof DEFAULT_LABELS?.common
-export type ButtonLabels = typeof DEFAULT_LABELS?.buttons
-export type FormLabels = typeof DEFAULT_LABELS?.forms
-export type StatusLabels = typeof DEFAULT_LABELS?.status
-export type MessageLabels = typeof DEFAULT_LABELS?.messages
-export type TableColumnLabels = typeof DEFAULT_LABELS?.tableColumns
+export type NavigationLabels = typeof DEFAULT_LABELS.navigation
+export type PageLabels = typeof DEFAULT_LABELS.pages
+export type CommonLabels = typeof DEFAULT_LABELS.common
+export type ButtonLabels = typeof DEFAULT_LABELS.buttons
+export type FormLabels = typeof DEFAULT_LABELS.forms
+export type StatusLabels = typeof DEFAULT_LABELS.status
+export type MessageLabels = typeof DEFAULT_LABELS.messages
+export type TableColumnLabels = typeof DEFAULT_LABELS.tableColumns

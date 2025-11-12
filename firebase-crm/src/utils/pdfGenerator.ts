@@ -177,7 +177,7 @@ export function generatePaymentReceipt(payment: Payment, student: Student) {
 
   // Payment details box
   doc?.setDrawColor(109, 40, 217)
-  doc?.setLineWidth(0?.5)
+  doc?.setLineWidth(0.5)
   doc?.rect(15, 95, 180, 50)
 
   doc?.setFont('helvetica', 'bold')

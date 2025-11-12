@@ -71,7 +71,7 @@ export function formatTimeAgo(date: Date | Timestamp): string {
  * ```
  */
 export function formatCurrency(amount: number, currency: 'BGN' | 'EUR' = 'BGN'): string {
-  return new Intl?.NumberFormat('bg-BG', {
+  return new Intl.NumberFormat('bg-BG', {
     style: 'currency',
     currency: currency,
   }).format(amount)
