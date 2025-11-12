@@ -60,7 +60,7 @@ export function useSettings() {
           setError(new Error('Settings document not found'))
         }
       } catch (err) {
-        console?.error('Error loading settings:', err)
+        console.error('Error loading settings:', err)
         setError(err as Error)
       } finally {
         setLoading(false)

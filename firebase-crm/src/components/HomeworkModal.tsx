@@ -273,7 +273,7 @@ function HomeworkModal({
       onClose()
     } catch (error) {
       // Error handling is done automatically by hooks (toast notifications)
-      console?.error('Homework submission error:', error)
+      console.error('Homework submission error:', error)
     }
   }
 

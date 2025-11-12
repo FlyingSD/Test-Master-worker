@@ -40,7 +40,7 @@ export default function DiscountsPage() {
   }
 
   const handleDelete = async (discountId: string, studentName: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете отстъпката за ${studentName}?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете отстъпката за ${studentName}?`)) {
       await deleteDiscount?.mutateAsync(discountId)
     }
   }

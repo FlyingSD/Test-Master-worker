@@ -92,7 +92,7 @@ export default function PaymentPlanModal({ isOpen, onClose, studentId }: Payment
       onClose()
       resetForm()
     } catch (error) {
-      console?.error('Error creating payment plan:', error)
+      console.error('Error creating payment plan:', error)
     }
   }
 

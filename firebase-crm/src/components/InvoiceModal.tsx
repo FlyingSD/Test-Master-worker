@@ -159,7 +159,7 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
       }
       onClose()
     } catch (error) {
-      console?.error('Error saving invoice:', error)
+      console.error('Error saving invoice:', error)
       alert('Грешка при запазване на документа')
     }
   }

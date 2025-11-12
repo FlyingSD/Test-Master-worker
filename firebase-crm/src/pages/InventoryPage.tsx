@@ -31,7 +31,7 @@ export default function InventoryPage() {
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null)
 
   // Get unique categories
-  const categories = Array?.from(new Set(inventory?.map((item) => item?.category)))
+  const categories = Array.from(new Set(inventory?.map((item) => item?.category)))
 
   // Filter inventory
   const filteredInventory = inventory?.filter((item) => {
@@ -49,7 +49,7 @@ export default function InventoryPage() {
   }
 
   const handleDelete = async (itemId: string, itemName: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете ${itemName}?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете ${itemName}?`)) {
       await deleteItem?.mutateAsync(itemId)
     }
   }

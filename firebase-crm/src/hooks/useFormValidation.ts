@@ -44,7 +44,7 @@ export function useFormValidation<T extends Record<string, any>>(
     const newErrors: FormErrors = {}
     let hasErrors = false
 
-    Object?.keys(rules).forEach((fieldName) => {
+    Object.keys(rules).forEach((fieldName) => {
       const error = validateField(fieldName, values[fieldName])
       if (error) {
         newErrors[fieldName] = error

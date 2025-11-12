@@ -76,7 +76,7 @@ function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
       await bulkAddPayments?.mutateAsync(paymentsToAdd)
       onClose()
     } catch (error) {
-      console?.error('Error adding bulk payments:', error)
+      console.error('Error adding bulk payments:', error)
       alert('Грешка при добавяне на плащания')
     }
   }

@@ -84,7 +84,7 @@ export function useRealtimeCollection<T extends DocumentData>(
         setError(null)
       },
       (err) => {
-        console?.error(`Error fetching ${collectionName}:`, err)
+        console.error(`Error fetching ${collectionName}:`, err)
         setError(err as Error)
         setLoading(false)
         toast?.error(errorMessage)
@@ -147,7 +147,7 @@ export function useRealtimeDocument<T extends DocumentData>(
         setLoading(false)
       },
       (err) => {
-        console?.error(`Error fetching document from ${collectionName}:`, err)
+        console.error(`Error fetching document from ${collectionName}:`, err)
         setError(err as Error)
         setLoading(false)
         toast?.error(errorMessage)

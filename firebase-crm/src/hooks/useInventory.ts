@@ -80,7 +80,7 @@ export function useInventory() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching inventory:', err)
+        console.error('Error fetching inventory:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error(ERROR_MESSAGES?.LOAD_INVENTORY_ERROR)
@@ -227,7 +227,7 @@ export function useAddInventoryItem() {
       toast?.success(SUCCESS_MESSAGES?.INVENTORY_ADDED)
     },
     onError: (error: Error) => {
-      console?.error('Error adding inventory item:', error)
+      console.error('Error adding inventory item:', error)
       toast?.error(ERROR_MESSAGES?.ADD_INVENTORY_ERROR + ': ' + error?.message)
     },
   })
@@ -312,7 +312,7 @@ export function useUpdateInventoryItem() {
         // Commit all updates atomically (all succeed or all fail)
         await batch.commit()
 
-        console?.log(`✅ Atomically updated inventory + ${transactionsSnapshot?.size} stock transactions`)
+        console.log(`✅ Atomically updated inventory + ${transactionsSnapshot?.size} stock transactions`)
       } else {
         // If name didn't change, just update inventory normally
         const docRef = doc(db, COLLECTIONS?.INVENTORY, id)
@@ -325,7 +325,7 @@ export function useUpdateInventoryItem() {
       toast?.success(SUCCESS_MESSAGES?.INVENTORY_UPDATED)
     },
     onError: (error: Error) => {
-      console?.error('Error updating inventory item:', error)
+      console.error('Error updating inventory item:', error)
       toast?.error(ERROR_MESSAGES?.UPDATE_INVENTORY_ERROR + ': ' + error?.message)
     },
   })
@@ -386,7 +386,7 @@ export function useDeleteInventoryItem() {
       toast?.success(SUCCESS_MESSAGES?.INVENTORY_DELETED)
     },
     onError: (error: Error) => {
-      console?.error('Error deleting inventory item:', error)
+      console.error('Error deleting inventory item:', error)
       toast?.error(ERROR_MESSAGES?.DELETE_INVENTORY_ERROR + ': ' + error?.message)
     },
   })
@@ -632,7 +632,7 @@ export function useAddStockTransaction() {
       toast?.success(SUCCESS_MESSAGES?.STOCK_TRANSACTION_ADDED)
     },
     onError: (error: Error) => {
-      console?.error('Error adding stock transaction:', error)
+      console.error('Error adding stock transaction:', error)
       toast?.error(ERROR_MESSAGES?.GENERIC_ERROR + ': ' + error?.message)
     },
   })

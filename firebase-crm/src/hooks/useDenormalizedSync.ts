@@ -43,7 +43,7 @@ export async function syncStudentNameInPayments(
     const paymentsSnapshot = await getDocs(paymentsQuery)
 
     if (paymentsSnapshot?.empty) {
-      console?.log(`No payments found for student ${studentId}`)
+      console.log(`No payments found for student ${studentId}`)
       return 0
     }
 
@@ -59,10 +59,10 @@ export async function syncStudentNameInPayments(
 
     await batch?.commit()
 
-    console?.log(`✅ Updated studentName in ${updateCount} payments`)
+    console.log(`✅ Updated studentName in ${updateCount} payments`)
     return updateCount
   } catch (error) {
-    console?.error('Error syncing student name in payments:', error)
+    console.error('Error syncing student name in payments:', error)
     throw error
   }
 }
@@ -83,7 +83,7 @@ export async function syncStudentNameInDiscounts(
     const discountsSnapshot = await getDocs(discountsQuery)
 
     if (discountsSnapshot?.empty) {
-      console?.log(`No discounts found for student ${studentId}`)
+      console.log(`No discounts found for student ${studentId}`)
       return 0
     }
 
@@ -98,10 +98,10 @@ export async function syncStudentNameInDiscounts(
 
     await batch?.commit()
 
-    console?.log(`✅ Updated studentName in ${updateCount} discounts`)
+    console.log(`✅ Updated studentName in ${updateCount} discounts`)
     return updateCount
   } catch (error) {
-    console?.error('Error syncing student name in discounts:', error)
+    console.error('Error syncing student name in discounts:', error)
     throw error
   }
 }
@@ -122,7 +122,7 @@ export async function syncInventoryNameInTransactions(
     const transactionsSnapshot = await getDocs(transactionsQuery)
 
     if (transactionsSnapshot?.empty) {
-      console?.log(`No transactions found for inventory item ${inventoryItemId}`)
+      console.log(`No transactions found for inventory item ${inventoryItemId}`)
       return 0
     }
 
@@ -137,10 +137,10 @@ export async function syncInventoryNameInTransactions(
 
     await batch?.commit()
 
-    console?.log(`✅ Updated inventoryItemName in ${updateCount} stock transactions`)
+    console.log(`✅ Updated inventoryItemName in ${updateCount} stock transactions`)
     return updateCount
   } catch (error) {
-    console?.error('Error syncing inventory name in transactions:', error)
+    console.error('Error syncing inventory name in transactions:', error)
     throw error
   }
 }
@@ -176,9 +176,9 @@ export async function syncAllStudentData(
       )
     }
 
-    console?.log(`✅ Student data sync complete: ${totalUpdated} records updated`)
+    console.log(`✅ Student data sync complete: ${totalUpdated} records updated`)
   } catch (error) {
-    console?.error('Error syncing student data:', error)
+    console.error('Error syncing student data:', error)
     toast?.error(ERROR_MESSAGES?.SYNC_DATA_ERROR)
     throw error
   }
@@ -213,9 +213,9 @@ export async function syncAllInventoryData(
       )
     }
 
-    console?.log(`✅ Inventory data sync complete: ${transactionsUpdated} records updated`)
+    console.log(`✅ Inventory data sync complete: ${transactionsUpdated} records updated`)
   } catch (error) {
-    console?.error('Error syncing inventory data:', error)
+    console.error('Error syncing inventory data:', error)
     toast?.error(ERROR_MESSAGES?.SYNC_DATA_ERROR)
     throw error
   }

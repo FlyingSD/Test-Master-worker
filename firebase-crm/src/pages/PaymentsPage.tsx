@@ -80,7 +80,7 @@ export default function PaymentsPage() {
   }
 
   const handleDelete = async (paymentId: string, studentName: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете плащането на ${studentName}?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете плащането на ${studentName}?`)) {
       await deletePayment?.mutateAsync(paymentId)
     }
   }

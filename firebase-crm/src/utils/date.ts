@@ -38,7 +38,7 @@ export function toTimestamp(date: Date | Timestamp): Timestamp {
  *
  * @example
  * const dueDate = toDate(student?.dueDate)
- * console?.log(dueDate?.toLocaleDateString())
+ * console.log(dueDate?.toLocaleDateString())
  */
 export function toDate(timestamp: Date | Timestamp): Date {
   if (timestamp instanceof Date) {
@@ -162,7 +162,7 @@ export function daysFromNow(days: number): Date {
  *
  * @example
  * if (isPast(student?.dueDate)) {
- *   console?.log('Payment is overdue!')
+ *   console.log('Payment is overdue!')
  * }
  */
 export function isPast(date: Date | Timestamp): boolean {
@@ -189,7 +189,7 @@ export function isFuture(date: Date | Timestamp): boolean {
  *
  * @example
  * if (isToday(event?.startTime)) {
- *   console?.log('Event is today!')
+ *   console.log('Event is today!')
  * }
  */
 export function isToday(date: Date | Timestamp): boolean {
@@ -212,7 +212,7 @@ export function isToday(date: Date | Timestamp): boolean {
  *
  * @example
  * if (isWithinDays(student?.dueDate, DATE_TIME?.UPCOMING_DAYS)) {
- *   console?.log('Payment due soon!')
+ *   console.log('Payment due soon!')
  * }
  */
 export function isWithinDays(date: Date | Timestamp, days: number): boolean {
@@ -410,7 +410,7 @@ export interface DueDateInfo {
  * @example
  * const info = getDueDateStatus(homework?.dueDate)
  * if (info?.status === 'overdue') {
- *   console?.log('Просрочено!')
+ *   console.log('Просрочено!')
  * }
  * // Use styling: <div className={info?.bgColor}>
  */

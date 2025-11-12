@@ -64,7 +64,7 @@ export function useTeachers() {
         setTeachers(teachersList)
         setError(null)
       } catch (err) {
-        console?.error('Error fetching teachers:', err)
+        console.error('Error fetching teachers:', err)
         setError(err as Error)
       } finally {
         setLoading(false)

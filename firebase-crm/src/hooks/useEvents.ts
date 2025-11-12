@@ -65,7 +65,7 @@ export function useEvents() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching events:', err)
+        console.error('Error fetching events:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error(ERROR_MESSAGES?.LOAD_EVENTS_ERROR)
@@ -264,7 +264,7 @@ export function useAddEvent() {
       toast?.success(SUCCESS_MESSAGES?.EVENT_ADDED)
     },
     onError: (error: Error) => {
-      console?.error('Error adding event:', error)
+      console.error('Error adding event:', error)
       toast?.error(ERROR_MESSAGES?.ADD_EVENT_ERROR)
     },
   })
@@ -328,7 +328,7 @@ export function useUpdateEvent() {
       toast?.success(SUCCESS_MESSAGES?.EVENT_UPDATED)
     },
     onError: (error: Error) => {
-      console?.error('Error updating event:', error)
+      console.error('Error updating event:', error)
       toast?.error(ERROR_MESSAGES?.UPDATE_EVENT_ERROR)
     },
   })
@@ -386,7 +386,7 @@ export function useDeleteEvent() {
       toast?.success(SUCCESS_MESSAGES?.EVENT_DELETED)
     },
     onError: (error: Error) => {
-      console?.error('Error deleting event:', error)
+      console.error('Error deleting event:', error)
       toast?.error(ERROR_MESSAGES?.DELETE_EVENT_ERROR)
     },
   })

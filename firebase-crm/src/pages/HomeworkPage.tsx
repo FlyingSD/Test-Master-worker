@@ -150,13 +150,13 @@ export default function HomeworkPage() {
   }
 
   const handleDelete = async (homeworkId: string, title: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете "${title}"?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете "${title}"?`)) {
       try {
         await deleteHomework?.mutateAsync(homeworkId)
         toast?.success('Домашното беше изтрито успешно!')
       } catch (error) {
         // Error toast is shown automatically by hook
-        console?.error('Delete error:', error)
+        console.error('Delete error:', error)
       }
     }
   }
@@ -193,7 +193,7 @@ export default function HomeworkPage() {
 
       toast?.success('Домашното е маркирано като завършено!')
     } catch (error) {
-      console?.error('Mark complete error:', error)
+      console.error('Mark complete error:', error)
     }
   }
 

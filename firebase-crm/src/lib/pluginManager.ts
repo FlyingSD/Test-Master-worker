@@ -21,7 +21,7 @@ class PluginManager {
         return null
       },
       registerRoute: (path: string, component: ComponentType) => {
-        console?.log(`Plugin registered route: ${path}`)
+        console.log(`Plugin registered route: ${path}`)
       },
       notify: (message: string, type: 'success' | 'error' | 'info') => {
         if (type === 'success') toast?.success(message)
@@ -31,10 +31,10 @@ class PluginManager {
       storage: {
         get: (key: string) => {
           const data = localStorage?.getItem(`plugin_${key}`)
-          return data ? JSON?.parse(data) : null
+          return data ? JSON.parse(data) : null
         },
         set: (key: string, value: any) => {
-          localStorage?.setItem(`plugin_${key}`, JSON?.stringify(value))
+          localStorage?.setItem(`plugin_${key}`, JSON.stringify(value))
         },
         remove: (key: string) => {
           localStorage?.removeItem(`plugin_${key}`)
@@ -48,7 +48,7 @@ class PluginManager {
    */
   register(plugin: Plugin, loader: () => Promise<Plugin>) {
     if (this?.plugins.has(plugin?.id)) {
-      console?.warn(`Plugin ${plugin?.id} is already registered`)
+      console.warn(`Plugin ${plugin?.id} is already registered`)
       return
     }
 
@@ -58,7 +58,7 @@ class PluginManager {
       loaded: false,
     })
 
-    console?.log(`✅ Plugin registered: ${plugin?.name} v${plugin?.version}`)
+    console.log(`✅ Plugin registered: ${plugin?.name} v${plugin?.version}`)
   }
 
   /**
@@ -67,7 +67,7 @@ class PluginManager {
   async install(pluginId: string): Promise<boolean> {
     const entry = this?.plugins.get(pluginId)
     if (!entry) {
-      console?.error(`Plugin ${pluginId} not found`)
+      console.error(`Plugin ${pluginId} not found`)
       return false
     }
 
@@ -75,7 +75,7 @@ class PluginManager {
       // Load plugin if not loaded
       if (!entry?.loaded) {
         const plugin = await entry?.loader()
-        Object?.assign(entry, plugin, { loaded: true })
+        Object.assign(entry, plugin, { loaded: true })
       }
 
       // Run onInstall hook
@@ -88,7 +88,7 @@ class PluginManager {
       toast?.success(`Плъгинът "${entry?.name}" е инсталиран успешно!`)
       return true
     } catch (error) {
-      console?.error(`Failed to install plugin ${pluginId}:`, error)
+      console.error(`Failed to install plugin ${pluginId}:`, error)
       toast?.error(`Грешка при инсталиране на "${entry?.name}"`)
       return false
     }
@@ -100,12 +100,12 @@ class PluginManager {
   async enable(pluginId: string): Promise<boolean> {
     const entry = this?.plugins.get(pluginId)
     if (!entry) {
-      console?.error(`Plugin ${pluginId} not found`)
+      console.error(`Plugin ${pluginId} not found`)
       return false
     }
 
     if (entry?.enabled) {
-      console?.warn(`Plugin ${pluginId} is already enabled`)
+      console.warn(`Plugin ${pluginId} is already enabled`)
       return true
     }
 
@@ -113,7 +113,7 @@ class PluginManager {
       // Load plugin if not loaded
       if (!entry?.loaded) {
         const plugin = await entry?.loader()
-        Object?.assign(entry, plugin, { loaded: true })
+        Object.assign(entry, plugin, { loaded: true })
       }
 
       // Run onEnable hook
@@ -127,7 +127,7 @@ class PluginManager {
       toast?.success(`Плъгинът "${entry?.name}" е активиран!`)
       return true
     } catch (error) {
-      console?.error(`Failed to enable plugin ${pluginId}:`, error)
+      console.error(`Failed to enable plugin ${pluginId}:`, error)
       toast?.error(`Грешка при активиране на "${entry?.name}"`)
       return false
     }
@@ -139,12 +139,12 @@ class PluginManager {
   async disable(pluginId: string): Promise<boolean> {
     const entry = this?.plugins.get(pluginId)
     if (!entry) {
-      console?.error(`Plugin ${pluginId} not found`)
+      console.error(`Plugin ${pluginId} not found`)
       return false
     }
 
     if (!entry?.enabled) {
-      console?.warn(`Plugin ${pluginId} is already disabled`)
+      console.warn(`Plugin ${pluginId} is already disabled`)
       return true
     }
 
@@ -159,7 +159,7 @@ class PluginManager {
       toast?.success(`Плъгинът "${entry?.name}" е деактивиран!`)
       return true
     } catch (error) {
-      console?.error(`Failed to disable plugin ${pluginId}:`, error)
+      console.error(`Failed to disable plugin ${pluginId}:`, error)
       toast?.error(`Грешка при деактивиране на "${entry?.name}"`)
       return false
     }
@@ -171,7 +171,7 @@ class PluginManager {
   async uninstall(pluginId: string): Promise<boolean> {
     const entry = this?.plugins.get(pluginId)
     if (!entry) {
-      console?.error(`Plugin ${pluginId} not found`)
+      console.error(`Plugin ${pluginId} not found`)
       return false
     }
 
@@ -191,7 +191,7 @@ class PluginManager {
       toast?.success(`Плъгинът "${entry?.name}" е деинсталиран!`)
       return true
     } catch (error) {
-      console?.error(`Failed to uninstall plugin ${pluginId}:`, error)
+      console.error(`Failed to uninstall plugin ${pluginId}:`, error)
       toast?.error(`Грешка при деинсталиране на "${entry?.name}"`)
       return false
     }
@@ -201,14 +201,14 @@ class PluginManager {
    * Get all registered plugins
    */
   getAll(): Plugin[] {
-    return Array?.from(this?.plugins.values())
+    return Array.from(this?.plugins.values())
   }
 
   /**
    * Get enabled plugins
    */
   getEnabled(): Plugin[] {
-    return Array?.from(this?.plugins.values()).filter((p) => p?.enabled)
+    return Array.from(this?.plugins.values()).filter((p) => p?.enabled)
   }
 
   /**

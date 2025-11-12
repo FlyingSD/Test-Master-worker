@@ -43,7 +43,7 @@ function StudentModal({ student, onClose }: StudentModalProps) {
       generateQRCodeDataUrl(student?.studentCode)
         .then(setQrCodeUrl)
         .catch((error) => {
-          console?.error('Failed to generate QR code:', error)
+          console.error('Failed to generate QR code:', error)
         })
     }
   }, [student?.studentCode])
@@ -113,7 +113,7 @@ function StudentModal({ student, onClose }: StudentModalProps) {
       toast?.success('QR код изтеглен успешно!')
     } catch (error) {
       toast?.error('Грешка при изтегляне на QR код')
-      console?.error(error)
+      console.error(error)
     }
   }
 

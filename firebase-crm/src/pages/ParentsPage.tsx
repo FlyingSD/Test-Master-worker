@@ -70,7 +70,7 @@ export default function ParentsPage() {
   }
 
   const handleDelete = async (parentId: string, parentName: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете ${parentName}?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете ${parentName}?`)) {
       await deleteParent?.mutateAsync(parentId)
     }
   }
@@ -92,16 +92,16 @@ export default function ParentsPage() {
     try {
       await uploadVideo?.mutateAsync({ parentId, videoFile: file })
     } catch (error) {
-      console?.error('Error uploading video:', error)
+      console.error('Error uploading video:', error)
     }
   }
 
   const handleVideoDelete = async (parentId: string, videoUrl: string) => {
-    if (window?.confirm('Сигурни ли сте, че искате да изтриете това видео?')) {
+    if (window.confirm('Сигурни ли сте, че искате да изтриете това видео?')) {
       try {
         await deleteVideo?.mutateAsync({ parentId, videoUrl })
       } catch (error) {
-        console?.error('Error deleting video:', error)
+        console.error('Error deleting video:', error)
       }
     }
   }

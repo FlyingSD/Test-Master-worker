@@ -55,7 +55,7 @@ export default function EventsPage() {
   }
 
   const handleDelete = async (eventId: string, eventTitle: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете "${eventTitle}"?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете "${eventTitle}"?`)) {
       await deleteEvent?.mutateAsync(eventId)
     }
   }

@@ -12,7 +12,7 @@ import { DashboardStats } from '@/types'
  *
  * @example
  * const stats = useDashboardStats()
- * console?.log(stats?.profit) // totalRevenue - totalExpenses
+ * console.log(stats?.profit) // totalRevenue - totalExpenses
  */
 export function useDashboardStats(): DashboardStats & { loading: boolean } {
   const { payments, loading: paymentsLoading } = usePayments()

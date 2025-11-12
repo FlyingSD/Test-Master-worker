@@ -31,7 +31,7 @@ export default function ExpensesPage() {
   const [endDate, setEndDate] = useState<Date | null>(null)
 
   // Get unique categories from expenses
-  const categories = Array?.from(new Set(expenses?.map((exp) => exp?.category)))
+  const categories = Array.from(new Set(expenses?.map((exp) => exp?.category)))
 
   // Filter expenses
   const filteredExpenses = expenses?.filter((expense) => {
@@ -71,7 +71,7 @@ export default function ExpensesPage() {
   }, {} as Record<string, number>)
 
   const largestExpense = expenses?.length > 0 ? Math?.max(...expenses?.map((e) => e?.amount)) : 0
-  const topCategory = Object?.entries(expensesByCategory).sort((a, b) => b[1] - a[1])[0]
+  const topCategory = Object.entries(expensesByCategory).sort((a, b) => b[1] - a[1])[0]
 
   const handleEdit = (expense: Expense) => {
     setEditingExpense(expense)
@@ -79,7 +79,7 @@ export default function ExpensesPage() {
   }
 
   const handleDelete = async (expenseId: string, description: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете "${description}"?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете "${description}"?`)) {
       await deleteExpense?.mutateAsync(expenseId)
     }
   }

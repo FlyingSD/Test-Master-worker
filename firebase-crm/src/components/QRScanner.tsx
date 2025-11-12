@@ -55,7 +55,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
           setError(null)
         })
         .catch((err) => {
-          console?.error('Camera error:', err)
+          console.error('Camera error:', err)
           setError('Грешка при достъп до камерата. Използвайте ръчно въвеждане.')
           setMode('manual')
         })

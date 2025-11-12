@@ -63,7 +63,7 @@ export default function GroupsPage() {
   }
 
   const handleDelete = async (groupId: string, groupName: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете "${groupName}"?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете "${groupName}"?`)) {
       await deleteGroup?.mutateAsync(groupId)
     }
   }

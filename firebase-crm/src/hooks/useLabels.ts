@@ -25,9 +25,9 @@ function deepMerge<T extends Record<string, any>>(
       customValue !== null &&
       customValue !== undefined &&
       typeof customValue === 'object' &&
-      !Array?.isArray(customValue) &&
+      !Array.isArray(customValue) &&
       typeof defaultValue === 'object' &&
-      !Array?.isArray(defaultValue)
+      !Array.isArray(defaultValue)
     ) {
       // Recursively merge nested objects
       result[key] = deepMerge(defaultValue, customValue) as any
@@ -78,7 +78,7 @@ export function useLabels() {
         setLoading(false)
       },
       (error) => {
-        console?.error('Error loading labels:', error)
+        console.error('Error loading labels:', error)
         setCustomLabels(null)
         setLoading(false)
       }
@@ -139,7 +139,7 @@ export function useUpdateLabels() {
 
       toast?.success('Етикетите са запазени успешно')
     } catch (error) {
-      console?.error('Error updating labels:', error)
+      console.error('Error updating labels:', error)
       toast?.error('Грешка при запазване на етикети')
       throw error
     } finally {
@@ -154,7 +154,7 @@ export function useUpdateLabels() {
       await setDoc(docRef, {})
       toast?.success('Етикетите са върнати към стойностите по подразбиране')
     } catch (error) {
-      console?.error('Error resetting labels:', error)
+      console.error('Error resetting labels:', error)
       toast?.error('Грешка при нулиране на етикети')
       throw error
     } finally {

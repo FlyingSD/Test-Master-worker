@@ -83,14 +83,14 @@ export function triggerHaptic(
 ): void {
   if (!navigator?.vibrate) return
 
-  const vibrationPattern = Array?.isArray(pattern)
+  const vibrationPattern = Array.isArray(pattern)
     ? pattern
     : HAPTIC_PATTERNS[pattern]
 
   try {
     navigator?.vibrate(vibrationPattern)
   } catch (error) {
-    console?.debug('Haptic feedback not supported:', error)
+    console.debug('Haptic feedback not supported:', error)
   }
 }
 
@@ -103,8 +103,8 @@ export function triggerHaptic(
  *
  * @example
  * const swipeHandlers = useSwipe({
- *   onSwipeLeft: () => console?.log('Swiped left'),
- *   onSwipeRight: () => console?.log('Swiped right'),
+ *   onSwipeLeft: () => console.log('Swiped left'),
+ *   onSwipeRight: () => console.log('Swiped right'),
  * })
  *
  * <div {...swipeHandlers}>Swipeable content</div>

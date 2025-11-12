@@ -39,7 +39,7 @@ export function generateStudentLinkUrl(studentCode: string, appUrl?: string): st
 
     baseUrl = urlValidation.sanitizedUrl.replace(/\/$/, '') // Remove trailing slash
   } else {
-    baseUrl = window?.location.origin
+    baseUrl = window.location.origin
   }
 
   return `${baseUrl}/link-student?code=${sanitizedCode}`
@@ -76,7 +76,7 @@ export async function generateQRCodeDataUrl(
     })
     return dataUrl
   } catch (error) {
-    console?.error('Error generating QR code:', error)
+    console.error('Error generating QR code:', error)
     throw new Error('Failed to generate QR code')
   }
 }
@@ -112,7 +112,7 @@ export async function generateQRCodeCanvas(
       errorCorrectionLevel: 'M',
     })
   } catch (error) {
-    console?.error('Error generating QR code:', error)
+    console.error('Error generating QR code:', error)
     throw new Error('Failed to generate QR code')
   }
 }
@@ -142,7 +142,7 @@ export async function downloadQRCode(
     link?.click()
     document?.body.removeChild(link)
   } catch (error) {
-    console?.error('Error downloading QR code:', error)
+    console.error('Error downloading QR code:', error)
     throw new Error('Failed to download QR code')
   }
 }

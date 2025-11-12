@@ -17,7 +17,7 @@ const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
 // Initialize EmailJS
 export function initEmailJS() {
   if (PUBLIC_KEY) {
-    emailjs?.init(PUBLIC_KEY)
+    emailjs.init(PUBLIC_KEY)
   }
 }
 
@@ -32,12 +32,12 @@ export async function sendPaymentReminderEmail(
   parent: Parent
 ): Promise<boolean> {
   if (!isEmailConfigured()) {
-    console?.warn('EmailJS is not configured')
+    console.warn('EmailJS is not configured')
     return false
   }
 
   if (!parent?.email) {
-    console?.warn('Parent does not have an email address')
+    console.warn('Parent does not have an email address')
     return false
   }
 
@@ -53,11 +53,11 @@ export async function sendPaymentReminderEmail(
   }
 
   try {
-    await emailjs?.send(SERVICE_ID, TEMPLATE_ID, templateParams)
-    console?.log('Payment reminder email sent successfully')
+    await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+    console.log('Payment reminder email sent successfully')
     return true
   } catch (error) {
-    console?.error('Failed to send payment reminder email:', error)
+    console.error('Failed to send payment reminder email:', error)
     return false
   }
 }
@@ -69,7 +69,7 @@ export async function sendInvoiceEmail(
   recipientName: string
 ): Promise<boolean> {
   if (!isEmailConfigured()) {
-    console?.warn('EmailJS is not configured')
+    console.warn('EmailJS is not configured')
     return false
   }
 
@@ -87,11 +87,11 @@ export async function sendInvoiceEmail(
   }
 
   try {
-    await emailjs?.send(SERVICE_ID, TEMPLATE_ID, templateParams)
-    console?.log('Invoice email sent successfully')
+    await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+    console.log('Invoice email sent successfully')
     return true
   } catch (error) {
-    console?.error('Failed to send invoice email:', error)
+    console.error('Failed to send invoice email:', error)
     return false
   }
 }
@@ -122,12 +122,12 @@ export async function sendWelcomeEmail(
   parent: Parent
 ): Promise<boolean> {
   if (!isEmailConfigured()) {
-    console?.warn('EmailJS is not configured')
+    console.warn('EmailJS is not configured')
     return false
   }
 
   if (!parent?.email) {
-    console?.warn('Parent does not have an email address')
+    console.warn('Parent does not have an email address')
     return false
   }
 
@@ -140,11 +140,11 @@ export async function sendWelcomeEmail(
   }
 
   try {
-    await emailjs?.send(SERVICE_ID, TEMPLATE_ID, templateParams)
-    console?.log('Welcome email sent successfully')
+    await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+    console.log('Welcome email sent successfully')
     return true
   } catch (error) {
-    console?.error('Failed to send welcome email:', error)
+    console.error('Failed to send welcome email:', error)
     return false
   }
 }

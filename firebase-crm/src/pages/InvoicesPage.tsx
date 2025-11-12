@@ -58,7 +58,7 @@ export default function InvoicesPage() {
   }
 
   const handleDelete = async (invoiceId: string, invoiceNumber: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете ${invoiceNumber}?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете ${invoiceNumber}?`)) {
       await deleteInvoice?.mutateAsync(invoiceId)
     }
   }
@@ -69,7 +69,7 @@ export default function InvoicesPage() {
 
   const handlePrint = (invoice: Invoice) => {
     // Simple print for now - can be enhanced with PDF generation
-    const printWindow = window?.open('', '_blank')
+    const printWindow = window.open('', '_blank')
     if (!printWindow) return
 
     printWindow?.document.write(`
@@ -136,7 +136,7 @@ export default function InvoicesPage() {
 
           ${invoice?.notes ? `<p style="margin-top: 30px;"><strong>Бележки:</strong> ${invoice?.notes}</p>` : ''}
 
-          <script>window?.print(); window?.onafterprint = () => window?.close();</script>
+          <script>window.print(); window.onafterprint = () => window.close();</script>
         </body>
       </html>
     `)

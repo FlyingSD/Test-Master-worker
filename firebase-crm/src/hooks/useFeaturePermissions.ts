@@ -65,7 +65,7 @@ export function useFeaturePermissions() {
         }
       }
     } catch (error) {
-      console?.error('Error loading feature permissions:', error)
+      console.error('Error loading feature permissions:', error)
       // Keep default permissions on error
     } finally {
       setLoading(false)
@@ -93,11 +93,11 @@ export function useFeaturePermissions() {
   const getEnabledFeatures = (role: UserRole): FeatureName[] => {
     if (role === 'admin') {
       // Admins have access to all features
-      return Object?.keys(DEFAULT_PERMISSIONS?.teacher) as FeatureName[]
+      return Object.keys(DEFAULT_PERMISSIONS?.teacher) as FeatureName[]
     }
 
     if (role === 'teacher' || role === 'parent') {
-      return Object?.entries(permissions[role])
+      return Object.entries(permissions[role])
         .filter(([_, enabled]) => enabled)
         .map(([feature]) => feature as FeatureName)
     }

@@ -21,7 +21,7 @@ export function exportStudentsToExcel(students: Student[]) {
 
   // Auto-size columns
   const maxWidth = 50
-  const colWidths = Object?.keys(data[0] || {}).map((key) => ({
+  const colWidths = Object.keys(data[0] || {}).map((key) => ({
     wch: Math?.min(
       Math?.max(
         key?.length,
@@ -61,7 +61,7 @@ export function exportPaymentsToExcel(payments: Payment[]) {
 
   // Auto-size columns
   const maxWidth = 40
-  const colWidths = Object?.keys(data[0] || {}).map((key) => ({
+  const colWidths = Object.keys(data[0] || {}).map((key) => ({
     wch: Math?.min(
       Math?.max(
         key?.length,
@@ -100,7 +100,7 @@ export function exportExpensesToExcel(expenses: Expense[]) {
 
   // Auto-size columns
   const maxWidth = 50
-  const colWidths = Object?.keys(data[0] || {}).map((key) => ({
+  const colWidths = Object.keys(data[0] || {}).map((key) => ({
     wch: Math?.min(
       Math?.max(
         key?.length,
@@ -136,7 +136,7 @@ export function exportParentsToExcel(parents: Parent[]) {
 
   // Auto-size columns
   const maxWidth = 50
-  const colWidths = Object?.keys(data[0] || {}).map((key) => ({
+  const colWidths = Object.keys(data[0] || {}).map((key) => ({
     wch: Math?.min(
       Math?.max(
         key?.length,
@@ -186,7 +186,7 @@ export function exportInvoicesToExcel(invoices: Invoice[]) {
 
   // Auto-size columns
   const maxWidth = 40
-  const colWidths = Object?.keys(data[0] || {}).map((key) => ({
+  const colWidths = Object.keys(data[0] || {}).map((key) => ({
     wch: Math?.min(
       Math?.max(
         key?.length,
@@ -218,7 +218,7 @@ export function exportAttendanceToExcel(attendance: Attendance[]) {
 
   // Auto-size columns
   const maxWidth = 50
-  const colWidths = Object?.keys(data[0] || {}).map((key) => ({
+  const colWidths = Object.keys(data[0] || {}).map((key) => ({
     wch: Math?.min(
       Math?.max(
         key?.length,

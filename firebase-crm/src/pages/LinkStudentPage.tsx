@@ -86,7 +86,7 @@ export default function LinkStudentPage() {
 
       setStudent(studentData)
     } catch (error: any) {
-      console?.error('Error fetching student:', error)
+      console.error('Error fetching student:', error)
       toast?.error('Грешка при търсене на ученик: ' + error?.message)
     } finally {
       setLoading(false)
@@ -117,7 +117,7 @@ export default function LinkStudentPage() {
       // Redirect to my-children page
       navigate('/my-children')
     } catch (error: any) {
-      console?.error('Error linking student:', error)
+      console.error('Error linking student:', error)
       toast?.error('Грешка при свързване: ' + error?.message)
     } finally {
       setLinking(false)

@@ -22,11 +22,11 @@ initEmailJS()
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
-  window?.addEventListener('load', () => {
+  window.addEventListener('load', () => {
     navigator?.serviceWorker
       .register('/sw?.js')
       .then((registration) => {
-        console?.log('✅ SW registered:', registration)
+        console.log('✅ SW registered:', registration)
 
         // Check for updates every hour
         setInterval(() => {
@@ -40,12 +40,12 @@ if ('serviceWorker' in navigator) {
             newWorker?.addEventListener('statechange', () => {
               if (newWorker?.state === 'installed' && navigator?.serviceWorker.controller) {
                 // New service worker available
-                console?.log('🔄 New version available! Refresh to update.')
+                console.log('🔄 New version available! Refresh to update.')
 
                 // Notify user about update
                 if (confirm('Налична е нова версия на приложението. Обновете сега?')) {
                   newWorker?.postMessage({ type: 'SKIP_WAITING' })
-                  window?.location.reload()
+                  window.location.reload()
                 }
               }
             })
@@ -53,7 +53,7 @@ if ('serviceWorker' in navigator) {
         })
       })
       .catch((error) => {
-        console?.log('❌ SW registration failed:', error)
+        console.log('❌ SW registration failed:', error)
       })
   })
 
@@ -62,7 +62,7 @@ if ('serviceWorker' in navigator) {
   navigator?.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) {
       refreshing = true
-      window?.location.reload()
+      window.location.reload()
     }
   })
 }
@@ -70,17 +70,17 @@ if ('serviceWorker' in navigator) {
 // PWA Install Prompt
 let deferredPrompt: any = null
 
-window?.addEventListener('beforeinstallprompt', (e) => {
-  console?.log('💡 PWA install prompt available')
+window.addEventListener('beforeinstallprompt', (e) => {
+  console.log('💡 PWA install prompt available')
   e?.preventDefault()
   deferredPrompt = e
 
   // Show install button/banner (можем да добавим UI за това)
-  console?.log('PWA можем да се инсталира')
+  console.log('PWA можем да се инсталира')
 })
 
-window?.addEventListener('appinstalled', () => {
-  console?.log('✅ PWA installed successfully')
+window.addEventListener('appinstalled', () => {
+  console.log('✅ PWA installed successfully')
   deferredPrompt = null
 })
 

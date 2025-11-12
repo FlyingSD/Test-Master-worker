@@ -47,7 +47,7 @@ export function usePaymentPlans() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching payment plans:', err)
+        console.error('Error fetching payment plans:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error('Грешка при зареждане на планове за плащане')
@@ -128,7 +128,7 @@ export function useAddPaymentPlan() {
       toast?.success('Планът за плащане е създаден успешно!')
     },
     onError: (error) => {
-      console?.error('Error creating payment plan:', error)
+      console.error('Error creating payment plan:', error)
       toast?.error('Грешка при създаване на план за плащане')
     },
   })
@@ -178,7 +178,7 @@ export function useUpdatePaymentPlan() {
       toast?.success('Планът за плащане е обновен успешно!')
     },
     onError: (error) => {
-      console?.error('Error updating payment plan:', error)
+      console.error('Error updating payment plan:', error)
       toast?.error('Грешка при обновяване на план за плащане')
     },
   })
@@ -207,7 +207,7 @@ export function useDeletePaymentPlan() {
       toast?.success('Планът за плащане е изтрит успешно!')
     },
     onError: (error) => {
-      console?.error('Error deleting payment plan:', error)
+      console.error('Error deleting payment plan:', error)
       toast?.error('Грешка при изтриване на план за плащане')
     },
   })
@@ -275,7 +275,7 @@ export function useMarkInstallmentPaid() {
       toast?.success('Вноската е маркирана като платена!')
     },
     onError: (error) => {
-      console?.error('Error marking installment as paid:', error)
+      console.error('Error marking installment as paid:', error)
       toast?.error('Грешка при маркиране на вноската')
     },
   })

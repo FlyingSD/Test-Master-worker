@@ -107,12 +107,12 @@ export function usePayments() {
             snapshot?.forEach((doc) => {
               allPayments?.set(doc?.id, { id: doc?.id, ...doc?.data() } as Payment)
             })
-            setPayments(Array?.from(allPayments?.values()))
+            setPayments(Array.from(allPayments?.values()))
             setLoading(false)
             setError(null)
           },
           (err) => {
-            console?.error('Error fetching parent payments:', err)
+            console.error('Error fetching parent payments:', err)
             setError(err as Error)
             setLoading(false)
             toast?.error(ERROR_MESSAGES?.LOAD_PAYMENTS_ERROR)
@@ -172,7 +172,7 @@ export function usePayments() {
             snapshot?.forEach((doc) => {
               allPayments?.set(doc?.id, { id: doc?.id, ...doc?.data() } as Payment)
             })
-            setPayments(Array?.from(allPayments?.values()))
+            setPayments(Array.from(allPayments?.values()))
             setLoading(false)
             setError(null)
           })
@@ -208,7 +208,7 @@ export function usePayments() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching payments:', err)
+        console.error('Error fetching payments:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error(ERROR_MESSAGES?.LOAD_PAYMENTS_ERROR)
@@ -384,7 +384,7 @@ export function useAddPayment() {
       toast?.success(SUCCESS_MESSAGES?.PAYMENT_ADDED)
     },
     onError: (error: Error) => {
-      console?.error('Error adding payment:', error)
+      console.error('Error adding payment:', error)
       toast?.error(ERROR_MESSAGES?.ADD_PAYMENT_ERROR + ': ' + error?.message)
     },
   })
@@ -425,7 +425,7 @@ export function useUpdatePayment() {
       toast?.success(SUCCESS_MESSAGES?.PAYMENT_UPDATED)
     },
     onError: (error: Error) => {
-      console?.error('Error updating payment:', error)
+      console.error('Error updating payment:', error)
       toast?.error(ERROR_MESSAGES?.UPDATE_PAYMENT_ERROR + ': ' + error?.message)
     },
   })
@@ -460,7 +460,7 @@ export function useDeletePayment() {
       toast?.success(SUCCESS_MESSAGES?.PAYMENT_DELETED)
     },
     onError: (error: Error) => {
-      console?.error('Error deleting payment:', error)
+      console.error('Error deleting payment:', error)
       toast?.error(ERROR_MESSAGES?.DELETE_PAYMENT_ERROR + ': ' + error?.message)
     },
   })
@@ -612,12 +612,12 @@ export function usePaymentsByParent(parentId: string) {
               })
 
               // Convert map to array and set state
-              setPayments(Array?.from(allPayments?.values()))
+              setPayments(Array.from(allPayments?.values()))
               setLoading(false)
               setError(null)
             },
             (err) => {
-              console?.error('Error fetching parent payments:', err)
+              console.error('Error fetching parent payments:', err)
               setError(err as Error)
               setLoading(false)
             }
@@ -627,7 +627,7 @@ export function usePaymentsByParent(parentId: string) {
         })
       },
       (err) => {
-        console?.error('Error fetching parent students:', err)
+        console.error('Error fetching parent students:', err)
         setError(err as Error)
         setLoading(false)
       }
@@ -707,7 +707,7 @@ export function useBulkAddPayments() {
       toast?.success('Плащанията бяха добавени успешно!')
     },
     onError: (error: Error) => {
-      console?.error('Error bulk adding payments:', error)
+      console.error('Error bulk adding payments:', error)
       toast?.error(ERROR_MESSAGES?.ADD_PAYMENT_ERROR + ': ' + error?.message)
     },
   })

@@ -61,7 +61,7 @@ export default function StudentsPage() {
   }
 
   const handleDelete = async (studentId: string, studentName: string) => {
-    if (window?.confirm(`Сигурни ли сте, че искате да изтриете ${studentName}?`)) {
+    if (window.confirm(`Сигурни ли сте, че искате да изтриете ${studentName}?`)) {
       await deleteStudent?.mutateAsync(studentId)
     }
   }

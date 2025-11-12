@@ -77,7 +77,7 @@ export function useParents() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching parents:', err)
+        console.error('Error fetching parents:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error(ERROR_MESSAGES?.LOAD_PARENTS_ERROR)
@@ -249,7 +249,7 @@ export function useAddParent() {
       toast?.success(SUCCESS_MESSAGES?.PARENT_ADDED)
     },
     onError: (error: Error) => {
-      console?.error('Error adding parent:', error)
+      console.error('Error adding parent:', error)
       toast?.error(ERROR_MESSAGES?.ADD_PARENT_ERROR)
     },
   })
@@ -321,7 +321,7 @@ export function useUpdateParent() {
       toast?.success(SUCCESS_MESSAGES?.PARENT_UPDATED)
     },
     onError: (error: Error) => {
-      console?.error('Error updating parent:', error)
+      console.error('Error updating parent:', error)
       toast?.error(ERROR_MESSAGES?.UPDATE_PARENT_ERROR)
     },
   })
@@ -389,7 +389,7 @@ export function useDeleteParent() {
             const videoRef = ref(storage, videoUrl)
             await deleteObject(videoRef)
           } catch (error) {
-            console?.error('Error deleting video:', error)
+            console.error('Error deleting video:', error)
           }
         })
         await Promise?.all(deletePromises)
@@ -402,7 +402,7 @@ export function useDeleteParent() {
       toast?.success(SUCCESS_MESSAGES?.PARENT_DELETED)
     },
     onError: (error: Error) => {
-      console?.error('Error deleting parent:', error)
+      console.error('Error deleting parent:', error)
       toast?.error(ERROR_MESSAGES?.DELETE_PARENT_ERROR)
     },
   })
@@ -440,7 +440,7 @@ export function useAddStudentToParent() {
       queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parent(variables?.parentId) })
     },
     onError: (error: Error) => {
-      console?.error('Error adding student to parent:', error)
+      console.error('Error adding student to parent:', error)
       toast?.error(ERROR_MESSAGES?.ADD_STUDENT_ERROR)
     },
   })
@@ -474,7 +474,7 @@ export function useRemoveStudentFromParent() {
       queryClient?.invalidateQueries({ queryKey: QUERY_KEYS?.parent(variables?.parentId) })
     },
     onError: (error: Error) => {
-      console?.error('Error removing student from parent:', error)
+      console.error('Error removing student from parent:', error)
       toast?.error(ERROR_MESSAGES?.DELETE_STUDENT_ERROR)
     },
   })
@@ -532,7 +532,7 @@ export function useUploadVideoToParent() {
       toast?.success('Видеото беше качено успешно!')
     },
     onError: (error: Error) => {
-      console?.error('Error uploading video:', error)
+      console.error('Error uploading video:', error)
       toast?.error('Грешка при качване на видео: ' + error?.message)
     },
   })
@@ -572,7 +572,7 @@ export function useDeleteVideoFromParent() {
       toast?.success('Видеото беше изтрито успешно!')
     },
     onError: (error: Error) => {
-      console?.error('Error deleting video:', error)
+      console.error('Error deleting video:', error)
       toast?.error('Грешка при изтриване на видео: ' + error?.message)
     },
   })

@@ -83,12 +83,12 @@ export function useAttendance() {
             snapshot?.forEach((doc) => {
               allAttendance?.set(doc?.id, { id: doc?.id, ...doc?.data() } as Attendance)
             })
-            setAttendance(Array?.from(allAttendance?.values()))
+            setAttendance(Array.from(allAttendance?.values()))
             setLoading(false)
             setError(null)
           },
           (err) => {
-            console?.error('Error fetching parent attendance:', err)
+            console.error('Error fetching parent attendance:', err)
             setError(err as Error)
             setLoading(false)
             toast?.error(ERROR_MESSAGES?.LOAD_ATTENDANCE_ERROR)
@@ -115,7 +115,7 @@ export function useAttendance() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching attendance:', err)
+        console.error('Error fetching attendance:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error(ERROR_MESSAGES?.LOAD_ATTENDANCE_ERROR)
@@ -437,7 +437,7 @@ export function useBulkAddAttendance() {
       toast?.success(SUCCESS_MESSAGES?.BULK_ATTENDANCE_ADDED)
     },
     onError: (error) => {
-      console?.error('Error bulk adding attendance:', error)
+      console.error('Error bulk adding attendance:', error)
       toast?.error(ERROR_MESSAGES?.BULK_ATTENDANCE_ERROR)
     },
   })

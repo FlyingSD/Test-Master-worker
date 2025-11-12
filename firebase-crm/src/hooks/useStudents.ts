@@ -123,7 +123,7 @@ export function useStudents() {
             setError(null)
           },
           (err) => {
-            console?.error('Error fetching students for parent:', err)
+            console.error('Error fetching students for parent:', err)
             setError(err as Error)
             setLoading(false)
             toast?.error(ERROR_MESSAGES?.LOAD_STUDENTS_ERROR)
@@ -186,7 +186,7 @@ export function useStudents() {
             setError(null)
           },
           (err) => {
-            console?.error('Error fetching students for teacher:', err)
+            console.error('Error fetching students for teacher:', err)
             setError(err as Error)
             setLoading(false)
             toast?.error(ERROR_MESSAGES?.LOAD_STUDENTS_ERROR)
@@ -222,7 +222,7 @@ export function useStudents() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching students:', err)
+        console.error('Error fetching students:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error(ERROR_MESSAGES?.LOAD_STUDENTS_ERROR)
@@ -389,7 +389,7 @@ export function useAddStudent() {
       toast?.success(SUCCESS_MESSAGES?.STUDENT_ADDED)
     },
     onError: (error: Error) => {
-      console?.error('Error adding student:', error)
+      console.error('Error adding student:', error)
       toast?.error(ERROR_MESSAGES?.ADD_STUDENT_ERROR + ': ' + error?.message)
     },
   })
@@ -460,7 +460,7 @@ export function useUpdateStudent() {
       toast?.success(SUCCESS_MESSAGES?.STUDENT_UPDATED)
     },
     onError: (error: Error) => {
-      console?.error('Error updating student:', error)
+      console.error('Error updating student:', error)
       toast?.error(ERROR_MESSAGES?.UPDATE_STUDENT_ERROR + ': ' + error?.message)
     },
   })
@@ -517,7 +517,7 @@ export function useDeleteStudent() {
       toast?.success(SUCCESS_MESSAGES?.STUDENT_DELETED)
     },
     onError: (error: Error) => {
-      console?.error('Error deleting student:', error)
+      console.error('Error deleting student:', error)
       toast?.error(ERROR_MESSAGES?.DELETE_STUDENT_ERROR + ': ' + error?.message)
     },
   })
@@ -632,7 +632,7 @@ export function useBulkAddStudents() {
       toast?.success(SUCCESS_MESSAGES?.STUDENTS_IMPORTED)
     },
     onError: (error: Error) => {
-      console?.error('Error bulk adding students:', error)
+      console.error('Error bulk adding students:', error)
       toast?.error(ERROR_MESSAGES?.IMPORT_STUDENTS_ERROR + ': ' + error?.message)
     },
   })

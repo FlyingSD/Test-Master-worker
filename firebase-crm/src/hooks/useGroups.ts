@@ -102,7 +102,7 @@ export function useGroups() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching groups:', err)
+        console.error('Error fetching groups:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error('Грешка при зареждане на групи')
@@ -261,7 +261,7 @@ export function useAddGroup() {
       toast?.success('Групата е добавена успешно')
     },
     onError: (error: Error) => {
-      console?.error('Error adding group:', error)
+      console.error('Error adding group:', error)
       toast?.error('Грешка при добавяне на група: ' + error?.message)
     },
   })
@@ -339,7 +339,7 @@ export function useUpdateGroup() {
       toast?.success('Групата е актуализирана успешно')
     },
     onError: (error: Error) => {
-      console?.error('Error updating group:', error)
+      console.error('Error updating group:', error)
       toast?.error('Грешка при актуализиране на група: ' + error?.message)
     },
   })
@@ -398,7 +398,7 @@ export function useDeleteGroup() {
       toast?.success('Групата е изтрита успешно')
     },
     onError: (error: Error) => {
-      console?.error('Error deleting group:', error)
+      console.error('Error deleting group:', error)
       toast?.error('Грешка при изтриване на група: ' + error?.message)
     },
   })

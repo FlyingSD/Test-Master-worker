@@ -23,43 +23,43 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console?.error('Uncaught error:', error, errorInfo)
-    this?.setState({
+    console.error('Uncaught error:', error, errorInfo)
+    this.setState({
       error,
       errorInfo,
     })
   }
 
   private handleReload = () => {
-    window?.location.reload()
+    window.location.reload()
   }
 
   private handleGoHome = () => {
-    window?.location.href = '/'
+    window.location.href = '/'
   }
 
   private getSolution(error: Error): string {
-    const message = error?.message.toLowerCase()
+    const message = error.message.toLowerCase()
 
     // Firebase errors
-    if (message?.includes('permission') || message?.includes('denied')) {
+    if (message.includes('permission') || message.includes('denied')) {
       return 'Проблем с достъпа до данните. Проверете дали сте влезли в системата или се свържете с администратор.'
     }
 
-    if (message?.includes('network') || message?.includes('failed to fetch')) {
+    if (message.includes('network') || message.includes('failed to fetch')) {
       return 'Няма връзка с интернет. Проверете интернет свързаността и опитайте отново.'
     }
 
-    if (message?.includes('firebase') || message?.includes('firestore')) {
+    if (message.includes('firebase') || message.includes('firestore')) {
       return 'Проблем с базата данни. Опитайте да презаредите страницата или се свържете с администратор.'
     }
 
     // React errors
-    if (message?.includes('undefined') || message?.includes('null')) {
+    if (message.includes('undefined') || message.includes('null')) {
       return 'Липсват данни. Опитайте да презаредите страницата.'
     }
 
-    if (message?.includes('type') || message?.includes('function')) {
+    if (message.includes('type') || message.includes('function')) {
       return 'Техническа грешка в приложението. Моля презаредете страницата.'
     }
 
@@ -68,7 +68,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public render() {
-    if (this?.state.hasError && this?.state.error) {
+    if (this.state.hasError && this.state.error) {
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
           <div className="max-w-2xl w-full">
@@ -88,7 +88,7 @@ class ErrorBoundary extends Component<Props, State> {
               {/* Error Message */}
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                 <p className="text-sm font-mono text-red-800 break-all">
-                  {this?.state.error?.message}
+                  {this.state.error.message}
                 </p>
               </div>
 
@@ -98,21 +98,21 @@ class ErrorBoundary extends Component<Props, State> {
                   💡 Решение:
                 </h3>
                 <p className="text-blue-800">
-                  {this?.getSolution(this?.state.error)}
+                  {this.getSolution(this.state.error)}
                 </p>
               </div>
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={this?.handleReload}
+                  onClick={this.handleReload}
                   className="btn btn-primary flex-1"
                 >
                   <RefreshCw className="w-5 h-5" />
                   Презареди страницата
                 </button>
                 <button
-                  onClick={this?.handleGoHome}
+                  onClick={this.handleGoHome}
                   className="btn btn-secondary flex-1"
                 >
                   <Home className="w-5 h-5" />
@@ -121,13 +121,13 @@ class ErrorBoundary extends Component<Props, State> {
               </div>
 
               {/* Details (expandable for developers) */}
-              {process?.env.NODE_ENV === 'development' && this?.state.errorInfo && (
+              {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
                 <details className="mt-6 bg-gray-50 rounded-lg p-4">
                   <summary className="cursor-pointer font-semibold text-gray-700 mb-2">
                     Технически детайли (за разработчици)
                   </summary>
                   <pre className="text-xs text-gray-600 overflow-auto max-h-64">
-                    {this?.state.errorInfo?.componentStack}
+                    {this.state.errorInfo.componentStack}
                   </pre>
                 </details>
               )}
@@ -142,7 +142,7 @@ class ErrorBoundary extends Component<Props, State> {
       )
     }
 
-    return this?.props.children
+    return this.props.children
   }
 }
 

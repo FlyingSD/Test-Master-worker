@@ -28,14 +28,14 @@ let gisInited = false
  */
 export async function initGoogleDrive(): Promise<boolean> {
   if (!CLIENT_ID || !API_KEY) {
-    console?.warn('⚠️ Google Drive API credentials not configured')
+    console.warn('⚠️ Google Drive API credentials not configured')
     return false
   }
 
   try {
     await new Promise<void>((resolve) => {
-      gapi?.load('client:auth2', async () => {
-        await gapi?.client.init({
+      gapi.load('client:auth2', async () => {
+        await gapi.client.init({
           apiKey: API_KEY,
           clientId: CLIENT_ID,
           discoveryDocs: DISCOVERY_DOCS,
@@ -46,10 +46,10 @@ export async function initGoogleDrive(): Promise<boolean> {
       })
     })
 
-    console?.log('✅ Google Drive API initialized')
+    console.log('✅ Google Drive API initialized')
     return true
   } catch (error) {
-    console?.error('❌ Failed to initialize Google Drive:', error)
+    console.error('❌ Failed to initialize Google Drive:', error)
     return false
   }
 }
@@ -59,10 +59,10 @@ export async function initGoogleDrive(): Promise<boolean> {
  */
 export async function signInToGoogleDrive(): Promise<boolean> {
   try {
-    await gapi?.auth2.getAuthInstance().signIn()
-    return gapi?.auth2.getAuthInstance().isSignedIn?.get()
+    await gapi.auth2.getAuthInstance().signIn()
+    return gapi.auth2.getAuthInstance().isSignedIn?.get()
   } catch (error) {
-    console?.error('❌ Failed to sign in to Google Drive:', error)
+    console.error('❌ Failed to sign in to Google Drive:', error)
     return false
   }
 }
@@ -71,14 +71,14 @@ export async function signInToGoogleDrive(): Promise<boolean> {
  * Sign out from Google Drive
  */
 export async function signOutFromGoogleDrive(): Promise<void> {
-  await gapi?.auth2.getAuthInstance().signOut()
+  await gapi.auth2.getAuthInstance().signOut()
 }
 
 /**
  * Check if user is signed in to Google Drive
  */
 export function isSignedInToGoogleDrive(): boolean {
-  return gapi?.auth2?.getAuthInstance()?.isSignedIn?.get() || false
+  return gapi.auth2?.getAuthInstance()?.isSignedIn?.get() || false
 }
 
 /**
@@ -90,7 +90,7 @@ async function createFolderIfNotExists(folderName: string, parentId?: string): P
     parentId ? ` and '${parentId}' in parents` : ''
   }`
 
-  const response = await gapi?.client.drive?.files.list({
+  const response = await gapi.client.drive?.files.list({
     q: query,
     fields: 'files(id, name)',
     spaces: 'drive',
@@ -101,7 +101,7 @@ async function createFolderIfNotExists(folderName: string, parentId?: string): P
   }
 
   // Create folder
-  const folder = await gapi?.client.drive?.files.create({
+  const folder = await gapi.client.drive?.files.create({
     resource: {
       name: folderName,
       mimeType: 'application/vnd.google-apps.folder',
@@ -140,7 +140,7 @@ export async function uploadBackupToDrive(data: any, filename: string): Promise<
     }
 
     const folders = await getSvetlinkiFolders()
-    const jsonString = JSON?.stringify(data, null, 2)
+    const jsonString = JSON.stringify(data, null, 2)
     const blob = new Blob([jsonString], { type: 'application/json' })
 
     const metadata = {
@@ -150,22 +150,22 @@ export async function uploadBackupToDrive(data: any, filename: string): Promise<
     }
 
     const form = new FormData()
-    form?.append('metadata', new Blob([JSON?.stringify(metadata)], { type: 'application/json' }))
+    form?.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }))
     form?.append('file', blob)
 
     const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${gapi?.auth.getToken().access_token}`,
+        Authorization: `Bearer ${gapi.auth.getToken().access_token}`,
       },
       body: form,
     })
 
     const result = await response?.json()
-    console?.log('✅ Backup uploaded to Drive:', result?.id)
+    console.log('✅ Backup uploaded to Drive:', result?.id)
     return result?.id
   } catch (error) {
-    console?.error('❌ Failed to upload backup:', error)
+    console.error('❌ Failed to upload backup:', error)
     return null
   }
 }
@@ -188,22 +188,22 @@ export async function uploadReportToDrive(blob: Blob, filename: string): Promise
     }
 
     const form = new FormData()
-    form?.append('metadata', new Blob([JSON?.stringify(metadata)], { type: 'application/json' }))
+    form?.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }))
     form?.append('file', blob)
 
     const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${gapi?.auth.getToken().access_token}`,
+        Authorization: `Bearer ${gapi.auth.getToken().access_token}`,
       },
       body: form,
     })
 
     const result = await response?.json()
-    console?.log('✅ Report uploaded to Drive:', result?.id)
+    console.log('✅ Report uploaded to Drive:', result?.id)
     return result?.id
   } catch (error) {
-    console?.error('❌ Failed to upload report:', error)
+    console.error('❌ Failed to upload report:', error)
     return null
   }
 }
@@ -219,7 +219,7 @@ export async function listBackupsFromDrive(): Promise<any[]> {
 
     const folders = await getSvetlinkiFolders()
 
-    const response = await gapi?.client.drive?.files.list({
+    const response = await gapi.client.drive?.files.list({
       q: `'${folders?.backups}' in parents and trashed=false`,
       fields: 'files(id, name, createdTime, size)',
       orderBy: 'createdTime desc',
@@ -228,7 +228,7 @@ export async function listBackupsFromDrive(): Promise<any[]> {
 
     return response?.result.files || []
   } catch (error) {
-    console?.error('❌ Failed to list backups:', error)
+    console.error('❌ Failed to list backups:', error)
     return []
   }
 }
@@ -242,14 +242,14 @@ export async function downloadBackupFromDrive(fileId: string): Promise<any | nul
       throw new Error('Not signed in to Google Drive')
     }
 
-    const response = await gapi?.client.drive?.files.get({
+    const response = await gapi.client.drive?.files.get({
       fileId: fileId,
       alt: 'media',
     })
 
-    return JSON?.parse(response?.body)
+    return JSON.parse(response?.body)
   } catch (error) {
-    console?.error('❌ Failed to download backup:', error)
+    console.error('❌ Failed to download backup:', error)
     return null
   }
 }

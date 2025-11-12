@@ -7,7 +7,7 @@ import {
 import { Doughnut } from 'react-chartjs-2'
 import { useExpenses } from '@/hooks/useExpenses'
 
-ChartJS?.register(ArcElement, Tooltip, Legend)
+ChartJS.register(ArcElement, Tooltip, Legend)
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Наем': '#EF4444',
@@ -29,8 +29,8 @@ export default function ExpensesByCategoryChart() {
     return acc
   }, {} as Record<string, number>)
 
-  const categories = Object?.keys(expensesByCategory)
-  const amounts = Object?.values(expensesByCategory)
+  const categories = Object.keys(expensesByCategory)
+  const amounts = Object.values(expensesByCategory)
 
   const data = {
     labels: categories,
@@ -121,14 +121,14 @@ export default function ExpensesByCategoryChart() {
             const label = context?.label || ''
             const value = context?.parsed || 0
             const percentage = ((value / total) * 100).toFixed(1)
-            return `${label}: ${new Intl?.NumberFormat('bg-BG', {
+            return `${label}: ${new Intl.NumberFormat('bg-BG', {
               style: 'currency',
               currency: 'BGN',
               minimumFractionDigits: 2,
             }).format(value)} (${percentage}%)`
           },
           footer: function () {
-            return `Общо: ${new Intl?.NumberFormat('bg-BG', {
+            return `Общо: ${new Intl.NumberFormat('bg-BG', {
               style: 'currency',
               currency: 'BGN',
               minimumFractionDigits: 2,

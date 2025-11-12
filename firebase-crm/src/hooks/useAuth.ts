@@ -63,7 +63,7 @@ export function useAuth() {
       toast?.success('Влизането беше успешно!')
       return result?.user
     } catch (error: unknown) {
-      console?.error('Sign in error:', error)
+      console.error('Sign in error:', error)
 
       // User-friendly error messages
       const err = error as { code?: string; message?: string }
@@ -112,7 +112,7 @@ export function useAuth() {
       toast?.success('Влизането с Google беше успешно!')
       return result?.user
     } catch (error: unknown) {
-      console?.error('Google sign in error:', error)
+      console.error('Google sign in error:', error)
 
       const err = error as { code?: string; message?: string }
       if (err?.code === 'auth/popup-closed-by-user') {
@@ -157,7 +157,7 @@ export function useAuth() {
       toast?.success('Регистрацията беше успешна!')
       return result?.user
     } catch (error: unknown) {
-      console?.error('Sign up error:', error)
+      console.error('Sign up error:', error)
 
       const err = error as { code?: string; message?: string }
       if (err?.code === 'auth/email-already-in-use') {
@@ -181,7 +181,7 @@ export function useAuth() {
       await sendPasswordResetEmail(auth, email)
       toast?.success('Имейл за възстановяване на парола беше изпратен')
     } catch (error: unknown) {
-      console?.error('Password reset error:', error)
+      console.error('Password reset error:', error)
 
       const err = error as { code?: string; message?: string }
       if (err?.code === 'auth/user-not-found') {
@@ -201,7 +201,7 @@ export function useAuth() {
       await firebaseSignOut(auth)
       toast?.success('Излязохте успешно')
     } catch (error: unknown) {
-      console?.error('Sign out error:', error)
+      console.error('Sign out error:', error)
       toast?.error('Грешка при излизане')
       throw error
     }

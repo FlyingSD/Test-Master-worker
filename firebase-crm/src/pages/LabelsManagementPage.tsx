@@ -37,7 +37,7 @@ export default function LabelsManagementPage() {
 
   // Initialize editedLabels when labels load
   if (editedLabels === labels && labels !== DEFAULT_LABELS) {
-    setEditedLabels(JSON?.parse(JSON?.stringify(labels)))
+    setEditedLabels(JSON.parse(JSON.stringify(labels)))
   }
 
   const toggleSection = (section: string) => {
@@ -51,7 +51,7 @@ export default function LabelsManagementPage() {
   }
 
   const handleLabelChange = (path: string[], value: string) => {
-    const newLabels = JSON?.parse(JSON?.stringify(editedLabels))
+    const newLabels = JSON.parse(JSON.stringify(editedLabels))
     let current = newLabels
 
     for (let i = 0; i < path?.length - 1; i++) {
@@ -70,7 +70,7 @@ export default function LabelsManagementPage() {
 
   const handleReset = async () => {
     if (
-      window?.confirm(
+      window.confirm(
         'Сигурни ли сте, че искате да върнете всички етикети към стойностите по подразбиране?'
       )
     ) {
@@ -83,7 +83,7 @@ export default function LabelsManagementPage() {
   const renderNestedObject = (obj: any, path: string[] = [], level: number = 0): JSX?.Element[] => {
     const elements: JSX?.Element[] = []
 
-    for (const [key, value] of Object?.entries(obj)) {
+    for (const [key, value] of Object.entries(obj)) {
       const currentPath = [...path, key]
       const pathString = currentPath?.join('.')
 
@@ -96,7 +96,7 @@ export default function LabelsManagementPage() {
         continue
       }
 
-      if (typeof value === 'object' && value !== null && !Array?.isArray(value)) {
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         // Render nested section
         const sectionKey = currentPath?.join('.')
         const isExpanded = expandedSections?.has(sectionKey)
@@ -114,7 +114,7 @@ export default function LabelsManagementPage() {
               )}
               <span className="font-semibold text-gray-900 capitalize">{key}</span>
               <span className="ml-auto text-sm text-gray-500">
-                {Object?.keys(value).length} етикети
+                {Object.keys(value).length} етикети
               </span>
             </button>
 
@@ -263,7 +263,7 @@ export default function LabelsManagementPage() {
 
       {/* Sections */}
       <div className="space-y-6">
-        {(Object?.keys(DEFAULT_LABELS) as SectionKey[]).map((sectionKey) => {
+        {(Object.keys(DEFAULT_LABELS) as SectionKey[]).map((sectionKey) => {
           const section = editedLabels[sectionKey]
           const sectionPath = sectionKey
           const isExpanded = expandedSections?.has(sectionPath)
@@ -284,7 +284,7 @@ export default function LabelsManagementPage() {
                 </h2>
                 <span className="ml-auto text-sm text-gray-500">
                   {typeof section === 'object'
-                    ? Object?.keys(section).length + ' етикети'
+                    ? Object.keys(section).length + ' етикети'
                     : ''}
                 </span>
               </button>

@@ -83,12 +83,12 @@ export function useDiscounts() {
             snapshot?.forEach((doc) => {
               allDiscounts?.set(doc?.id, { id: doc?.id, ...doc?.data() } as Discount)
             })
-            setDiscounts(Array?.from(allDiscounts?.values()))
+            setDiscounts(Array.from(allDiscounts?.values()))
             setLoading(false)
             setError(null)
           },
           (err) => {
-            console?.error('Error fetching parent discounts:', err)
+            console.error('Error fetching parent discounts:', err)
             setError(err as Error)
             setLoading(false)
             toast?.error(ERROR_MESSAGES?.LOAD_DISCOUNTS_ERROR || 'Error loading discounts')
@@ -116,7 +116,7 @@ export function useDiscounts() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching discounts:', err)
+        console.error('Error fetching discounts:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error(ERROR_MESSAGES?.LOAD_DISCOUNTS_ERROR || 'Error loading discounts')

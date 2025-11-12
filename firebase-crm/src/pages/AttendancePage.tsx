@@ -31,7 +31,7 @@ export default function AttendancePage() {
   }
 
   // Get unique groups
-  const groups = Array?.from(new Set(students?.map((s) => s?.group).filter(Boolean)))
+  const groups = Array.from(new Set(students?.map((s) => s?.group).filter(Boolean)))
 
   // Filter students by group and active status
   const filteredStudents = students?.filter(

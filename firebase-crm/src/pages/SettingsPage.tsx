@@ -80,7 +80,7 @@ export default function SettingsPage() {
         setSettings(docSnap?.data() as SystemSettings)
       }
     } catch (error) {
-      console?.error('Error loading settings:', error)
+      console.error('Error loading settings:', error)
       toast?.error('Грешка при зареждане на настройки')
     } finally {
       setLoading(false)
@@ -101,7 +101,7 @@ export default function SettingsPage() {
 
       toast?.success('Настройките бяха запазени успешно!')
     } catch (error) {
-      console?.error('Error saving settings:', error)
+      console.error('Error saving settings:', error)
       toast?.error('Грешка при запазване на настройки')
     } finally {
       setSaving(false)
@@ -414,11 +414,11 @@ export default function SettingsPage() {
               <Users className="w-5 h-5 text-blue-600" />
               <h3 className="font-semibold text-gray-900">Учители</h3>
               <span className="text-xs text-gray-500 ml-auto">
-                {Object?.values(settings?.featurePermissions?.teacher || {}).filter(Boolean).length} включени
+                {Object.values(settings?.featurePermissions?.teacher || {}).filter(Boolean).length} включени
               </span>
             </div>
             <div className="space-y-2">
-              {(Object?.keys(settings?.featurePermissions?.teacher || {}) as FeatureName[]).map((feature) => {
+              {(Object.keys(settings?.featurePermissions?.teacher || {}) as FeatureName[]).map((feature) => {
                 const isEnabled = settings?.featurePermissions?.teacher[feature]
                 return (
                   <div key={feature} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
@@ -444,11 +444,11 @@ export default function SettingsPage() {
               <Users className="w-5 h-5 text-green-600" />
               <h3 className="font-semibold text-gray-900">Родители</h3>
               <span className="text-xs text-gray-500 ml-auto">
-                {Object?.values(settings?.featurePermissions?.parent || {}).filter(Boolean).length} включени
+                {Object.values(settings?.featurePermissions?.parent || {}).filter(Boolean).length} включени
               </span>
             </div>
             <div className="space-y-2">
-              {(Object?.keys(settings?.featurePermissions?.parent || {}) as FeatureName[]).map((feature) => {
+              {(Object.keys(settings?.featurePermissions?.parent || {}) as FeatureName[]).map((feature) => {
                 const isEnabled = settings?.featurePermissions?.parent[feature]
                 return (
                   <div key={feature} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">

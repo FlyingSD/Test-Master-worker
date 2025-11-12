@@ -88,12 +88,12 @@ export function useHomework() {
             snapshot?.forEach((doc) => {
               allHomework?.set(doc?.id, { id: doc?.id, ...doc?.data() } as Homework)
             })
-            setHomework(Array?.from(allHomework?.values()))
+            setHomework(Array.from(allHomework?.values()))
             setLoading(false)
             setError(null)
           },
           (err) => {
-            console?.error('Error fetching parent homework:', err)
+            console.error('Error fetching parent homework:', err)
             setError(err as Error)
             setLoading(false)
             toast?.error(ERROR_MESSAGES?.LOAD_HOMEWORK_ERROR)
@@ -131,7 +131,7 @@ export function useHomework() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching homework:', err)
+        console.error('Error fetching homework:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error(ERROR_MESSAGES?.LOAD_HOMEWORK_ERROR)
@@ -260,7 +260,7 @@ export function useAddHomework() {
       toast?.success(SUCCESS_MESSAGES?.HOMEWORK_ADDED)
     },
     onError: (error: Error) => {
-      console?.error('Error adding homework:', error)
+      console.error('Error adding homework:', error)
       toast?.error(ERROR_MESSAGES?.ADD_HOMEWORK_ERROR)
     },
   })
@@ -337,7 +337,7 @@ export function useUpdateHomework() {
       toast?.success(SUCCESS_MESSAGES?.HOMEWORK_UPDATED)
     },
     onError: (error: Error) => {
-      console?.error('Error updating homework:', error)
+      console.error('Error updating homework:', error)
       toast?.error(ERROR_MESSAGES?.UPDATE_HOMEWORK_ERROR)
     },
   })
@@ -399,7 +399,7 @@ export function useDeleteHomework() {
       toast?.success(SUCCESS_MESSAGES?.HOMEWORK_DELETED)
     },
     onError: (error: Error) => {
-      console?.error('Error deleting homework:', error)
+      console.error('Error deleting homework:', error)
       toast?.error(ERROR_MESSAGES?.DELETE_HOMEWORK_ERROR)
     },
   })

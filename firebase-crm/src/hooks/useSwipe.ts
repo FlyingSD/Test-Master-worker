@@ -20,8 +20,8 @@ import { createSwipeHandlers, type SwipeHandlers, type SwipeConfig } from '@/uti
  * @example
  * function MyComponent() {
  *   const swipeHandlers = useSwipe({
- *     onSwipeLeft: () => console?.log('Swiped left!'),
- *     onSwipeRight: () => console?.log('Swiped right!'),
+ *     onSwipeLeft: () => console.log('Swiped left!'),
+ *     onSwipeRight: () => console.log('Swiped right!'),
  *   })
  *
  *   return <div {...swipeHandlers}>Swipe me!</div>

@@ -14,7 +14,7 @@ import { usePayments } from '@/hooks/usePayments'
 import { useExpenses } from '@/hooks/useExpenses'
 import { startOfMonth, endOfMonth, format, subMonths } from 'date-fns'
 
-ChartJS?.register(
+ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
@@ -30,7 +30,7 @@ export default function RevenueExpensesChart() {
   const { expenses } = useExpenses()
 
   // Get last 6 months data
-  const months = Array?.from({ length: 6 }, (_, i) => {
+  const months = Array.from({ length: 6 }, (_, i) => {
     const date = subMonths(new Date(), 5 - i)
     return {
       label: format(date, 'MMM yyyy'),
@@ -150,7 +150,7 @@ export default function RevenueExpensesChart() {
               label += ': '
             }
             if (context?.parsed.y !== null) {
-              label += new Intl?.NumberFormat('bg-BG', {
+              label += new Intl.NumberFormat('bg-BG', {
                 style: 'currency',
                 currency: 'BGN',
                 minimumFractionDigits: 2,
@@ -164,7 +164,7 @@ export default function RevenueExpensesChart() {
             const revenue = tooltipItems?.find(item => item?.datasetIndex === revenueIndex)?.parsed?.y || 0
             const expense = tooltipItems?.find(item => item?.datasetIndex === expenseIndex)?.parsed?.y || 0
             const profit = revenue - expense
-            return `Нетна печалба: ${new Intl?.NumberFormat('bg-BG', {
+            return `Нетна печалба: ${new Intl.NumberFormat('bg-BG', {
               style: 'currency',
               currency: 'BGN',
               minimumFractionDigits: 2,
@@ -178,7 +178,7 @@ export default function RevenueExpensesChart() {
         beginAtZero: true,
         ticks: {
           callback: function (value: any) {
-            return new Intl?.NumberFormat('bg-BG', {
+            return new Intl.NumberFormat('bg-BG', {
               style: 'currency',
               currency: 'BGN',
               minimumFractionDigits: 0,

@@ -33,11 +33,11 @@ googleProvider?.setCustomParameters({
 enableIndexedDbPersistence(db).catch((err) => {
   if (err?.code === 'failed-precondition') {
     // Multiple tabs open, persistence can only be enabled in one tab at a time.
-    console?.warn('⚠️ Offline persistence failed: Multiple tabs open')
+    console.warn('⚠️ Offline persistence failed: Multiple tabs open')
   } else if (err?.code === 'unimplemented') {
     // The current browser doesn't support persistence
-    console?.warn('⚠️ Offline persistence not supported by this browser')
+    console.warn('⚠️ Offline persistence not supported by this browser')
   }
 })
 
-console?.log('🔥 Firebase initialized successfully')
+console.log('🔥 Firebase initialized successfully')

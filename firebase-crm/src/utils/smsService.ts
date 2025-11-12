@@ -24,8 +24,8 @@ export function isSMSConfigured(): boolean {
 // Send SMS (placeholder implementation)
 async function sendSMS(phoneNumber: string, message: string): Promise<boolean> {
   if (!isSMSConfigured()) {
-    console?.warn('SMS service is not configured')
-    console?.log(`[SMS Placeholder] Would send to ${phoneNumber}: ${message}`)
+    console.warn('SMS service is not configured')
+    console.log(`[SMS Placeholder] Would send to ${phoneNumber}: ${message}`)
     return false
   }
 
@@ -47,22 +47,22 @@ async function sendSMS(phoneNumber: string, message: string): Promise<boolean> {
     })
 
     if (response?.ok) {
-      console?.log('SMS sent successfully')
+      console.log('SMS sent successfully')
       return true
     } else {
-      console?.error('Failed to send SMS:', await response?.text())
+      console.error('Failed to send SMS:', await response?.text())
       return false
     }
   } catch (error) {
-    console?.error('Error sending SMS:', error)
+    console.error('Error sending SMS:', error)
     return false
   }
   */
 
   // For now, just log the message
-  console?.log(`[SMS] To: ${phoneNumber}`)
-  console?.log(`[SMS] From: ${SMS_SENDER_ID}`)
-  console?.log(`[SMS] Message: ${message}`)
+  console.log(`[SMS] To: ${phoneNumber}`)
+  console.log(`[SMS] From: ${SMS_SENDER_ID}`)
+  console.log(`[SMS] Message: ${message}`)
 
   return true
 }
@@ -75,7 +75,7 @@ export async function sendPaymentReminderSMS(
   const phoneNumber = parent?.phone
 
   if (!phoneNumber) {
-    console?.warn('Parent does not have a phone number')
+    console.warn('Parent does not have a phone number')
     return false
   }
 
@@ -92,7 +92,7 @@ export async function sendInvoiceSMS(
   recipientName: string
 ): Promise<boolean> {
   if (!phoneNumber) {
-    console?.warn('Recipient does not have a phone number')
+    console.warn('Recipient does not have a phone number')
     return false
   }
 
@@ -111,7 +111,7 @@ export async function sendAttendanceNotificationSMS(
   const phoneNumber = parent?.phone
 
   if (!phoneNumber) {
-    console?.warn('Parent does not have a phone number')
+    console.warn('Parent does not have a phone number')
     return false
   }
 
@@ -149,7 +149,7 @@ export async function sendWelcomeSMS(
   const phoneNumber = parent?.phone
 
   if (!phoneNumber) {
-    console?.warn('Parent does not have a phone number')
+    console.warn('Parent does not have a phone number')
     return false
   }
 

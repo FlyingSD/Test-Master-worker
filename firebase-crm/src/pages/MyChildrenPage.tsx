@@ -53,7 +53,7 @@ export default function MyChildrenPage() {
       const qrUrl = await generateQRCodeDataUrl(student?.studentCode)
       setQrCodeUrl(qrUrl)
     } catch (error: any) {
-      console?.error('Error generating QR code:', error)
+      console.error('Error generating QR code:', error)
       toast?.error('Грешка при генериране на QR код')
     }
   }

@@ -76,7 +76,7 @@ export function useInvoices() {
         setError(null)
       },
       (err) => {
-        console?.error('Error fetching invoices:', err)
+        console.error('Error fetching invoices:', err)
         setError(err as Error)
         setLoading(false)
         toast?.error(ERROR_MESSAGES?.LOAD_INVOICES_ERROR)
@@ -276,7 +276,7 @@ export function useAddInvoice() {
       toast?.success(SUCCESS_MESSAGES?.INVOICE_ADDED)
     },
     onError: (error: Error) => {
-      console?.error('Error adding invoice:', error)
+      console.error('Error adding invoice:', error)
       toast?.error(ERROR_MESSAGES?.ADD_INVOICE_ERROR + ': ' + error?.message)
     },
   })
@@ -334,7 +334,7 @@ export function useUpdateInvoice() {
       toast?.success(SUCCESS_MESSAGES?.INVOICE_UPDATED)
     },
     onError: (error: Error) => {
-      console?.error('Error updating invoice:', error)
+      console.error('Error updating invoice:', error)
       toast?.error(ERROR_MESSAGES?.UPDATE_INVOICE_ERROR + ': ' + error?.message)
     },
   })
@@ -374,7 +374,7 @@ export function useDeleteInvoice() {
       toast?.success(SUCCESS_MESSAGES?.INVOICE_DELETED)
     },
     onError: (error: Error) => {
-      console?.error('Error deleting invoice:', error)
+      console.error('Error deleting invoice:', error)
       toast?.error(ERROR_MESSAGES?.DELETE_INVOICE_ERROR + ': ' + error?.message)
     },
   })
@@ -424,7 +424,7 @@ export function useMarkInvoicePaid() {
       toast?.success(SUCCESS_MESSAGES?.INVOICE_MARKED_PAID)
     },
     onError: (error: Error) => {
-      console?.error('Error marking invoice as paid:', error)
+      console.error('Error marking invoice as paid:', error)
       toast?.error(ERROR_MESSAGES?.GENERIC_ERROR + ': ' + error?.message)
     },
   })
