@@ -288,19 +288,22 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats?.map((stat) => (
-          <div key={stat?.name} className="card card-hover">
-            <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-xl ${stat?.bgColor}`}>
-                <stat?.icon className={`w-6 h-6 ${stat?.color}`} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">{stat?.name}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat?.value}</p>
+        {stats?.map((stat) => {
+          const Icon = stat.icon
+          return (
+            <div key={stat?.name} className="card card-hover">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-xl ${stat?.bgColor}`}>
+                  <Icon className={`w-6 h-6 ${stat?.color}`} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">{stat?.name}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat?.value}</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Charts - Only admins see financial charts */}
