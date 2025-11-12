@@ -267,18 +267,21 @@ export default function DashboardPage() {
             Бързи действия
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {quickActions?.map((action) => (
-              <button
-                key={action?.label}
-                onClick={action?.onClick}
-                className={`flex items-center gap-3 p-4 ${action?.bgColor} ${action?.hoverColor} rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-md group`}
-              >
-                <div className={`p-2 bg-white rounded-lg ${action?.color} group-hover:scale-110 transition-transform`}>
-                  <action?.icon className="w-5 h-5" />
-                </div>
-                <span className="font-medium text-gray-900 text-sm">{action?.label}</span>
-              </button>
-            ))}
+            {quickActions?.map((action) => {
+              const Icon = action.icon
+              return (
+                <button
+                  key={action?.label}
+                  onClick={action?.onClick}
+                  className={`flex items-center gap-3 p-4 ${action?.bgColor} ${action?.hoverColor} rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-md group`}
+                >
+                  <div className={`p-2 bg-white rounded-lg ${action?.color} group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className="font-medium text-gray-900 text-sm">{action?.label}</span>
+                </button>
+              )
+            })}
           </div>
         </div>
       )}

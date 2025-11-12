@@ -69,23 +69,26 @@ export default function AdminPanelPage() {
       {/* Tabs */}
       <div className="border-b border-gray-200">
         <div className="flex gap-4">
-          {tabs?.map((tab) => (
-            <button
-              key={tab?.id}
-              onClick={() => setActiveTab(tab?.id)}
-              className={`
-                flex items-center gap-2 px-4 py-3 border-b-2 transition-all
-                ${
-                  activeTab === tab?.id
-                    ? 'border-primary text-primary font-medium'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }
-              `}
-            >
-              <tab?.icon className="w-5 h-5" />
-              {tab?.name}
-            </button>
-          ))}
+          {tabs?.map((tab) => {
+            const Icon = tab.icon
+            return (
+              <button
+                key={tab?.id}
+                onClick={() => setActiveTab(tab?.id)}
+                className={`
+                  flex items-center gap-2 px-4 py-3 border-b-2 transition-all
+                  ${
+                    activeTab === tab?.id
+                      ? 'border-primary text-primary font-medium'
+                      : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }
+                `}
+              >
+                <Icon className="w-5 h-5" />
+                {tab?.name}
+              </button>
+            )
+          })}
         </div>
       </div>
 
@@ -459,24 +462,27 @@ function ExportTab() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {exportOptions?.map((option) => (
-          <div key={option?.title} className="card hover:shadow-md transition-shadow cursor-pointer group" onClick={() => handleExport(option?.title)}>
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-4">
-                <div
-                  className={`w-12 h-12 bg-${option?.color}-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
-                >
-                  <option?.icon className={`w-6 h-6 text-${option?.color}-600`} />
+        {exportOptions?.map((option) => {
+          const Icon = option.icon
+          return (
+            <div key={option?.title} className="card hover:shadow-md transition-shadow cursor-pointer group" onClick={() => handleExport(option?.title)}>
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`w-12 h-12 bg-${option?.color}-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
+                  >
+                    <Icon className={`w-6 h-6 text-${option?.color}-600`} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{option?.title}</h4>
+                    <p className="text-sm text-gray-600 mt-1">{option?.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">{option?.title}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{option?.description}</p>
-                </div>
+                <Download className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
               </div>
-              <Download className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
