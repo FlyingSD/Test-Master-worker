@@ -208,7 +208,7 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  reason: e?.target.value as typeof formData?.reason,
+                  reason: e.target.value as 'Покупка от доставчик' | 'Продажба на ученик' | 'Брак' | 'Инвентаризация' | 'Друго',
                 })
               }
             >

@@ -83,7 +83,7 @@ function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  category: e?.target.value as typeof formData?.category,
+                  category: e.target.value as 'Наем' | 'Ток' | 'Вода' | 'Интернет' | 'Заплати' | 'Материали' | 'Реклама' | 'Други',
                 })
               }
             >

@@ -147,7 +147,7 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  category: e?.target.value as typeof formData?.category,
+                  category: e.target.value as 'Абакуси' | 'Учебници' | 'Тетрадки' | 'Материали' | 'Други',
                 })
               }
             >

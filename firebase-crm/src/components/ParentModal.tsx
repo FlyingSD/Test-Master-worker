@@ -118,7 +118,7 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    relationship: e?.target.value as typeof formData?.relationship,
+                    relationship: e.target.value as 'Майка' | 'Баща' | 'Настойник' | 'Друго',
                   })
                 }
               >
@@ -229,7 +229,7 @@ export default function ParentModal({ parent, onClose }: ParentModalProps) {
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  paymentMethod: e?.target.value as typeof formData?.paymentMethod,
+                  paymentMethod: e.target.value as 'Кеш' | 'ПОС' | 'Банков път' | 'Фактура',
                 })
               }
             >
