@@ -25,10 +25,25 @@ export default function ForgotPasswordPage() {
   const themeGradient = isParent
     ? 'from-blue-50 via-purple-50 to-pink-50'
     : 'from-purple-50 via-pink-50 to-blue-50'
-  const themeColor = isParent ? 'blue' : 'purple'
   const themeBg = isParent
     ? 'from-blue-500 to-purple-600'
     : 'from-purple-500 to-pink-600'
+
+  // Static color classes for Tailwind purging
+  const themeClasses = isParent ? {
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    text: 'text-blue-900',
+    link: 'text-blue-600',
+    linkHover: 'hover:text-blue-700'
+  } : {
+    bg: 'bg-purple-50',
+    border: 'border-purple-200',
+    text: 'text-purple-900',
+    link: 'text-purple-600',
+    linkHover: 'hover:text-purple-700'
+  }
+
   const loginPath = isParent ? '/login/parent' : '/login/teacher'
   const roleText = isParent ? 'Родител' : 'Учител'
 
@@ -102,8 +117,8 @@ export default function ForgotPasswordPage() {
               </div>
 
               {/* Role Badge */}
-              <div className={`mb-6 p-3 bg-${themeColor}-50 border border-${themeColor}-200 rounded-lg text-center`}>
-                <p className={`text-sm font-medium text-${themeColor}-900`}>
+              <div className={`mb-6 p-3 ${themeClasses.bg} border ${themeClasses.border} rounded-lg text-center`}>
+                <p className={`text-sm font-medium ${themeClasses.text}`}>
                   Възстановяване за: <strong>{roleText}</strong>
                 </p>
               </div>
@@ -142,7 +157,7 @@ export default function ForgotPasswordPage() {
                 Спомнихте си паролата?{' '}
                 <Link
                   to={loginPath}
-                  className={`text-${themeColor}-600 hover:text-${themeColor}-700 font-semibold`}
+                  className={`${themeClasses.link} ${themeClasses.linkHover} font-semibold`}
                 >
                   Влезте в профила си
                 </Link>
