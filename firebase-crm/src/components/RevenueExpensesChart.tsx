@@ -8,7 +8,7 @@ import {
   Tooltip,
   Legend,
   Filler,
-} from 'chart?.js'
+} from 'chart.js'
 import { Line } from 'react-chartjs-2'
 import { usePayments } from '@/hooks/usePayments'
 import { useExpenses } from '@/hooks/useExpenses'

@@ -3,18 +3,18 @@ import { formatDate, formatCurrency } from './formatters'
 
 // SMS Service Configuration
 // To use this, you need to integrate with an SMS provider like:
-// - Twilio: https://www?.twilio.com/
-// - Nexmo/Vonage: https://www?.vonage.com/
-// - BulkSMS: https://www?.bulksms.com/
+// - Twilio: https://www.twilio.com/
+// - Nexmo/Vonage: https://www.vonage.com/
+// - BulkSMS: https://www.bulksms.com/
 //
 // Add your credentials to .env file:
 // VITE_SMS_API_KEY=your_api_key
 // VITE_SMS_API_SECRET=your_api_secret
 // VITE_SMS_SENDER_ID=your_sender_id
 
-const SMS_API_KEY = import?.meta.env?.VITE_SMS_API_KEY || ''
-const SMS_API_SECRET = import?.meta.env?.VITE_SMS_API_SECRET || ''
-const SMS_SENDER_ID = import?.meta.env?.VITE_SMS_SENDER_ID || 'Svetlinki'
+const SMS_API_KEY = import.meta.env.VITE_SMS_API_KEY || ''
+const SMS_API_SECRET = import.meta.env.VITE_SMS_API_SECRET || ''
+const SMS_SENDER_ID = import.meta.env.VITE_SMS_SENDER_ID || 'Svetlinki'
 
 // Check if SMS service is configured
 export function isSMSConfigured(): boolean {
@@ -33,7 +33,7 @@ async function sendSMS(phoneNumber: string, message: string): Promise<boolean> {
   // Example with Twilio:
   /*
   try {
-    const response = await fetch('https://api?.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages?.json', {
+    const response = await fetch('https://api.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages.json', {
       method: 'POST',
       headers: {
         'Authorization': 'Basic ' + btoa(`${SMS_API_KEY}:${SMS_API_SECRET}`),

@@ -4,15 +4,15 @@ import { formatDate, formatCurrency } from './formatters'
 
 // EmailJS configuration
 // To use this, you need to:
-// 1. Create an account at https://www?.emailjs.com/
+// 1. Create an account at https://www.emailjs.com/
 // 2. Create an email service
 // 3. Create email templates
 // 4. Add your credentials to .env file:
 //    VITE_EMAILJS_SERVICE_ID=your_service_id
 //    VITE_EMAILJS_PUBLIC_KEY=your_public_key
 
-const SERVICE_ID = import?.meta.env?.VITE_EMAILJS_SERVICE_ID || ''
-const PUBLIC_KEY = import?.meta.env?.VITE_EMAILJS_PUBLIC_KEY || ''
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || ''
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
 
 // Initialize EmailJS
 export function initEmailJS() {

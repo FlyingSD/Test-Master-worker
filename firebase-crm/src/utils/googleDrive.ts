@@ -13,12 +13,12 @@
 
 import { gapi } from 'gapi-script'
 
-const SCOPES = 'https://www?.googleapis.com/auth/drive?.file'
-const DISCOVERY_DOCS = ['https://www?.googleapis.com/discovery/v1/apis/drive/v3/rest']
+const SCOPES = 'https://www.googleapis.com/auth/drive.file'
+const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
 
 // Google Drive configuration (will be set from .env)
-const CLIENT_ID = import?.meta.env?.VITE_GOOGLE_DRIVE_CLIENT_ID || ''
-const API_KEY = import?.meta.env?.VITE_GOOGLE_DRIVE_API_KEY || ''
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID || ''
+const API_KEY = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY || ''
 
 let gapiInited = false
 let gisInited = false
@@ -86,7 +86,7 @@ export function isSignedInToGoogleDrive(): boolean {
  */
 async function createFolderIfNotExists(folderName: string, parentId?: string): Promise<string> {
   // Search for existing folder
-  const query = `name='${folderName}' and mimeType='application/vnd?.google-apps?.folder' and trashed=false${
+  const query = `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false${
     parentId ? ` and '${parentId}' in parents` : ''
   }`
 
@@ -104,7 +104,7 @@ async function createFolderIfNotExists(folderName: string, parentId?: string): P
   const folder = await gapi?.client.drive?.files.create({
     resource: {
       name: folderName,
-      mimeType: 'application/vnd?.google-apps?.folder',
+      mimeType: 'application/vnd.google-apps.folder',
       parents: parentId ? [parentId] : [],
     },
     fields: 'id',
@@ -153,7 +153,7 @@ export async function uploadBackupToDrive(data: any, filename: string): Promise<
     form?.append('metadata', new Blob([JSON?.stringify(metadata)], { type: 'application/json' }))
     form?.append('file', blob)
 
-    const response = await fetch('https://www?.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+    const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${gapi?.auth.getToken().access_token}`,
@@ -183,7 +183,7 @@ export async function uploadReportToDrive(blob: Blob, filename: string): Promise
 
     const metadata = {
       name: filename,
-      mimeType: 'application/vnd?.openxmlformats-officedocument?.spreadsheetml.sheet',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       parents: [folders?.reports],
     }
 
@@ -191,7 +191,7 @@ export async function uploadReportToDrive(blob: Blob, filename: string): Promise
     form?.append('metadata', new Blob([JSON?.stringify(metadata)], { type: 'application/json' }))
     form?.append('file', blob)
 
-    const response = await fetch('https://www?.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+    const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${gapi?.auth.getToken().access_token}`,

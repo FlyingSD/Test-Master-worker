@@ -3,7 +3,7 @@ import {
   ArcElement,
   Tooltip,
   Legend,
-} from 'chart?.js'
+} from 'chart.js'
 import { Doughnut } from 'react-chartjs-2'
 import { useExpenses } from '@/hooks/useExpenses'
 
