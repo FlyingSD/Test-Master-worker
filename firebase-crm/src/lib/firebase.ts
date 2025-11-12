@@ -7,9 +7,9 @@ import { getFunctions } from 'firebase/functions'
 // Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCe3HkkFFtUtalPK5xA5E1J4JkjIJyWn70",
-  authDomain: "svetlinki-7911c?.firebaseapp.com",
+  authDomain: "svetlinki-7911c.firebaseapp.com",
   projectId: "svetlinki-7911c",
-  storageBucket: "svetlinki-7911c?.firebasestorage.app",
+  storageBucket: "svetlinki-7911c.firebasestorage.app",
   messagingSenderId: "362553535023",
   appId: "1:362553535023:web:f87e811f9349414f69b4da"
 }
