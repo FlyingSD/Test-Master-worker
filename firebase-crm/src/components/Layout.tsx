@@ -190,33 +190,36 @@ export default function Layout() {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin h-[calc(100vh-180px)]">
-          {navigation?.map((item) => (
-            <NavLink
-              key={item?.name}
-              to={item?.href}
-              end={item?.href === '/'}
-              onClick={() => {
-                triggerHaptic('light')
-                setSidebarOpen(false)
-              }}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all touch-manipulation min-h-[44px] ${
-                  isActive
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
-                }`
-              }
-            >
-              <item?.icon className="w-5 h-5" />
-              <span className="flex-1">{item?.name}</span>
-              {/* Show notification badge for "Моите деца" */}
-              {item?.href === '/my-children' && hasNotifications && (
-                <span className="ml-auto px-2 py-0?.5 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] text-center">
-                  {total}
-                </span>
-              )}
-            </NavLink>
-          ))}
+          {navigation?.map((item) => {
+            const Icon = item.icon
+            return (
+              <NavLink
+                key={item?.name}
+                to={item?.href}
+                end={item?.href === '/'}
+                onClick={() => {
+                  triggerHaptic('light')
+                  setSidebarOpen(false)
+                }}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all touch-manipulation min-h-[44px] ${
+                    isActive
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
+                  }`
+                }
+              >
+                <Icon className="w-5 h-5" />
+                <span className="flex-1">{item?.name}</span>
+                {/* Show notification badge for "Моите деца" */}
+                {item?.href === '/my-children' && hasNotifications && (
+                  <span className="ml-auto px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] text-center">
+                    {total}
+                  </span>
+                )}
+              </NavLink>
+            )
+          })}
         </nav>
 
         {/* User info & logout */}
@@ -285,6 +288,7 @@ export default function Layout() {
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-inset-bottom">
         <div className={`grid h-16 ${mobileNavigation?.length === 4 ? 'grid-cols-4' : 'grid-cols-5'}`}>
           {mobileNavigation?.map((item) => {
+            const Icon = item.icon
             const isActive = location?.pathname === item?.href ||
               (item?.href === '/more' && !mobileNavigation?.slice(0, 4).some(nav => nav?.href === location?.pathname))
 
@@ -300,10 +304,10 @@ export default function Layout() {
                 }`}
               >
                 <div className="relative">
-                  <item?.icon className="w-5 h-5" />
+                  <Icon className="w-5 h-5" />
                   {/* Show notification badge for "Деца" (my-children) */}
                   {item?.href === '/my-children' && hasNotifications && (
-                    <span className="absolute -top-2 -right-2 px-1?.5 py-0?.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] text-center">
+                    <span className="absolute -top-2 -right-2 px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] text-center">
                       {total}
                     </span>
                   )}
