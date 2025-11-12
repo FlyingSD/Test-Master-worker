@@ -114,7 +114,7 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
                 ? 'bg-red-50 border-red-200'
                 : 'bg-orange-50 border-orange-200'
             }`}>
-              <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0?.5 ${
+              <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
                 isOutOfStock ? 'text-red-600' : 'text-orange-600'
               }`} />
               <div className="flex-1">
@@ -170,9 +170,9 @@ export default function StockTransactionModal({ item, type, onClose }: StockTran
               type="number"
               required
               min="0"
-              step="0?.01"
+              step="0.01"
               className="input"
-              placeholder="0?.00"
+              placeholder="0.00"
               value={formData?.pricePerUnit || ''}
               onChange={(e) =>
                 setFormData({

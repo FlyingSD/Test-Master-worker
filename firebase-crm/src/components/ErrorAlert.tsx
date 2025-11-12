@@ -62,7 +62,7 @@ export default function ErrorAlert({ error, onClose, className = '' }: ErrorAler
 
           {/* Solution */}
           <div className="flex items-start gap-2 mt-2">
-            <CheckCircle className={`w-4 h-4 ${color?.icon} flex-shrink-0 mt-0?.5`} />
+            <CheckCircle className={`w-4 h-4 ${color?.icon} flex-shrink-0 mt-0.5`} />
             <p className={`text-sm font-medium ${color?.text}`}>
               <span className="font-semibold">Решение:</span> {error?.solution}
             </p>

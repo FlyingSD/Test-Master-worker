@@ -182,9 +182,9 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 type="number"
                 required
                 min="0"
-                step="0?.01"
+                step="0.01"
                 className="input"
-                placeholder="0?.00"
+                placeholder="0.00"
                 value={formData?.purchasePrice || ''}
                 onChange={(e) =>
                   setFormData({
@@ -203,9 +203,9 @@ export default function InventoryModal({ item, onClose }: InventoryModalProps) {
                 type="number"
                 required
                 min="0"
-                step="0?.01"
+                step="0.01"
                 className="input"
-                placeholder="0?.00"
+                placeholder="0.00"
                 value={formData?.salePrice || ''}
                 onChange={(e) =>
                   setFormData({

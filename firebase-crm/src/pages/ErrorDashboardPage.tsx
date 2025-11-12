@@ -230,7 +230,7 @@ export default function ErrorDashboardPage() {
 
                     {/* Solution */}
                     <div className="flex items-start gap-2 mt-2 p-3 bg-white/50 rounded-lg">
-                      <CheckCircle className={`w-4 h-4 flex-shrink-0 mt-0?.5 ${issue?.type === 'error' ? 'text-red-600' : issue?.type === 'warning' ? 'text-yellow-600' : 'text-blue-600'}`} />
+                      <CheckCircle className={`w-4 h-4 flex-shrink-0 mt-0.5 ${issue?.type === 'error' ? 'text-red-600' : issue?.type === 'warning' ? 'text-yellow-600' : 'text-blue-600'}`} />
                       <div>
                         <p className={`text-sm font-semibold ${colors?.text} mb-1`}>
                           Решение:

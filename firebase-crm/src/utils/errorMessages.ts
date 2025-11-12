@@ -290,7 +290,7 @@ export function checkDataConsistency(
   // Check currency mismatches
   payments?.forEach((payment) => {
     if (payment?.amount && payment?.amountEUR) {
-      const expectedEUR = payment?.amount / 1?.96
+      const expectedEUR = payment?.amount / 1.96
       const difference = Math?.abs(payment?.amountEUR - expectedEUR)
       if (difference > 1) {
         // More than 1 EUR difference

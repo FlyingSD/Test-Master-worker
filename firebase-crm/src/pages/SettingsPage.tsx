@@ -380,7 +380,7 @@ export default function SettingsPage() {
 
             <div className="p-4 bg-primary-light border border-primary rounded-lg">
               <div className="flex items-start gap-3">
-                <Settings className="w-5 h-5 text-primary flex-shrink-0 mt-0?.5" />
+                <Settings className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-gray-900 mb-1">Съвет</p>
                   <p className="text-sm text-gray-700">

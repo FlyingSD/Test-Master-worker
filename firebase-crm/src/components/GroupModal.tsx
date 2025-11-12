@@ -270,9 +270,9 @@ export default function GroupModal({ group, onClose }: GroupModalProps) {
                     type="number"
                     required
                     min="0"
-                    step="0?.01"
+                    step="0.01"
                     className="input"
-                    placeholder="0?.00"
+                    placeholder="0.00"
                     value={formData?.price || ''}
                     onChange={(e) =>
                       handlePriceChange(Number(e?.target.value), 'BGN')
@@ -290,9 +290,9 @@ export default function GroupModal({ group, onClose }: GroupModalProps) {
                     type="number"
                     required
                     min="0"
-                    step="0?.01"
+                    step="0.01"
                     className="input"
-                    placeholder="0?.00"
+                    placeholder="0.00"
                     value={formData?.priceEUR || ''}
                     onChange={(e) =>
                       handlePriceChange(Number(e?.target.value), 'EUR')

@@ -68,7 +68,7 @@ export default function RevenueExpensesChart() {
         borderColor: 'rgb(34, 197, 94)',
         backgroundColor: 'rgba(34, 197, 94, 0.1)',
         fill: true,
-        tension: 0?.4,
+        tension: 0.4,
       },
       {
         label: 'Разходи',
@@ -76,7 +76,7 @@ export default function RevenueExpensesChart() {
         borderColor: 'rgb(239, 68, 68)',
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
         fill: true,
-        tension: 0?.4,
+        tension: 0.4,
       },
       {
         label: 'Печалба',
@@ -84,7 +84,7 @@ export default function RevenueExpensesChart() {
         borderColor: 'rgb(109, 40, 217)',
         backgroundColor: 'rgba(109, 40, 217, 0.1)',
         fill: true,
-        tension: 0?.4,
+        tension: 0.4,
       },
     ],
   }

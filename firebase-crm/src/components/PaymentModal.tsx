@@ -121,9 +121,9 @@ function PaymentModal({ payment, onClose }: PaymentModalProps) {
 
     // Check currency mismatch
     if (data?.amount && data?.amountEUR) {
-      const expectedEUR = data?.amount / 1?.96
+      const expectedEUR = data?.amount / 1.96
       const difference = Math?.abs(data?.amountEUR - expectedEUR)
-      if (difference > 0?.5) {
+      if (difference > 0.5) {
         newWarnings?.push({
           ...ValidationErrors?.CURRENCY_MISMATCH,
           solution: `Очакваната стойност в EUR е ${expectedEUR?.toFixed(2)}. Коригирайте сумите`,
@@ -253,9 +253,9 @@ function PaymentModal({ payment, onClose }: PaymentModalProps) {
                     type="number"
                     required
                     min="0"
-                    step="0?.01"
+                    step="0.01"
                     className="input"
-                    placeholder="0?.00"
+                    placeholder="0.00"
                     value={formData?.amount || ''}
                     onChange={(e) =>
                       handleAmountChange(Number(e?.target.value), 'BGN')
@@ -272,9 +272,9 @@ function PaymentModal({ payment, onClose }: PaymentModalProps) {
                   <input
                     type="number"
                     min="0"
-                    step="0?.01"
+                    step="0.01"
                     className="input"
-                    placeholder="0?.00"
+                    placeholder="0.00"
                     value={formData?.amountEUR || ''}
                     onChange={(e) =>
                       handleAmountChange(Number(e?.target.value), 'EUR')

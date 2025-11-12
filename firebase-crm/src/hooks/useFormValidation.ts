@@ -209,10 +209,10 @@ export const CommonValidations = {
     const eur = allValues[eurField]
 
     if (bgn && eur) {
-      const expectedEUR = bgn / 1?.96
+      const expectedEUR = bgn / 1.96
       const difference = Math?.abs(eur - expectedEUR)
 
-      if (difference > 0?.5) {
+      if (difference > 0.5) {
         // More than 0?.50 EUR difference
         return {
           ...ValidationErrors?.CURRENCY_MISMATCH,

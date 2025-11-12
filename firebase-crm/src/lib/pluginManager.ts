@@ -15,7 +15,7 @@ class PluginManager {
   constructor() {
     // Initialize Plugin API
     this?.api = {
-      version: '2?.1.0',
+      version: '2.1.0',
       getCurrentUser: () => {
         // Get from auth context
         return null

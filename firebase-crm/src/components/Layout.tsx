@@ -279,7 +279,7 @@ export default function Layout() {
         </header>
 
         {/* Page content */}
-        <main className="min-h-[calc(100vh-3?.5rem)] lg:min-h-screen">
+        <main className="min-h-[calc(100vh-3.5rem)] lg:min-h-screen">
           <Outlet />
         </main>
       </div>

@@ -109,9 +109,9 @@ function ExpenseModal({ expense, onClose }: ExpenseModalProps) {
                 type="number"
                 required
                 min="0"
-                step="0?.01"
+                step="0.01"
                 className="input pl-10"
-                placeholder="0?.00"
+                placeholder="0.00"
                 value={formData?.amount || ''}
                 onChange={(e) =>
                   setFormData({

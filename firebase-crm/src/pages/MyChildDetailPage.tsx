@@ -181,7 +181,7 @@ export default function MyChildDetailPage() {
           {(paymentDueStatus?.status === 'overdue' || paymentDueStatus?.status === 'critical') && (
             <div className={`${paymentDueStatus?.bgColor} border-l-4 ${paymentDueStatus?.borderColor} p-4 rounded-lg`}>
               <div className="flex items-start gap-3">
-                <AlertTriangle className={`w-5 h-5 ${paymentDueStatus?.textColor} flex-shrink-0 mt-0?.5`} />
+                <AlertTriangle className={`w-5 h-5 ${paymentDueStatus?.textColor} flex-shrink-0 mt-0.5`} />
                 <div className="flex-1">
                   <h3 className={`font-semibold ${paymentDueStatus?.textColor}`}>
                     {paymentDueStatus?.status === 'overdue' ? '⚠️ Просрочено плащане!' : '⏰ Падеж на плащане!'}
@@ -198,7 +198,7 @@ export default function MyChildDetailPage() {
           {criticalHomework?.length > 0 && (
             <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-lg">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0?.5" />
+                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <h3 className="font-semibold text-orange-800">
                     🔥 Спешни домашни! ({criticalHomework?.length})
@@ -218,7 +218,7 @@ export default function MyChildDetailPage() {
           {warningHomework?.length > 0 && (
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
               <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0?.5" />
+                <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <h3 className="font-semibold text-yellow-800">
                     ⏳ Предстоящи домашни ({warningHomework?.length})

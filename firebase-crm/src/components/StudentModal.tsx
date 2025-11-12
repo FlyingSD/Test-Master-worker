@@ -241,9 +241,9 @@ function StudentModal({ student, onClose }: StudentModalProps) {
                     type="number"
                     required
                     min="0"
-                    step="0?.01"
+                    step="0.01"
                     className="input"
-                    placeholder="0?.00"
+                    placeholder="0.00"
                     value={formData?.fee || ''}
                     onChange={(e) =>
                       handleFeeChange(Number(e?.target.value), 'BGN')
@@ -262,9 +262,9 @@ function StudentModal({ student, onClose }: StudentModalProps) {
                     type="number"
                     required
                     min="0"
-                    step="0?.01"
+                    step="0.01"
                     className="input"
-                    placeholder="0?.00"
+                    placeholder="0.00"
                     value={formData?.feeEUR || ''}
                     onChange={(e) =>
                       handleFeeChange(Number(e?.target.value), 'EUR')

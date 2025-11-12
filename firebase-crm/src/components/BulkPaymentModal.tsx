@@ -141,7 +141,7 @@ function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
                   value={amount}
                   onChange={(e) => setAmount(parseFloat(e?.target.value) || 0)}
                   min="0"
-                  step="0?.01"
+                  step="0.01"
                   required
                 />
               </div>
@@ -154,7 +154,7 @@ function BulkPaymentModal({ onClose }: BulkPaymentModalProps) {
                   value={amountEUR}
                   onChange={(e) => setAmountEUR(parseFloat(e?.target.value) || 0)}
                   min="0"
-                  step="0?.01"
+                  step="0.01"
                 />
               </div>
 
