@@ -144,23 +144,24 @@ export default function DashboardPage() {
     visibleAttendance?.slice(0, 10).forEach(att => {
       const attDate = att?.date instanceof Date ? att?.date : att?.date?.toDate?.()
       if (attDate) {
-        const statusConfig = {
+        const statusConfig: Record<string, any> = {
           present: { icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50', label: 'Присъствал' },
           absent: { icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50', label: 'Отсъствал' },
           late: { icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50', label: 'Закъснял' },
-          excused: { icon: CheckCircle, color: 'text-blue-600', bgColor: 'bg-blue-50', label: 'Извинено' }
+          excused: { icon: CheckCircle, color: 'text-blue-600', bgColor: 'bg-blue-50', label: 'Извинено' },
+          default: { icon: HelpCircle, color: 'text-gray-600', bgColor: 'bg-gray-50', label: 'Неизвестен' }
         }
-        const config = statusConfig[att?.status]
+        const config = statusConfig[att?.status] || statusConfig.default
 
         activities?.push({
           id: `attendance-${att?.id}`,
           type: 'attendance',
           title: `${att?.studentName} - Присъствие`,
-          subtitle: `${config?.label}${att?.notes ? ` • ${att?.notes}` : ''}`,
+          subtitle: `${config.label}${att?.notes ? ` • ${att?.notes}` : ''}`,
           timestamp: attDate,
-          icon: config?.icon,
-          color: config?.color,
-          bgColor: config?.bgColor
+          icon: config.icon,
+          color: config.color,
+          bgColor: config.bgColor
         })
       }
     })

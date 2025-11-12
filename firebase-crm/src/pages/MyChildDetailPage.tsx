@@ -489,7 +489,7 @@ export default function MyChildDetailPage() {
               const attendanceDate = record?.date instanceof Date ? record?.date : record?.date?.toDate?.()
 
               // Status configuration
-              const statusConfig = {
+              const statusConfig: Record<string, any> = {
                 present: {
                   icon: CheckCircle,
                   label: 'Присъствал',
@@ -521,11 +521,20 @@ export default function MyChildDetailPage() {
                   textColor: 'text-blue-800',
                   borderColor: 'border-blue-500',
                   iconColor: 'text-blue-600'
+                },
+                // Default fallback
+                default: {
+                  icon: HelpCircle,
+                  label: 'Неизвестен статус',
+                  bgColor: 'bg-gray-50',
+                  textColor: 'text-gray-800',
+                  borderColor: 'border-gray-500',
+                  iconColor: 'text-gray-600'
                 }
               }
 
-              const config = statusConfig[record?.status]
-              const Icon = config?.icon
+              const config = statusConfig[record?.status] || statusConfig.default
+              const Icon = config.icon
 
               return (
                 <div
