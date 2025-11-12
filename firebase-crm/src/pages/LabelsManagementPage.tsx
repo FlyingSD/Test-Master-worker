@@ -144,7 +144,7 @@ export default function LabelsManagementPage() {
               </label>
               <p className="text-xs text-gray-500 break-all">{pathString}</p>
               {isModified && (
-                <span className="inline-block mt-1 px-2 py-0?.5 bg-blue-500 text-white text-xs rounded">
+                <span className="inline-block mt-1 px-2 py-0.5 bg-blue-500 text-white text-xs rounded">
                   Променен
                 </span>
               )}

@@ -266,7 +266,7 @@ export default function MyChildDetailPage() {
                     {dueDate ? formatDate(dueDate) : 'Няма'}
                   </p>
                   {isOverdue && (
-                    <span className="px-2 py-0?.5 bg-red-100 text-red-800 text-xs rounded-full">
+                    <span className="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full">
                       Просрочен
                     </span>
                   )}
